@@ -1,7 +1,9 @@
-public class Bidder extends User {
-    public Bidder() {}
+package org.example.models;
 
-    public Bidder(int id, String username, String password, String fullName, String email) {
-        super(id, username, password, fullName, email);
-    }
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class Bidder extends User {
 }

@@ -1,7 +1,9 @@
-public class Admin extends User {
-    public Admin() {}
+package org.example.models;
 
-    public Admin(int id, String username, String password, String fullName, String email) {
-        super(id, username, password, fullName, email);
-    }
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
+public class Admin extends User {
 }

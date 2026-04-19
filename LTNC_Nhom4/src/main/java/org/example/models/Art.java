@@ -1,9 +1,9 @@
+package org.example.models;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class Art extends Item {
-
-    public Art() {
-    }
-
-    public Art(int id, String name, String description, double startingPrice, double currentPrice, int sellerId) {
-        super(id, name, description, startingPrice, currentPrice, sellerId);
-    }
 }

@@ -1,7 +1,10 @@
-public class Seller extends User {
-    public Seller() {}
+package org.example.models;
 
-    public Seller(int id, String username, String password, String fullName, String email) {
-        super(id, username, password, fullName, email);
-    }
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class Seller extends User {
+
 }

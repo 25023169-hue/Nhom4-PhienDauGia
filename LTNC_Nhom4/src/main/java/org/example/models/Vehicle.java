@@ -1,3 +1,5 @@
+package org.example.models;
+
 public class Vehicle extends Item {
 
     public Vehicle() {
