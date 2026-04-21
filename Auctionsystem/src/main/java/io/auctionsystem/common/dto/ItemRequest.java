@@ -1,17 +1,23 @@
 package io.auctionsystem.common.dto;
 
 import io.auctionsystem.common.enums.ItemType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.io.Serializable;
 
 @Data
-public class ItemRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ItemRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
     private String description;
     private Double startingPrice;
     private Long sellerId;
     private ItemType type;
 
-
+    // Các trường đặc thù
     private String artist;
     private String brand;
     private Integer manufactureYear;
