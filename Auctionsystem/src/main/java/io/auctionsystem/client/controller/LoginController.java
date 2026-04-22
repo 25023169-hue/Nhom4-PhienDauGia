@@ -7,6 +7,7 @@ import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.dto.LoginRequest;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -21,7 +22,7 @@ public class LoginController {
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
 
-    // Các Label lỗi mới
+    // Các Label lỗi
     @FXML private Label lblUserError;
     @FXML private Label lblPassError;
     @FXML private Label lblGeneralError;
@@ -66,14 +67,28 @@ public class LoginController {
 
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200) {
+
+                        // ================= ĐƯA THÔNG BÁO LÊN ĐẦU =================
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Thông báo");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Đăng nhập thành công!");
+                        alert.showAndWait();
+                        // =========================================================
+
                         try {
+                            // Cấu hình để Jackson không bị crash khi Server trả về dư trường "message"
+                            objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
                             AuthResponse authResp = objectMapper.readValue(response.body(), AuthResponse.class);
                             AuctionManager.getInstance().setCurrentUser(authResp);
 
                             // Chuyển màn hình Dashboard (Bạn sẽ tạo fxml này sau)
                             System.out.println("Đăng nhập thành công: " + authResp.getUsername());
                             // SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
-                        } catch (Exception e) { e.printStackTrace(); }
+                        } catch (Exception e) {
+                            System.err.println(">>> Lỗi parse JSON ngầm (Đã bỏ qua): " + e.getMessage());
+                        }
                     } else {
                         // Hiển thị lỗi từ Server trả về (ví dụ: "Mật khẩu không chính xác")
                         lblGeneralError.setText(response.body());
@@ -94,7 +109,7 @@ public class LoginController {
         SceneManager.getInstance().switchScene("/client/fxml/register.fxml");
     }
 
-    // --- HÀM HỖ TRỢ HIỂN THỊ LỖI ---
+    // ================= HÀM HỖ TRỢ HIỂN THỊ LỖI (Ở ĐÂY NÀY) =================
     private void showError(Label label) {
         label.setVisible(true);
         label.setManaged(true);
@@ -107,6 +122,8 @@ public class LoginController {
             lbl.setManaged(false);
         }
     }
+    // =========================================================================
+
     @FXML
     public void initialize() {
         // Lắng nghe phím Enter trên ô Username

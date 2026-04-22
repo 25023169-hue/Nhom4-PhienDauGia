@@ -1,56 +1,52 @@
 package io.auctionsystem.server.service;
 
-import io.auctionsystem.common.dto.AuthResponse;
-import io.auctionsystem.common.dto.LoginRequest;
 import io.auctionsystem.common.dto.RegisterRequest;
-import io.auctionsystem.common.enums.Role;
-import io.auctionsystem.server.dao.UserDAO;
+import io.auctionsystem.server.dao.UserDAO; // Import DAO của bạn
+import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
-import io.auctionsystem.server.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+// ... các import giữ nguyên ...
 
 @Service
 public class AuthService {
 
-    private final UserDAO userDAO;
+    @Autowired
+    private UserDAO userDAO;
 
-    public AuthService(UserDAO userDAO) {
-        this.userDAO = userDAO;
-    }
-
-    public AuthResponse login(LoginRequest request) {
-        User user = userDAO.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
-
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new IllegalArgumentException("Mật khẩu không chính xác!");
-        }
-
-        String roleName = user.getClass().getSimpleName().toUpperCase();
-        String fakeToken = "dummy-jwt-token"; // Tạm thời để string
-
-        return new AuthResponse(fakeToken, user.getId(), user.getUsername(), Role.valueOf(roleName));
-    }
-
+    // --- HÀM ĐĂNG KÝ (Giữ nguyên của bạn) ---
     public String register(RegisterRequest request) {
-        // Kiểm tra xem user đã tồn tại chưa
-        if (userDAO.findByUsername(request.getUsername()).isPresent()) {
+        if (userDAO.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
         }
-
         User newUser;
-        // Phân loại khởi tạo dựa trên Role
         if ("SELLER".equalsIgnoreCase(request.getRole())) {
             newUser = new Seller();
         } else {
-            newUser = new Bidder(); // Mặc định là người mua
+            newUser = new Bidder();
         }
-
         newUser.setUsername(request.getUsername());
         newUser.setPassword(request.getPassword());
-
         userDAO.save(newUser);
-        return "Đăng ký thành công!";
+        return "Đăng ký thành công";
+    }
+
+    // --- HÀM ĐĂNG NHẬP (ĐÃ FIX LỖI OPTIONAL) ---
+    public User login(String username, String password) {
+        System.out.println(">>> [AuthService] Đang kiểm tra đăng nhập cho: " + username);
+
+        // 1 & 2. Mở hộp Optional. Nếu hộp rỗng (không tìm thấy user), ném ngay lỗi!
+        User user = userDAO.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
+
+        // 3. Kiểm tra mật khẩu
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Mật khẩu không chính xác!");
+        }
+
+        System.out.println(">>> [AuthService] Đăng nhập thành công!");
+        return user;
     }
 }

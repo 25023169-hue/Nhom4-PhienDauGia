@@ -25,7 +25,19 @@ public class SceneManager {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-            stage.setScene(new Scene(root));
+
+            // Lấy Scene hiện tại của cửa sổ
+            Scene currentScene = stage.getScene();
+
+            if (currentScene == null) {
+                // Nếu là lần đầu tiên mở app (chưa có Scene), thì tạo mới
+                stage.setScene(new Scene(root));
+            } else {
+                // CHÌA KHÓA Ở ĐÂY: Nếu đã có Scene rồi, chỉ cần thay "ruột" (Root)
+                // Cửa sổ sẽ không bị chớp và giữ nguyên được kích thước hiện tại
+                currentScene.setRoot(root);
+            }
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
