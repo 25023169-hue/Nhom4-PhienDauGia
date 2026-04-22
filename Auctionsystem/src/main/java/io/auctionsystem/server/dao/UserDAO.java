@@ -1,4 +1,20 @@
 package io.auctionsystem.server.dao;
 
-public interface UserDAO {
+import io.auctionsystem.server.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface UserDAO extends JpaRepository<User, Long> {
+
+    // Tự động generate SQL: SELECT * FROM users WHERE username = ?
+    Optional<User> findByUsername(String username);
+
+    // Tự động generate SQL: SELECT * FROM users WHERE email = ?
+    Optional<User> findByEmail(String email);
+
+    // Kiểm tra xem username đã tồn tại chưa (phục vụ chức năng Đăng ký)
+    boolean existsByUsername(String username);
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 
+@Getter
+@Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
