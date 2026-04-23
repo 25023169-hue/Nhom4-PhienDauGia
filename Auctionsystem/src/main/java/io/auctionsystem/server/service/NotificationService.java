@@ -1,8 +1,8 @@
 package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.dto.NotificationDTO;
-import io.auctionsystem.server.dao.NotificationDAO;
-import io.auctionsystem.server.dao.UserDAO;
+import io.auctionsystem.server.repogistory.NotificationDAO;
+import io.auctionsystem.server.repogistory.UserDAO;
 import io.auctionsystem.server.model.Notification;
 import io.auctionsystem.server.model.User;
 import org.springframework.stereotype.Service;

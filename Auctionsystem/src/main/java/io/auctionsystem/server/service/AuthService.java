@@ -1,7 +1,7 @@
 package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.dto.RegisterRequest;
-import io.auctionsystem.server.dao.UserDAO; // Import DAO của bạn
+import io.auctionsystem.server.repogistory.UserDAO; // Import DAO của bạn
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;

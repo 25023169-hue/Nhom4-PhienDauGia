@@ -3,22 +3,21 @@ package io.auctionsystem.client.pattern;
 import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.enums.Role;
 
+/**
+ * Class quản lý Session (Phiên đăng nhập) duy nhất trong toàn bộ Client.
+ * Sử dụng mô hình Singleton để đảm bảo dữ liệu người dùng đồng nhất ở mọi màn hình.
+ */
 public class AuctionManager {
 
-    // 1. Biến static lưu trữ instance duy nhất của class
     private static AuctionManager instance;
 
-    // 2. Các thuộc tính lưu trữ phiên đăng nhập (Session)
-    private String token;
-    private Long userId;
-    private String username;
-    private Role role;
+    // Lưu trữ nguyên đối tượng Response từ Server để không bỏ sót thông tin nào
+    private AuthResponse currentUser;
 
-    // 3. Private constructor: Ngăn không cho các class khác dùng từ khóa 'new'
+    // Private constructor để thực hiện đúng chuẩn Singleton
     private AuctionManager() {
     }
 
-    // 4. Hàm global để lấy instance duy nhất ra sử dụng
     public static AuctionManager getInstance() {
         if (instance == null) {
             instance = new AuctionManager();
@@ -26,44 +25,60 @@ public class AuctionManager {
         return instance;
     }
 
-    // --- CÁC HÀM XỬ LÝ LOGIC ---
+    // ================= CÁC HÀM XỬ LÝ LOGIC CHÍNH =================
 
-    // Gọi hàm này sau khi Server trả về đăng nhập thành công
+    /**
+     * Lưu thông tin người dùng sau khi đăng nhập thành công.
+     */
     public void setCurrentUser(AuthResponse response) {
-        this.token = response.getToken();
-        this.userId = response.getUserId();
-        this.username = response.getUsername();
-        this.role = response.getRole();
+        this.currentUser = response;
     }
 
-    // Gọi hàm này khi người dùng bấm nút Đăng xuất
+    /**
+     * Lấy toàn bộ đối tượng người dùng hiện tại.
+     */
+    public AuthResponse getCurrentUser() {
+        return currentUser;
+    }
+
+    /**
+     * Kiểm tra xem đã có người dùng nào đăng nhập hay chưa.
+     */
+    public boolean isLoggedIn() {
+        return currentUser != null;
+    }
+
+    /**
+     * Đăng xuất: Xóa sạch dữ liệu trong phiên làm việc.
+     */
     public void logout() {
-        this.token = null;
-        this.userId = null;
-        this.username = null;
-        this.role = null;
+        this.currentUser = null;
     }
 
-    // --- CÁC HÀM GETTER ĐỂ LẤY THÔNG TIN (Không có Setter vì chỉ set qua hàm setCurrentUser) ---
+    // ================= CÁC HÀM GETTER TIỆN ÍCH (HELPER) =================
+    // Giúp lấy nhanh các thuộc tính mà không cần gọi thông qua getCurrentUser()
+    // Đã bao gồm kiểm tra Null để tránh làm App bị văng (Crash).
 
     public String getToken() {
-        return token;
+        return (isLoggedIn()) ? currentUser.getToken() : null;
     }
 
     public Long getUserId() {
-        return userId;
+        return (isLoggedIn()) ? currentUser.getUserId() : null;
     }
 
     public String getUsername() {
-        return username;
+        return (isLoggedIn()) ? currentUser.getUsername() : "Guest";
     }
 
     public Role getRole() {
-        return role;
+        return (isLoggedIn()) ? currentUser.getRole() : null;
     }
 
-    // Hàm tiện ích kiểm tra xem đã đăng nhập chưa
-    public boolean isLoggedIn() {
-        return this.userId != null;
+    /**
+     * Kiểm tra xem người dùng hiện tại có phải là Admin hay không.
+     */
+    public boolean isAdmin() {
+        return isLoggedIn() && currentUser.getRole() == Role.ADMIN;
     }
 }

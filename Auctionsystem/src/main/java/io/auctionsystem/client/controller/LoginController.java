@@ -7,7 +7,6 @@ import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.dto.LoginRequest;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -67,25 +66,18 @@ public class LoginController {
 
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200) {
-
-                        // ================= ĐƯA THÔNG BÁO LÊN ĐẦU =================
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Thông báo");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Đăng nhập thành công!");
-                        alert.showAndWait();
-                        // =========================================================
-
                         try {
-                            // Cấu hình để Jackson không bị crash khi Server trả về dư trường "message"
+                            // Cấu hình để Jackson không bị crash khi Server trả về dư trường
                             objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
                             AuthResponse authResp = objectMapper.readValue(response.body(), AuthResponse.class);
                             AuctionManager.getInstance().setCurrentUser(authResp);
 
-                            // Chuyển màn hình Dashboard (Bạn sẽ tạo fxml này sau)
                             System.out.println("Đăng nhập thành công: " + authResp.getUsername());
-                            // SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+
+                            // CHUYỂN MÀN HÌNH SANG DASHBOARD THÔNG QUA SCENEMANAGER
+                            SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+
                         } catch (Exception e) {
                             System.err.println(">>> Lỗi parse JSON ngầm (Đã bỏ qua): " + e.getMessage());
                         }
@@ -109,7 +101,7 @@ public class LoginController {
         SceneManager.getInstance().switchScene("/client/fxml/register.fxml");
     }
 
-    // ================= HÀM HỖ TRỢ HIỂN THỊ LỖI (Ở ĐÂY NÀY) =================
+    // ================= HÀM HỖ TRỢ HIỂN THỊ LỖI =================
     private void showError(Label label) {
         label.setVisible(true);
         label.setManaged(true);
@@ -122,7 +114,7 @@ public class LoginController {
             lbl.setManaged(false);
         }
     }
-    // =========================================================================
+    // =========================================================
 
     @FXML
     public void initialize() {

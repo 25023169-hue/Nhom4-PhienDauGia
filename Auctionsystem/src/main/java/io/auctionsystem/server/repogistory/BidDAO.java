@@ -1,4 +1,4 @@
-package io.auctionsystem.server.dao;
+package io.auctionsystem.server.repogistory;
 
 import io.auctionsystem.server.model.Bid;
 import org.springframework.data.jpa.repository.JpaRepository;

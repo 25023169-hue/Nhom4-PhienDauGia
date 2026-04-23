@@ -10,7 +10,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @MappedSuperclass
 public abstract class BaseEntity {
     @Id
