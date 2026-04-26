@@ -1,4 +1,4 @@
-package io.auctionsystem.server.controller;
+package io.auctionsystem.server.API;
 
 import io.auctionsystem.common.dto.NotificationDTO;
 import io.auctionsystem.server.service.NotificationService;
@@ -7,11 +7,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
-public class NotificationController {
+public class NotificationAPI {
 
     private final NotificationService notificationService;
 
-    public NotificationController(NotificationService notificationService) {
+    public NotificationAPI(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 

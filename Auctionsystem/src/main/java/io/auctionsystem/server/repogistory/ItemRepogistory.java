@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ItemDAO extends JpaRepository<Item, Long> {
+public interface ItemRepogistory extends JpaRepository<Item, Long> {
 
     // Tìm tất cả sản phẩm của một người bán cụ thể
     // Giả sử trong model Item bạn có trường sellerId (hoặc quan hệ ManyToOne với Seller)

@@ -1,52 +1,45 @@
 package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.dto.RegisterRequest;
-import io.auctionsystem.server.repogistory.UserDAO; // Import DAO của bạn
+import io.auctionsystem.server.repogistory.UserRepogistory;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
+import io.auctionsystem.server.repogistory.UserRepogistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-// ... các import giữ nguyên ...
 
 @Service
 public class AuthService {
 
     @Autowired
-    private UserDAO userDAO;
+    private UserRepogistory userRepogistory;
+    @Autowired
+    private UserRepogistory userRepo;
 
-    // --- HÀM ĐĂNG KÝ (Giữ nguyên của bạn) ---
     public String register(RegisterRequest request) {
-        if (userDAO.existsByUsername(request.getUsername())) {
+        if (userRepogistory.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
         }
-        User newUser;
-        if ("SELLER".equalsIgnoreCase(request.getRole())) {
-            newUser = new Seller();
-        } else {
-            newUser = new Bidder();
-        }
+
+        User newUser = ("SELLER".equalsIgnoreCase(request.getRole())) ? new Seller() : new Bidder();
+
         newUser.setUsername(request.getUsername());
         newUser.setPassword(request.getPassword());
-        userDAO.save(newUser);
+        newUser.setFirstname(request.getFirstname());
+        newUser.setLastname(request.getLastname());
+
+        userRepogistory.save(newUser);
         return "Đăng ký thành công";
     }
 
-    // --- HÀM ĐĂNG NHẬP (ĐÃ FIX LỖI OPTIONAL) ---
     public User login(String username, String password) {
-        System.out.println(">>> [AuthService] Đang kiểm tra đăng nhập cho: " + username);
-
-        // 1 & 2. Mở hộp Optional. Nếu hộp rỗng (không tìm thấy user), ném ngay lỗi!
-        User user = userDAO.findByUsername(username)
+        User user = userRepogistory.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
 
-        // 3. Kiểm tra mật khẩu
         if (!user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Mật khẩu không chính xác!");
         }
-
-        System.out.println(">>> [AuthService] Đăng nhập thành công!");
         return user;
     }
 }

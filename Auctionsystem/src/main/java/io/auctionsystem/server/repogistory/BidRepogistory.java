@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BidDAO extends JpaRepository<Bid, Long> {
+public interface BidRepogistory extends JpaRepository<Bid, Long> {
 
     // Đã đổi thành 'BidTime' khớp chuẩn với model Bid của bạn
     List<Bid> findByAuctionIdOrderByBidTimeDesc(Long auctionId);

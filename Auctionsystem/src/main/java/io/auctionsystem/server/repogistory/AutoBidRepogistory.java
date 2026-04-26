@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AutoBidDAO extends JpaRepository<AutoBid, Long> {
+public interface AutoBidRepogistory extends JpaRepository<AutoBid, Long> {
 
     // Lấy danh sách tất cả các cài đặt Auto-Bid đang kích hoạt của một phiên đấu giá
     List<AutoBid> findByAuctionIdAndIsActiveTrue(Long auctionId);

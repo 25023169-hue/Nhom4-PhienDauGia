@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="550.0" prefWidth="350.0" spacing="15.0"
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="350.0" spacing="15.0"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.auctionsystem.client.controller.RegisterController">
 
@@ -20,11 +20,24 @@
 
         <VBox spacing="5.0">
             <children>
+                <Label text="Họ và tên đệm:" />
+                <TextField fx:id="txtlastname" promptText="Nhập họ và tên đệm..." prefHeight="35.0" />
+            </children>
+            <VBox.margin><Insets left="40.0" right="40.0" /></VBox.margin>
+        </VBox>
+
+        <VBox spacing="5.0">
+            <children>
+                <Label text="Tên:" />
+                <TextField fx:id="txtfirstname" promptText="Nhập tên..." prefHeight="35.0" />
+            </children>
+            <VBox.margin><Insets left="40.0" right="40.0" /></VBox.margin>
+        </VBox>
+
+        <VBox spacing="5.0">
+            <children>
                 <Label text="Tên đăng nhập:" />
                 <TextField fx:id="txtUsername" promptText="Nhập tên đăng nhập..." prefHeight="35.0" />
-                <Label fx:id="lblUserError" text="Tên đăng nhập không được để trống" textFill="RED" visible="false" managed="false">
-                    <font><Font size="11.0" /></font>
-                </Label>
             </children>
             <VBox.margin><Insets left="40.0" right="40.0" /></VBox.margin>
         </VBox>
@@ -33,9 +46,6 @@
             <children>
                 <Label text="Mật khẩu:" />
                 <PasswordField fx:id="txtPassword" promptText="Nhập mật khẩu..." prefHeight="35.0" />
-                <Label fx:id="lblPassError" text="Mật khẩu không được để trống" textFill="RED" visible="false" managed="false">
-                    <font><Font size="11.0" /></font>
-                </Label>
             </children>
             <VBox.margin><Insets left="40.0" right="40.0" /></VBox.margin>
         </VBox>

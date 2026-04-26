@@ -73,7 +73,7 @@ public class LoginController {
                             AuthResponse authResp = objectMapper.readValue(response.body(), AuthResponse.class);
                             AuctionManager.getInstance().setCurrentUser(authResp);
 
-                            System.out.println("Đăng nhập thành công: " + authResp.getUsername());
+                            System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
                             // CHUYỂN MÀN HÌNH SANG DASHBOARD THÔNG QUA SCENEMANAGER
                             SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
