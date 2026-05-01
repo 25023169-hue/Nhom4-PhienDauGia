@@ -24,7 +24,6 @@ public class DashboardController {
     @FXML private TableColumn<AuctionItemDTO, Double> colCurrentPrice;
     @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
     @FXML private TableColumn<AuctionItemDTO, String> colStatus;
-
     @FXML
     public void initialize() {
         String firstname = AuctionManager.getInstance().getFirstname();
@@ -43,7 +42,6 @@ public class DashboardController {
             sidebar.prefWidthProperty().bind(rootPane.widthProperty().multiply(0.22));
         }
     }
-
     @FXML
     public void onLogoutButtonClicked() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -65,7 +63,6 @@ public class DashboardController {
             }
         });
     }
-
     @FXML
     public void onSellerChannelButtonClicked() {
         Role currentRole = AuctionManager.getInstance().getRole();
@@ -75,5 +72,9 @@ public class DashboardController {
         } else {
             SceneManager.getInstance().switchScene("/client/fxml/seller_registration.fxml");
         }
+    }
+    @FXML
+    public void onOpenSettings() {
+        SceneManager.getInstance().switchScene("/client/fxml/settings.fxml");
     }
 }

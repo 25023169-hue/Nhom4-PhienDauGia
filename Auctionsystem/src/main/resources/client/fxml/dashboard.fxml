@@ -68,7 +68,8 @@
                         <Insets left="20.0" />
                     </padding>
                 </Button>
-                <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="🔨 Đấu giá của tôi">
+
+                <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="🔨 Đơn mua">
                     <font>
                         <Font size="14.0" />
                     </font>
@@ -76,7 +77,19 @@
                         <Insets left="20.0" />
                     </padding>
                 </Button>
-                <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="👤 Hồ sơ cá nhân">
+
+                <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="👤 Tài khoản của tôi">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onOpenSettings" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="⚙ Cài đặt">
                     <font>
                         <Font size="14.0" />
                     </font>
@@ -86,7 +99,7 @@
                 </Button>
             </children>
             <padding>
-                <Insets top="20.0" />
+                <Insets bottom="20.0" top="20.0" />
             </padding>
         </VBox>
     </left>
