@@ -17,12 +17,20 @@ public class AuthService {
     private UserRepogistory userRepogistory;
 
     public String register(RegisterRequest request) {
-        if (userRepogistory.existsByUsername(request.getUsername())) {
+        String username = request.getUsername();
+
+        // CHỈ KIỂM TRA KÝ TỰ ĐẶC BIỆT VÀ KHOẢNG TRẮNG BẰNG REGEX
+        // ^[a-zA-Z0-9]+$ : Bắt buộc chỉ gồm chữ cái (không dấu) và số.
+        if (!username.matches("^[a-zA-Z0-9]+$")) {
+            throw new IllegalArgumentException("Tên đăng nhập chỉ được chứa chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt!");
+        }
+
+        if (userRepogistory.existsByUsername(username)) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
         }
 
         User newUser = ("SELLER".equalsIgnoreCase(request.getRole())) ? new Seller() : new Bidder();
-        newUser.setUsername(request.getUsername());
+        newUser.setUsername(username);
         newUser.setPassword(request.getPassword());
         newUser.setFirstname(request.getFirstname());
         newUser.setLastname(request.getLastname());
@@ -32,11 +40,12 @@ public class AuthService {
     }
 
     public AuthResponse login(String username, String password) {
-        User user = userRepogistory.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
+        // Tìm User, nếu không có thì trả về null luôn cho gọn
+        User user = userRepogistory.findByUsername(username).orElse(null);
 
-        if (!user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Mật khẩu không chính xác!");
+        // Dùng toán tử OR (||) để kiểm tra: Nếu User không tồn tại HOẶC sai mật khẩu
+        if (user == null || !user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
         }
 
         AuthResponse response = new AuthResponse();
