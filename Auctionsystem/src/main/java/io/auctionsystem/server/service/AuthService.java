@@ -14,8 +14,6 @@ public class AuthService {
 
     @Autowired
     private UserRepogistory userRepogistory;
-    @Autowired
-    private UserRepogistory userRepo;
 
     public String register(RegisterRequest request) {
         if (userRepogistory.existsByUsername(request.getUsername())) {
