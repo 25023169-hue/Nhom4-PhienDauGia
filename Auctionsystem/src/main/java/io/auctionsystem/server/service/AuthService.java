@@ -1,11 +1,12 @@
 package io.auctionsystem.server.service;
 
+import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.dto.RegisterRequest;
+import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.server.repogistory.UserRepogistory;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
-import io.auctionsystem.server.repogistory.UserRepogistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,6 @@ public class AuthService {
         }
 
         User newUser = ("SELLER".equalsIgnoreCase(request.getRole())) ? new Seller() : new Bidder();
-
         newUser.setUsername(request.getUsername());
         newUser.setPassword(request.getPassword());
         newUser.setFirstname(request.getFirstname());
@@ -31,13 +31,39 @@ public class AuthService {
         return "Đăng ký thành công";
     }
 
-    public User login(String username, String password) {
+    public AuthResponse login(String username, String password) {
         User user = userRepogistory.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
 
         if (!user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Mật khẩu không chính xác!");
         }
-        return user;
+
+        AuthResponse response = new AuthResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setFirstname(user.getFirstname());
+        response.setLastname(user.getLastname());
+
+        if (userRepogistory.isUserSeller(user.getId()) > 0) {
+            response.setRole(Role.SELLER);
+        } else {
+            response.setRole(Role.BIDDER);
+        }
+
+        return response;
+    }
+
+    public String upgradeToSeller(Long id, String storeName) {
+        if (userRepogistory.isUserSeller(id) > 0) {
+            throw new RuntimeException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
+        }
+
+        try {
+            userRepogistory.upgradeToSellerNative(id, storeName);
+            return "Đăng ký Kênh Người Bán thành công!";
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi hệ thống khi nâng cấp: " + e.getMessage());
+        }
     }
 }

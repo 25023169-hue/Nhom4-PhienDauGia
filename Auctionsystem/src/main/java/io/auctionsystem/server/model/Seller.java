@@ -12,5 +12,4 @@ import lombok.*;
 @Table(name = "sellers")
 public class Seller extends User {
     private String storeName;
-    private Double rating;
 }

@@ -3,6 +3,7 @@ package io.auctionsystem.client.controller;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
 import io.auctionsystem.common.dto.AuctionItemDTO;
+import io.auctionsystem.common.enums.Role;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -63,5 +64,16 @@ public class DashboardController {
                 SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
             }
         });
+    }
+
+    @FXML
+    public void onSellerChannelButtonClicked() {
+        Role currentRole = AuctionManager.getInstance().getRole();
+
+        if (currentRole == Role.SELLER) {
+            SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+        } else {
+            SceneManager.getInstance().switchScene("/client/fxml/seller_registration.fxml");
+        }
     }
 }

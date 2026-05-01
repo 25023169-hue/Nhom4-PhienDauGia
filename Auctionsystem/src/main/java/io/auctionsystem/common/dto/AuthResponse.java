@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class AuthResponse implements Serializable {
     private static final long serialVersionUID = 1L;
     private String token;
-    private Long userId;
+    private Long id;
     private String username;
     private String firstname;
     private String lastname;

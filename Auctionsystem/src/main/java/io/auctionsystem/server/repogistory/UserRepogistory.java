@@ -13,13 +13,22 @@ import java.util.Optional;
 @Repository
 public interface UserRepogistory extends JpaRepository<User, Long> {
 
-    // Tự động generate SQL: SELECT * FROM users WHERE username = ?
     Optional<User> findByUsername(String username);
-
-    // Kiểm tra xem username đã tồn tại chưa (phục vụ chức năng Đăng ký)
     boolean existsByUsername(String username);
-    @Modifying(clearAutomatically = true)
+
+    // THÊM MỚI: Hàm xóa quyền Bidder
+    @Modifying
     @Transactional
-    @Query(value = "INSERT INTO sellers (id, store_name, rating) VALUES (:userId, :storeName, 0.0)", nativeQuery = true)
-    void upgradeToSeller(@Param("userId") Long userId, @Param("storeName") String storeName);
+    @Query(value = "DELETE FROM bidders WHERE id = :userId", nativeQuery = true)
+    void removeBidderRole(@Param("userId") Long Id);
+
+    // Hàm nâng cấp Seller (Sửa lại tên tham số cho đồng bộ)
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO sellers (id, store_name) VALUES (:userId, :storeName)", nativeQuery = true)
+    void upgradeToSellerNative(@Param("userId") Long Id, @Param("storeName") String storeName);
+
+    // Hàm kiểm tra
+    @Query(value = "SELECT COUNT(*) FROM sellers WHERE id = :Id", nativeQuery = true)
+    int isUserSeller(@Param("Id") Long Id);
 }

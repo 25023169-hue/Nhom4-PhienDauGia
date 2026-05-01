@@ -23,7 +23,7 @@ public class AuctionManager {
     public void logout() { this.currentUser = null; }
 
     public String getToken() { return (isLoggedIn()) ? currentUser.getToken() : null; }
-    public Long getUserId() { return (isLoggedIn()) ? currentUser.getUserId() : null; }
+    public Long getId() { return (isLoggedIn()) ? currentUser.getId() : null; }
     public String getUsername() { return (isLoggedIn()) ? currentUser.getUsername() : "Guest"; }
     public String getFirstname() { return (isLoggedIn()) ? currentUser.getFirstname() : null; }
     public String getLastname() { return (isLoggedIn()) ? currentUser.getLastname() : null; }
