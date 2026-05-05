@@ -1,4 +1,4 @@
-package io.auctionsystem.server.repogistory;
+package io.auctionsystem.server.repository;
 
 import io.auctionsystem.server.model.Bid;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BidRepogistory extends JpaRepository<Bid, Long> {
+public interface BidRepository extends JpaRepository<Bid, Long> {
 
     // Đã đổi thành 'BidTime' khớp chuẩn với model Bid của bạn
     List<Bid> findByAuctionIdOrderByBidTimeDesc(Long auctionId);

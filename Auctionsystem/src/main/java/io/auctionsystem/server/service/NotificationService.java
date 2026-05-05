@@ -1,8 +1,8 @@
 package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.dto.NotificationDTO;
-import io.auctionsystem.server.repogistory.NotificationRepogistory;
-import io.auctionsystem.server.repogistory.UserRepogistory;
+import io.auctionsystem.server.repository.NotificationRepository;
+import io.auctionsystem.server.repository.UserRepository;
 import io.auctionsystem.server.model.Notification;
 import io.auctionsystem.server.model.User;
 import org.springframework.stereotype.Service;
@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
-    private final NotificationRepogistory notificationRepogistory;
-    private final UserRepogistory userRepogistory;
+    private final NotificationRepository notificationRepogistory;
+    private final UserRepository userRepository;
 
-    public NotificationService(NotificationRepogistory notificationDAO, UserRepogistory userRepogistory) {
+    public NotificationService(NotificationRepository notificationDAO, UserRepository userRepository) {
         this.notificationRepogistory = notificationDAO;
-        this.userRepogistory = userRepogistory;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public void createNotification(Long userId, String message, String type) {
-        User user = userRepogistory.findById(userId).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             Notification notification = new Notification(user, message, type);
             notificationRepogistory.save(notification);

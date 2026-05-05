@@ -1,4 +1,4 @@
-package io.auctionsystem.server.API;
+package io.auctionsystem.server.Controller;
 
 import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.dto.LoginRequest;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthAPI {
+public class AuthController {
 
     @Autowired
     private AuthService authService;

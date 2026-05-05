@@ -1,4 +1,4 @@
-package io.auctionsystem.server.repogistory;
+package io.auctionsystem.server.repository;
 
 import io.auctionsystem.server.model.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ItemRepogistory extends JpaRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
     // Tìm tất cả sản phẩm của một người bán cụ thể
     // Giả sử trong model Item bạn có trường sellerId (hoặc quan hệ ManyToOne với Seller)

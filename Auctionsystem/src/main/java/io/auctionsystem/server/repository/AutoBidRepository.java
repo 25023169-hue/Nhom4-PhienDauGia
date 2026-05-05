@@ -1,4 +1,4 @@
-package io.auctionsystem.server.repogistory;
+package io.auctionsystem.server.repository;
 
 import io.auctionsystem.server.model.AutoBid;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AutoBidRepogistory extends JpaRepository<AutoBid, Long> {
+public interface AutoBidRepository extends JpaRepository<AutoBid, Long> {
 
     // Lấy danh sách tất cả các cài đặt Auto-Bid đang kích hoạt của một phiên đấu giá
     List<AutoBid> findByAuctionIdAndIsActiveTrue(Long auctionId);

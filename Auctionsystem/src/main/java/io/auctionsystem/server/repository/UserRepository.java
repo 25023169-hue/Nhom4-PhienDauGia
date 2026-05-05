@@ -1,4 +1,4 @@
-package io.auctionsystem.server.repogistory;
+package io.auctionsystem.server.repository;
 
 import io.auctionsystem.server.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface UserRepogistory extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);

@@ -3,7 +3,7 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.dto.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
-import io.auctionsystem.server.repogistory.UserRepogistory;
+import io.auctionsystem.server.repository.UserRepository;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     @Autowired
-    private UserRepogistory userRepogistory;
+    private UserRepository userRepository;
 
     public String register(RegisterRequest request) {
         String username = request.getUsername();
@@ -25,7 +25,7 @@ public class AuthService {
             throw new IllegalArgumentException("Tên đăng nhập chỉ được chứa chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt!");
         }
 
-        if (userRepogistory.existsByUsername(username)) {
+        if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
         }
 
@@ -35,13 +35,13 @@ public class AuthService {
         newUser.setFirstname(request.getFirstname());
         newUser.setLastname(request.getLastname());
 
-        userRepogistory.save(newUser);
+        userRepository.save(newUser);
         return "Đăng ký thành công";
     }
 
     public AuthResponse login(String username, String password) {
         // Tìm User, nếu không có thì trả về null luôn cho gọn
-        User user = userRepogistory.findByUsername(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
 
         // Dùng toán tử OR (||) để kiểm tra: Nếu User không tồn tại HOẶC sai mật khẩu
         if (user == null || !user.getPassword().equals(password)) {
@@ -54,7 +54,7 @@ public class AuthService {
         response.setFirstname(user.getFirstname());
         response.setLastname(user.getLastname());
 
-        if (userRepogistory.isUserSeller(user.getId()) > 0) {
+        if (userRepository.isUserSeller(user.getId()) > 0) {
             response.setRole(Role.SELLER);
         } else {
             response.setRole(Role.BIDDER);
@@ -64,12 +64,12 @@ public class AuthService {
     }
 
     public String upgradeToSeller(Long id, String storeName) {
-        if (userRepogistory.isUserSeller(id) > 0) {
+        if (userRepository.isUserSeller(id) > 0) {
             throw new RuntimeException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
         }
 
         try {
-            userRepogistory.upgradeToSellerNative(id, storeName);
+            userRepository.upgradeToSellerNative(id, storeName);
             return "Đăng ký Kênh Người Bán thành công!";
         } catch (Exception e) {
             throw new RuntimeException("Lỗi hệ thống khi nâng cấp: " + e.getMessage());

@@ -1,4 +1,4 @@
-package io.auctionsystem.server.repogistory;
+package io.auctionsystem.server.repository;
 
 import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.server.model.Auction;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface AuctionRepogistory extends JpaRepository<Auction, Long> {
+public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     // Lấy danh sách các phiên đấu giá theo trạng thái (ví dụ: lấy các phiên đang RUNNING)
     List<Auction> findByStatus(AuctionState status);
