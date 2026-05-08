@@ -10,7 +10,8 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "electronics_items")
+ @Table(name = "electronic_items")
+//@DiscriminatorValue("ELECTRONICS")
 public class Electronics extends Item {
     private String brand;
     private String model;

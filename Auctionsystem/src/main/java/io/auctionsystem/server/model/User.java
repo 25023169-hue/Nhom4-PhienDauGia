@@ -1,5 +1,10 @@
 package io.auctionsystem.server.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,4 +29,8 @@ public abstract class User extends BaseEntity {
 
     private String fullName;
     private String email;
+
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Item> items = new ArrayList<>();
 }

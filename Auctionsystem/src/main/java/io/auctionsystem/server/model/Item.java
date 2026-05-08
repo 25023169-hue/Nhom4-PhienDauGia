@@ -1,5 +1,6 @@
 package io.auctionsystem.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,10 +13,10 @@ import lombok.*;
 @Entity
 @Table(name = "items")
 @Inheritance(strategy = InheritanceType.JOINED)
+//@DiscriminatorColumn(name = "item_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Item extends BaseEntity {
     private String name;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     private double startingPrice;
@@ -23,6 +24,7 @@ public abstract class Item extends BaseEntity {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id")
+    @JoinColumn(name = "seller_id", nullable = false)
+    @JsonIgnoreProperties({"items", "hibernateLazyInitializer", "handler"})
     private User seller;
 }
