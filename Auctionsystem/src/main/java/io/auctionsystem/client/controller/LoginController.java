@@ -34,6 +34,7 @@ public class LoginController {
         // 1. Reset các lỗi cũ
         hideAllErrors();
 
+
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText().trim();
         boolean hasError = false;

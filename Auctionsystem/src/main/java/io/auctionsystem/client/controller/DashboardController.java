@@ -36,7 +36,6 @@ public class DashboardController {
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
         colEndTime.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         if (rootPane != null && sidebar != null) {
             sidebar.prefWidthProperty().bind(rootPane.widthProperty().multiply(0.22));

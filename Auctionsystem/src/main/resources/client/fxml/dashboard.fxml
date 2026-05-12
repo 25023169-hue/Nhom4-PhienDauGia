@@ -132,7 +132,6 @@
                         <TableColumn fx:id="colName" prefWidth="250.0" text="Tên sản phẩm" />
                         <TableColumn fx:id="colCurrentPrice" prefWidth="130.0" text="Giá hiện tại" />
                         <TableColumn fx:id="colEndTime" prefWidth="180.0" text="Thời gian kết thúc" />
-                        <TableColumn fx:id="colStatus" prefWidth="100.0" text="Trạng thái" />
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
