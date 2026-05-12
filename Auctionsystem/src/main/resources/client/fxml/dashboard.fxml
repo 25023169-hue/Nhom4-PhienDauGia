@@ -78,7 +78,7 @@
                     </padding>
                 </Button>
 
-                <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="👤 Tài khoản của tôi">
+                <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="👤 Ví tiền">
                     <font>
                         <Font size="14.0" />
                     </font>

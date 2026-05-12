@@ -57,7 +57,7 @@ public class DashboardController {
 
         alert.showAndWait().ifPresent(response -> {
             if (response == btnYes) {
-                AuctionManager.getInstance().logout();
+                AuctionManager.getInstance().isLoggedOut();
                 SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
             }
         });
