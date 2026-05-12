@@ -44,7 +44,7 @@ public class AuthService {
         User user = userRepository.findByUsername(username).orElse(null);
 
         // Dùng toán tử OR (||) để kiểm tra: Nếu User không tồn tại HOẶC sai mật khẩu
-        if (user == null || !user.getPassword().equals(password)) {
+        if (user == null || !user.getPassword().equals(password) || !username.matches("^[a-zA-Z0-9]+$")) {
             throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
         }
 
