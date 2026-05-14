@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.control.cell.TextFieldTreeCell?>
+<BorderPane prefHeight="650.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.SettingsController">
+    <left>
+        <VBox prefWidth="220.0" spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
+            <padding>
+                <Insets bottom="20.0" left="15.0" right="15.0" top="30.0" />
+            </padding>
+            <children>
+                <Label text="THIẾT LẬP" textFill="#95a5a6">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                    <VBox.margin><Insets bottom="10"/></VBox.margin>
+                </Label>
+
+                <Button fx:id="btnProfile" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showProfile" style="-fx-background-color: transparent; -fx-cursor: hand;" text="👤 Hồ sơ cá nhân" />
+                <Button fx:id="btnBank" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showBank" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🏦 Ngân hàng" />
+                <Button fx:id="btnAddress" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showAddress" style="-fx-background-color: transparent; -fx-cursor: hand;" text="📍 Địa chỉ" />
+                <Button fx:id="btnPassword" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showPassword" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🔑 Đổi mật khẩu" />
+
+                <Region VBox.vgrow="ALWAYS" />
+                <Button onAction="#onBack" style="-fx-background-color: transparent; -fx-cursor: hand;" text="← Quay lại" />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane style="-fx-background-color: white;">
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+            </padding>
+            <children>
+                <VBox fx:id="paneProfile" spacing="20">
+                    <Label text="Thông tin cá nhân"><font><Font name="System Bold" size="22"/></font></Label>
+                    <GridPane hgap="10" vgap="15">
+                        <Label text="Tên đăng nhập:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="txtUsername" disable="true" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Họ:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtLastName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Tên:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtFirstName" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <columnConstraints>
+                            <ColumnConstraints />
+                            <ColumnConstraints />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints />
+                            <RowConstraints />
+                        </rowConstraints>
+                    </GridPane>
+                    <Button onAction="#saveProfile" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Lưu thay đổi" />
+                    <Region VBox.vgrow="ALWAYS" />
+                    <Separator />
+                    <Button onAction="#deleteAccount" style="-fx-text-fill: #e74c3c; -fx-background-color: transparent; -fx-border-color: #e74c3c; -fx-border-radius: 4;" text="Xóa tài khoản vĩnh viễn" />
+                </VBox>
+
+                <VBox fx:id="paneBank" spacing="20" visible="false">
+                    <Label text="Tài khoản ngân hàng"><font><Font name="System Bold" size="22.0" /></font></Label>
+                    <Label text="Thông tin dùng để nạp và rút tiền." textFill="#7f8c8d" />
+                    <GridPane hgap="15.0" vgap="15.0">
+                        <Label text="Ngân hàng:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <ComboBox fx:id="cbBankName" editable="true" prefHeight="35.0" prefWidth="350.0" promptText="Chọn hoặc gõ tên ngân hàng" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Tên chủ thẻ:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtAccountHolder" prefHeight="35.0" prefWidth="350.0" promptText="NGUYEN VAN A" style="-fx-text-transform: uppercase;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Số tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtBankAccount" prefHeight="35.0" prefWidth="350.0" promptText="Nhập số tài khoản" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <columnConstraints>
+                            <ColumnConstraints />
+                            <ColumnConstraints />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints />
+                            <RowConstraints />
+                            <RowConstraints />
+                        </rowConstraints>
+                    </GridPane>
+                    <Button onAction="#saveBank" prefHeight="40.0" prefWidth="160.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Lưu thông tin thẻ" />
+                </VBox>
+
+                <VBox fx:id="paneAddress" spacing="20" visible="false">
+                    <Label text="Địa chỉ của tôi"><font><Font name="System Bold" size="22"/></font></Label>
+                    <TextArea fx:id="txtAddressArea" prefHeight="100" promptText="Nhập địa chỉ chi tiết của bạn..." wrapText="true" />
+                    <Button onAction="#saveAddress" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Lưu địa chỉ" />
+                </VBox>
+
+                <VBox fx:id="panePassword" spacing="20" visible="false">
+                    <Label text="Thay đổi mật khẩu"><font><Font name="System Bold" size="22"/></font></Label>
+                    <VBox spacing="15">
+                        <PasswordField fx:id="txtOldPass" prefHeight="40" promptText="Mật khẩu hiện tại" />
+                        <PasswordField fx:id="txtNewPass" prefHeight="40" promptText="Mật khẩu mới" />
+                        <TextField fx:id="txtRecovery" prefHeight="40" promptText="Nhập mã Recovery Code" />
+                    </VBox>
+                    <Button onAction="#savePassword" prefHeight="40" prefWidth="150" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" text="Xác nhận đổi" />
+                </VBox>
+            </children>
+        </StackPane>
+    </center>
+</BorderPane>
