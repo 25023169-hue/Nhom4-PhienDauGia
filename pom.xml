@@ -8,10 +8,10 @@
         <version>3.4.0</version> <relativePath/>
     </parent>
     <groupId>io.auctionsystem</groupId>
-    <artifactId>Auctionsystem</artifactId>
+    <artifactId>Nhom4-PhienDauGia</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Auctionsystem_Server</name>
-    <description>Auctionsystem_Monolithic_Project</description>
+    <name>Nhom4-PhienDauGia</name>
+    <description>Nhom4-PhienDauGia_Monolithic_Project</description>
 
     <properties>
         <java.version>21</java.version> <javafx.version>23</javafx.version>
