@@ -46,7 +46,7 @@
             <children>
                 <Label text="Mật khẩu:" />
                 <PasswordField fx:id="txtPassword" promptText="Nhập mật khẩu..." prefHeight="35.0" />
-                <Label fx:id="messageLabel" text="Đăng ký thành công!" wrapText="true" />
+                <Label fx:id="messageLabel" text="" wrapText="true" />
             </children>
             <VBox.margin><Insets left="40.0" right="40.0" /></VBox.margin>
         </VBox>

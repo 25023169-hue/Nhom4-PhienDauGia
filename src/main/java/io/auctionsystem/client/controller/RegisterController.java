@@ -17,6 +17,7 @@ import java.net.http.HttpResponse;
 
 public class RegisterController {
 
+    @FXML public Label messageLabel;
     @FXML private TextField txtfirstname; // Khớp fx:id="txtfirstname"
     @FXML private TextField txtlastname;  // Khớp fx:id="txtlastname"
     @FXML private TextField txtUsername;
