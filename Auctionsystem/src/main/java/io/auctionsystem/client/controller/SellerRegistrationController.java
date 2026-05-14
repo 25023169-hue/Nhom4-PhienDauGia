@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URI;
@@ -19,10 +20,28 @@ import java.nio.charset.StandardCharsets;
 
 public class SellerRegistrationController {
 
+    @FXML private VBox introPane;
+    @FXML private VBox formPane;
     @FXML private TextField txtStoreName;
     @FXML private Label lblError;
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    @FXML
+    public void initialize() {
+        showIntroPane();
+        lblError.setVisible(false);
+        lblError.setManaged(false);
+    }
+
+    @FXML
+    public void onStartRegistrationButtonClicked() {
+        introPane.setVisible(false);
+        introPane.setManaged(false);
+        formPane.setVisible(true);
+        formPane.setManaged(true);
+        txtStoreName.requestFocus();
+    }
 
     @FXML
     public void onConfirmButtonClicked() {
@@ -105,6 +124,13 @@ public class SellerRegistrationController {
     @FXML
     public void onCancelButtonClicked() {
         SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+    }
+
+    private void showIntroPane() {
+        introPane.setVisible(true);
+        introPane.setManaged(true);
+        formPane.setVisible(false);
+        formPane.setManaged(false);
     }
 
     private void showError(String message) {

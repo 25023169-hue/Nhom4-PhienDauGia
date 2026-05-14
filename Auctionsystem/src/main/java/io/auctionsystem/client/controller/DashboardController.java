@@ -16,6 +16,10 @@ public class DashboardController {
 
     @FXML private BorderPane rootPane;
     @FXML private VBox sidebar;
+    @FXML private VBox homeView;
+    @FXML private VBox productListView;
+    @FXML private Button btnHome;
+    @FXML private Button btnProductList;
     @FXML private Label lblWelcome;
 
     @FXML private TableView<AuctionItemDTO> tableItems;
@@ -24,6 +28,12 @@ public class DashboardController {
     @FXML private TableColumn<AuctionItemDTO, Double> colCurrentPrice;
     @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
     @FXML private TableColumn<AuctionItemDTO, String> colStatus;
+
+    private static final String ACTIVE_MENU_STYLE = "-fx-background-color: #1abc9c; -fx-text-fill: white; "
+            + "-fx-cursor: hand; -fx-alignment: CENTER_LEFT;";
+    private static final String INACTIVE_MENU_STYLE = "-fx-background-color: transparent; -fx-text-fill: #bdc3c7; "
+            + "-fx-cursor: hand; -fx-alignment: CENTER_LEFT;";
+
     @FXML
     public void initialize() {
         String firstname = AuctionManager.getInstance().getFirstname();
@@ -40,7 +50,50 @@ public class DashboardController {
         if (rootPane != null && sidebar != null) {
             sidebar.prefWidthProperty().bind(rootPane.widthProperty().multiply(0.22));
         }
+
+        showHomeView();
     }
+
+    @FXML
+    public void onHomeButtonClicked() {
+        showHomeView();
+    }
+
+    @FXML
+    public void onProductListButtonClicked() {
+        showProductListView();
+    }
+
+    private void showHomeView() {
+        switchContent(homeView, productListView);
+        setActiveMenu(btnHome, btnProductList);
+    }
+
+    private void showProductListView() {
+        switchContent(productListView, homeView);
+        setActiveMenu(btnProductList, btnHome);
+    }
+
+    private void switchContent(VBox visibleView, VBox hiddenView) {
+        if (visibleView != null) {
+            visibleView.setVisible(true);
+            visibleView.setManaged(true);
+        }
+        if (hiddenView != null) {
+            hiddenView.setVisible(false);
+            hiddenView.setManaged(false);
+        }
+    }
+
+    private void setActiveMenu(Button activeButton, Button inactiveButton) {
+        if (activeButton != null) {
+            activeButton.setStyle(ACTIVE_MENU_STYLE);
+        }
+        if (inactiveButton != null) {
+            inactiveButton.setStyle(INACTIVE_MENU_STYLE);
+        }
+    }
+
     @FXML
     public void onLogoutButtonClicked() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

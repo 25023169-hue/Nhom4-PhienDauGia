@@ -14,7 +14,7 @@ public class SettingsController {
     @FXML private VBox paneProfile, paneBank, paneAddress, panePassword;
     @FXML private Button btnProfile, btnBank, btnAddress, btnPassword;
 
-    @FXML private TextField txtUsername, txtFullName, txtBankAccount, txtRecovery;
+    @FXML private TextField txtUsername, txtFirstName, txtLastName, txtBankAccount, txtRecovery;
     @FXML private TextField txtAccountHolder;
     @FXML private ComboBox<String> cbBankName;
     @FXML private TextArea txtAddressArea;
@@ -32,7 +32,8 @@ public class SettingsController {
         AuthResponse user = AuctionManager.getInstance().getCurrentUser();
         if (user != null) {
             txtUsername.setText(user.getUsername());
-            txtFullName.setText(user.getLastname() + " " + user.getFirstname());
+            txtLastName.setText(user.getLastname());
+            txtFirstName.setText(user.getFirstname());
         }
 
         showProfile(); // Luôn hiện hồ sơ đầu tiên
@@ -64,7 +65,7 @@ public class SettingsController {
 
     // --- HÀM XỬ LÝ LƯU ---
     public void saveProfile() {
-        System.out.println("Lưu hồ sơ: " + txtFullName.getText());
+        System.out.println("Lưu hồ sơ: " + txtLastName.getText() + txtFirstName.getText());
     }
 
     public void saveBank() {
