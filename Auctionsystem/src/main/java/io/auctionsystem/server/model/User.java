@@ -20,4 +20,9 @@ public abstract class User extends BaseEntity {
     private String lastname;
     private String bankName;
     private int bankAccount;
+    // Thêm vào dưới thuộc tính bankAccount
+    private boolean isBanned = false;
+
+// Nhớ thêm các annotation của Lombok nếu chưa có,
+// hoặc tự generate Getter/Setter cho thuộc tính này nhé.
 }

@@ -20,7 +20,7 @@ public class AuctionManager {
     public void setCurrentUser(AuthResponse response) { this.currentUser = response; }
     public AuthResponse getCurrentUser() { return currentUser; }
     public boolean isLoggedIn() { return currentUser != null; }
-    public void isLoggedOut() { this.currentUser = null; }
+    public void logout() { this.currentUser = null; }
 
     public String getToken() { return (isLoggedIn()) ? currentUser.getToken() : null; }
     public Long getId() { return (isLoggedIn()) ? currentUser.getId() : null; }

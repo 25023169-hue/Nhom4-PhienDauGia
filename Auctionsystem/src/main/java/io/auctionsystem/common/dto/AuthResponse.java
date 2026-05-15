@@ -12,10 +12,14 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class AuthResponse implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private String token;
     private Long id;
     private String username;
     private String firstname;
     private String lastname;
     private Role role;
+
+    // Thêm trường balance vào đây. Dùng Double hoặc BigDecimal tùy Server của bạn.
+    private Double balance;
 }

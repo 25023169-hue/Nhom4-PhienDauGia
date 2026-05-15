@@ -5,6 +5,7 @@ import io.auctionsystem.common.dto.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.server.repository.UserRepository;
 import io.auctionsystem.server.model.User;
+import io.auctionsystem.server.model.Admin;  // PHẢI IMPORT THÊM DÒNG NÀY
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,6 @@ public class AuthService {
     public String register(RegisterRequest request) {
         String username = request.getUsername();
 
-        // CHỈ KIỂM TRA KÝ TỰ ĐẶC BIỆT VÀ KHOẢNG TRẮNG BẰNG REGEX
-        // ^[a-zA-Z0-9]+$ : Bắt buộc chỉ gồm chữ cái (không dấu) và số.
         if (!username.matches("^[a-zA-Z0-9]+$")) {
             throw new IllegalArgumentException("Tên đăng nhập chỉ được chứa chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt!");
         }
@@ -40,10 +39,8 @@ public class AuthService {
     }
 
     public AuthResponse login(String username, String password) {
-        // Tìm User, nếu không có thì trả về null luôn cho gọn
         User user = userRepository.findByUsername(username).orElse(null);
 
-        // Dùng toán tử OR (||) để kiểm tra: Nếu User không tồn tại HOẶC sai mật khẩu
         if (user == null || !user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
         }
@@ -54,7 +51,12 @@ public class AuthService {
         response.setFirstname(user.getFirstname());
         response.setLastname(user.getLastname());
 
-        if (userRepository.isUserSeller(user.getId()) > 0) {
+        // --- ĐOẠN NÀY ĐÃ ĐƯỢC CẬP NHẬT ĐỂ NHẬN DIỆN ADMIN ---
+        if (user instanceof Admin) {
+            // Kiểm tra xem đối tượng lấy lên có phải là Admin không
+            response.setRole(Role.ADMIN);
+            System.out.println(">>> Server xac nhan: Day la ADMIN");
+        } else if (userRepository.isUserSeller(user.getId()) > 0) {
             response.setRole(Role.SELLER);
         } else {
             response.setRole(Role.BIDDER);
