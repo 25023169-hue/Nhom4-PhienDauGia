@@ -7,6 +7,7 @@ public class AuctionManager {
 
     private static AuctionManager instance;
     private AuthResponse currentUser;
+    private String requestedSettingsTab;
 
     private AuctionManager() {}
 
@@ -27,6 +28,23 @@ public class AuctionManager {
     public String getUsername() { return (isLoggedIn()) ? currentUser.getUsername() : "Guest"; }
     public String getFirstname() { return (isLoggedIn()) ? currentUser.getFirstname() : null; }
     public String getLastname() { return (isLoggedIn()) ? currentUser.getLastname() : null; }
+    public double getBalance() { return (isLoggedIn()) ? currentUser.getBalance() : 0.0; }
+    public void setBalance(double balance) { if (isLoggedIn()) currentUser.setBalance(balance); }
+    public String getBankName() { return (isLoggedIn()) ? currentUser.getBankName() : null; }
+    public String getBankAccount() { return (isLoggedIn()) ? currentUser.getBankAccount() : null; }
     public Role getRole() { return (isLoggedIn()) ? currentUser.getRole() : null; }
     public boolean isAdmin() { return isLoggedIn() && currentUser.getRole() == Role.ADMIN; }
+    public boolean hasBankInfo() {
+        return isLoggedIn()
+                && currentUser.getBankName() != null
+                && !currentUser.getBankName().trim().isEmpty()
+                && currentUser.getBankAccount() != null
+                && currentUser.getBankAccount().trim().isEmpty();
+    }
+    public void requestSettingsTab(String tabName) { this.requestedSettingsTab = tabName; }
+    public String consumeSettingsTabRequest() {
+        String tabName = requestedSettingsTab;
+        requestedSettingsTab = null;
+        return tabName;
+    }
 }

@@ -34,9 +34,21 @@ public class SettingsController {
             txtUsername.setText(user.getUsername());
             txtLastName.setText(user.getLastname());
             txtFirstName.setText(user.getFirstname());
+            if (user.getBankName() != null) {
+                cbBankName.getEditor().setText(user.getBankName());
+            }
+            if (user.getBankAccount() != null && !user.getBankAccount().trim().isEmpty()) {
+                txtBankAccount.setText(user.getBankAccount());
+            }
+            txtAccountHolder.setText((user.getLastname() + " " + user.getFirstname()).trim().toUpperCase());
         }
 
-        showProfile(); // Luôn hiện hồ sơ đầu tiên
+        String requestedTab = AuctionManager.getInstance().consumeSettingsTabRequest();
+        if ("BANK".equals(requestedTab)) {
+            showBank();
+        } else {
+            showProfile();
+        }
     }
 
     // --- HÀM CHUYỂN TAB ---
@@ -70,11 +82,28 @@ public class SettingsController {
 
     public void saveBank() {
         // Lấy text từ editor để hỗ trợ trường hợp người dùng tự gõ vào ComboBox
-        String bank = cbBankName.getEditor().getText();
-        String holder = txtAccountHolder.getText();
-        String stk = txtBankAccount.getText();
+        String bank = cbBankName.getEditor().getText().trim();
+        String holder = txtAccountHolder.getText().trim();
+        String bankacc = txtBankAccount.getText().trim();
 
-        System.out.println("Lưu Bank: " + bank + " | Chủ thẻ: " + holder.toUpperCase() + " | STK: " + stk);
+        if (bank.isEmpty() || holder.isEmpty() || bankacc.isEmpty()) {
+            showInfo("Vui lòng nhập đủ thông tin ngân hàng.");
+            return;
+        }
+        if (!bankacc.matches("\\d+")) {
+            showInfo("Số tài khoản chỉ được chứa chữ số.");
+            return;
+        }
+
+        AuthResponse user = AuctionManager.getInstance().getCurrentUser();
+        if (user != null) {
+            user.setBankName(bank);
+            user.setBankAccount(bankacc);
+        }
+
+        System.out.println("Lưu Bank: " + bank + " | Chủ thẻ: " + holder.toUpperCase() + " | STK: " + bankacc);
+        System.out.println(AuctionManager.getInstance().hasBankInfo());
+        showInfo("Đã lưu thông tin ngân hàng trong phiên đăng nhập hiện tại.");
     }
 
     public void saveAddress() {
@@ -112,5 +141,12 @@ public class SettingsController {
 
     public void onBack() {
         SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+    }
+
+    private void showInfo(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
