@@ -19,8 +19,8 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy User với ID: " + userId));
 
         user.setBankName(request.getBankName());
-        user.setBankAccount(request.getBankAccount());
         user.setAccountName(request.getAccountName());
+        user.setBankAccount(request.getBankAccount());
 
         return userRepository.save(user);
     }

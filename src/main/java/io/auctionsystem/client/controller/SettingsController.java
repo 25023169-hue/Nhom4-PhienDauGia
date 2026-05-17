@@ -50,8 +50,8 @@ public class SettingsController {
             if (user.getBankName() != null && !user.getBankName().isEmpty()) {
                 BankList.setValue(user.getBankName());
             }
-            txtBankAccount.setText(user.getBankAccount() != null ? user.getBankAccount() : "");
             txtAccountName.setText(user.getAccountName() != null ? user.getAccountName() : "");
+            txtBankAccount.setText(user.getBankAccount() != null ? user.getBankAccount() : "");
             txtAddressArea.setText(user.getAddress() != null ? user.getAddress() : "");
         }
 
@@ -115,7 +115,7 @@ public class SettingsController {
         if (user == null) return;
 
         Long userId = user.getUserId();
-        BankRequest requestDto = new BankRequest(bank, bankaccount, accountname);
+        BankRequest requestDto = new BankRequest(bank, accountname, bankaccount);
 
         // GỌI API XUỐNG SERVER
         new Thread(() -> {
