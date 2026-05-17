@@ -67,13 +67,13 @@
                     <Label text="Thông tin dùng để nạp và rút tiền." textFill="#7f8c8d" />
                     <GridPane hgap="15.0" vgap="15.0">
                         <Label text="Ngân hàng:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <ComboBox fx:id="cbBankName" editable="true" prefHeight="35.0" prefWidth="350.0" promptText="Chọn hoặc gõ tên ngân hàng" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <ComboBox fx:id="cbBank" editable="true" prefHeight="35.0" prefWidth="350.0" promptText="Chọn hoặc gõ tên ngân hàng" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                         <Label text="Tên chủ thẻ:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="txtAccountHolder" prefHeight="35.0" prefWidth="350.0" promptText="NGUYEN VAN A" style="-fx-text-transform: uppercase;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtAccountHolder" prefHeight="35.0" prefWidth="350.0" promptText="" style="-fx-text-transform: uppercase;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                         <Label text="Số tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <TextField fx:id="txtBankAccount" prefHeight="35.0" prefWidth="350.0" promptText="Nhập số tài khoản" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtBankAccount" prefHeight="35.0" prefWidth="350.0" promptText="" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <columnConstraints>
                             <ColumnConstraints />
                             <ColumnConstraints />

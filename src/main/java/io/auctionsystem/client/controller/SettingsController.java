@@ -14,16 +14,15 @@ public class SettingsController {
     @FXML private VBox paneProfile, paneBank, paneAddress, panePassword;
     @FXML private Button btnProfile, btnBank, btnAddress, btnPassword;
 
-    @FXML private TextField txtUsername, txtFirstName, txtLastName, txtBankAccount, txtRecovery;
-    @FXML private TextField txtAccountHolder;
-    @FXML private ComboBox<String> cbBankName;
+    @FXML private TextField txtUsername, txtFirstName, txtLastName, txtBankName, txtBankAccount, txtRecovery;
+    @FXML private ComboBox<String> BankList;
     @FXML private TextArea txtAddressArea;
     @FXML private PasswordField txtOldPass, txtNewPass;
 
     @FXML
     public void initialize() {
         // 1. Load danh sách ngân hàng phổ biến (Kết hợp với editable=true trong FXML)
-        cbBankName.getItems().addAll(
+        BankList.getItems().addAll(
                 "Vietcombank", "MB Bank", "Techcombank", "Agribank", "BIDV",
                 "TPBank", "ACB", "VPBank", "Sacombank", "VietinBank"
         );
@@ -34,13 +33,7 @@ public class SettingsController {
             txtUsername.setText(user.getUsername());
             txtLastName.setText(user.getLastname());
             txtFirstName.setText(user.getFirstname());
-            if (user.getBankName() != null) {
-                cbBankName.getEditor().setText(user.getBankName());
-            }
-            if (user.getBankAccount() != null && !user.getBankAccount().trim().isEmpty()) {
-                txtBankAccount.setText(user.getBankAccount());
-            }
-            txtAccountHolder.setText((user.getLastname() + " " + user.getFirstname()).trim().toUpperCase());
+
         }
 
         String requestedTab = AuctionManager.getInstance().consumeSettingsTabRequest();
@@ -82,8 +75,8 @@ public class SettingsController {
 
     public void saveBank() {
         // Lấy text từ editor để hỗ trợ trường hợp người dùng tự gõ vào ComboBox
-        String bank = cbBankName.getEditor().getText().trim();
-        String holder = txtAccountHolder.getText().trim();
+        String bank = BankList.getEditor().getText().trim();
+        String holder = txtBankName.getText().trim();
         String bankacc = txtBankAccount.getText().trim();
 
         if (bank.isEmpty() || holder.isEmpty() || bankacc.isEmpty()) {
