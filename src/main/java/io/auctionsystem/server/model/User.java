@@ -18,5 +18,5 @@ public abstract class User extends BaseEntity {
     private String firstname;
     private String lastname;
     private String bankName;
-    private int bankAccount;
+    private String bankAccount;
 }

@@ -17,5 +17,8 @@ public class AuthResponse implements Serializable {
     private String username;
     private String firstname;
     private String lastname;
+    private double balance;
+    private String bankName;
+    private String bankAccount;
     private Role role;
 }

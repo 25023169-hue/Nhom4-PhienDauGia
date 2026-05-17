@@ -53,6 +53,9 @@ public class AuthService {
         response.setUsername(user.getUsername());
         response.setFirstname(user.getFirstname());
         response.setLastname(user.getLastname());
+        response.setBalance(user.getBalance());
+        response.setBankName(user.getBankName());
+        response.setBankAccount(user.getBankAccount());
 
         if (userRepository.isUserSeller(user.getId()) > 0) {
             response.setRole(Role.SELLER);
