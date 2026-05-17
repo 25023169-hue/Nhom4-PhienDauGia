@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NotificationDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Long id;
+    private Long NotiId;
     private String message;
     private LocalDateTime createdAt;
     private boolean isRead;

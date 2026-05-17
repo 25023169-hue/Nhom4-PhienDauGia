@@ -1,4 +1,4 @@
-package io.auctionsystem.server.Controller;
+package io.auctionsystem.server.controller;
 
 import io.auctionsystem.common.dto.AuthResponse;
 import io.auctionsystem.common.dto.LoginRequest;

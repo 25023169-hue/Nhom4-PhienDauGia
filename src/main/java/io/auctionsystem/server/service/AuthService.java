@@ -49,12 +49,12 @@ public class AuthService {
         }
 
         AuthResponse response = new AuthResponse();
-        response.setId(user.getId());
+        response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setFirstname(user.getFirstname());
         response.setLastname(user.getLastname());
         response.setBalance(user.getBalance());
-        response.setBankName(user.getBankName());
+        response.setAccountName(user.getAccountName());
         response.setBankAccount(user.getBankAccount());
 
         if (userRepository.isUserSeller(user.getId()) > 0) {

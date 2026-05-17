@@ -11,7 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class AuctionItemDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Long id;
+    private Long Id;
     private String name;
     private Double currentPrice;
     private String endTime;

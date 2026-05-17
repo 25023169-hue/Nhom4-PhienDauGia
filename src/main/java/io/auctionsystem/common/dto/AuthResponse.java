@@ -1,24 +1,22 @@
 package io.auctionsystem.common.dto;
 
 import io.auctionsystem.common.enums.Role;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.io.Serializable;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class AuthResponse {
     private String token;
-    private Long id;
+    private Long userId;
     private String username;
     private String firstname;
     private String lastname;
     private double balance;
-    private String bankName;
-    private String bankAccount;
     private Role role;
+    private String address;
+    private String bankName;
+    private String accountName;
+    private String bankAccount;
 }

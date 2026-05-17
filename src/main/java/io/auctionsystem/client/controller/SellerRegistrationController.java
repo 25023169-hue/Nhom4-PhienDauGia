@@ -66,7 +66,7 @@ public class SellerRegistrationController {
         }
 
         // --- FIX LỖI 500 Ở ĐÂY ---
-        Long id = currentUser.getId();
+        Long id = currentUser.getUserId();
         if (id == null) {
             showError("Lỗi: Không lấy được ID tài khoản (ID null). Vui lòng đăng xuất và đăng nhập lại!");
             return;

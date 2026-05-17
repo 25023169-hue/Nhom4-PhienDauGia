@@ -24,22 +24,23 @@ public class AuctionManager {
     public void isLoggedOut() { this.currentUser = null; }
 
     public String getToken() { return (isLoggedIn()) ? currentUser.getToken() : null; }
-    public Long getId() { return (isLoggedIn()) ? currentUser.getId() : null; }
+    public Long getId() { return (isLoggedIn()) ? currentUser.getUserId() : null; }
     public String getUsername() { return (isLoggedIn()) ? currentUser.getUsername() : "Guest"; }
     public String getFirstname() { return (isLoggedIn()) ? currentUser.getFirstname() : null; }
     public String getLastname() { return (isLoggedIn()) ? currentUser.getLastname() : null; }
     public double getBalance() { return (isLoggedIn()) ? currentUser.getBalance() : 0.0; }
     public void setBalance(double balance) { if (isLoggedIn()) currentUser.setBalance(balance); }
-    public String getBankName() { return (isLoggedIn()) ? currentUser.getBankName() : null; }
     public String getBankAccount() { return (isLoggedIn()) ? currentUser.getBankAccount() : null; }
     public Role getRole() { return (isLoggedIn()) ? currentUser.getRole() : null; }
+    public String getAddress() { return (isLoggedIn()) ? currentUser.getAddress() : null; }
+    public String getAccountName() { return (isLoggedIn()) ? currentUser.getAccountName() : null; }
     public boolean isAdmin() { return isLoggedIn() && currentUser.getRole() == Role.ADMIN; }
     public boolean hasBankInfo() {
         return isLoggedIn()
-                && currentUser.getBankName() != null
-                && !currentUser.getBankName().trim().isEmpty()
+                && currentUser.getAccountName() != null
+                && !currentUser.getAccountName().trim().isEmpty()
                 && currentUser.getBankAccount() != null
-                && currentUser.getBankAccount().trim().isEmpty();
+                && !currentUser.getBankAccount().trim().isEmpty();
     }
     public void requestSettingsTab(String tabName) { this.requestedSettingsTab = tabName; }
     public String consumeSettingsTabRequest() {

@@ -14,5 +14,5 @@ import lombok.*;
 public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // BẮT BUỘC: Để MySQL tự tăng ID
-    private Long id; // CHUYỂN SANG LONG: Chuẩn chung cho Database lớn
+    private Long Id; // CHUYỂN SANG LONG: Chuẩn chung cho Database lớn
 }
