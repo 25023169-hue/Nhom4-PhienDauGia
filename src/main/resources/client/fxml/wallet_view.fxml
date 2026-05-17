@@ -49,7 +49,7 @@
                 <HBox fx:id="walletBankErrorBox" alignment="CENTER_LEFT" managed="false" spacing="8.0" visible="false">
                     <children>
                         <Label fx:id="lblWalletError" textFill="#e74c3c" />
-                        <Button mnemonicParsing="false" onAction="#onOpenBankSettings" style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0;" text="Thiết lập ngân hàng" />
+                        <Button fx:id="btnSetupBank" mnemonicParsing="false" onAction="#onOpenBankSettings" style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0;" text="Thiết lập ngân hàng" />
                     </children>
                 </HBox>
             </children>

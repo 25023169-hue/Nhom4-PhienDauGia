@@ -19,6 +19,7 @@ public class WalletController {
     @FXML private Label lblWalletBalance;
     @FXML private Label lblWalletError;
     @FXML private HBox walletBankErrorBox;
+    @FXML private Button btnSetupBank; // Thêm khai báo ID của nút thiết lập
     @FXML private TextField txtWalletAmount;
     @FXML private TextField txtWalletNote;
     @FXML private TableView<WalletTransaction> tableWalletHistory;
@@ -43,8 +44,10 @@ public class WalletController {
         tableWalletHistory.setItems(WALLET_TRANSACTIONS);
 
         refreshWalletBalance();
+
+        // Truyền true vì đây là lỗi thiếu ngân hàng
         if (!AuctionManager.getInstance().hasBankInfo()) {
-            showWalletError("Bạn chưa có thông tin tài khoản ngân hàng.");
+            showWalletError("Bạn chưa có thông tin tài khoản ngân hàng.", true);
         } else {
             hideWalletError();
         }
@@ -67,20 +70,23 @@ public class WalletController {
     }
 
     private void handleWalletTransaction(String type, boolean isDeposit) {
+        // Truyền true vì đây là lỗi thiếu ngân hàng
         if (!AuctionManager.getInstance().hasBankInfo()) {
-            showWalletError("Bạn chưa có thông tin tài khoản ngân hàng.");
+            showWalletError("Bạn chưa có thông tin tài khoản ngân hàng.", true);
             return;
         }
 
         double amount = parseWalletAmount();
         if (amount <= 0) {
-            showWalletError("Vui lòng nhập số tiền hợp lệ.");
+            // Truyền false vì đây là lỗi nhập tiền (ẩn nút thiết lập)
+            showWalletError("Vui lòng nhập số tiền hợp lệ.", false);
             return;
         }
 
         double currentBalance = AuctionManager.getInstance().getBalance();
         if (!isDeposit && amount > currentBalance) {
-            showWalletError("Số dư không đủ để rút tiền.");
+            // Truyền false vì đây là lỗi thiếu tiền (ẩn nút thiết lập)
+            showWalletError("Số dư không đủ để rút tiền.", false);
             return;
         }
 
@@ -95,7 +101,7 @@ public class WalletController {
             note = isDeposit ? "Nạp tiền vào ví" : "Rút tiền về tài khoản ngân hàng";
         }
 
-        WALLET_TRANSACTIONS.add(0, new WalletTransaction(
+        WALLET_TRANSACTIONS.addFirst(new WalletTransaction(
                 LocalDateTime.now().format(TIME_FORMAT),
                 signedAmount,
                 strLastBalance,
@@ -124,8 +130,14 @@ public class WalletController {
         return VND_FORMAT.format(amount);
     }
 
-    private void showWalletError(String message) {
+    // Hàm đã được cập nhật thêm tham số isBankError
+    private void showWalletError(String message, boolean isBankError) {
         lblWalletError.setText(message);
+
+        // Chỉ hiển thị nút Thiết lập ngân hàng nếu isBankError = true
+        btnSetupBank.setVisible(isBankError);
+        btnSetupBank.setManaged(isBankError);
+
         walletBankErrorBox.setVisible(true);
         walletBankErrorBox.setManaged(true);
     }
