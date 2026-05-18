@@ -1,8 +1,10 @@
-package io.auctionsystem.common.dto;
+package io.auctionsystem.common.request;
 
 import lombok.*;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BankRequest {
     private String bankName;
     private String accountName;

@@ -6,7 +6,6 @@ import lombok.*;
 
 @Getter
 @Setter
-
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)

@@ -39,21 +39,12 @@
                     <GridPane hgap="10" vgap="15">
                         <Label text="Tên đăng nhập:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <TextField fx:id="txtUsername" disable="true" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
                         <Label text="Họ:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <TextField fx:id="txtLastName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
                         <Label text="Tên:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                         <TextField fx:id="txtFirstName" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                        <columnConstraints>
-                            <ColumnConstraints />
-                            <ColumnConstraints />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
+                        <columnConstraints><ColumnConstraints /><ColumnConstraints /></columnConstraints>
+                        <rowConstraints><RowConstraints /><RowConstraints /></rowConstraints>
                     </GridPane>
                     <Button onAction="#saveProfile" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Lưu thay đổi" />
                     <Region VBox.vgrow="ALWAYS" />
@@ -67,29 +58,52 @@
                     <GridPane hgap="15.0" vgap="15.0">
                         <Label text="Ngân hàng:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <ComboBox fx:id="cbBankName" editable="true" prefHeight="35.0" prefWidth="350.0" promptText="Gõ hoặc chọn tên ngân hàng..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
                         <Label text="Tên chủ thẻ:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="txtAccountName" prefHeight="35.0" prefWidth="350.0" promptText="" style="-fx-text-transform: uppercase;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
+                        <TextField fx:id="txtAccountName" prefHeight="35.0" prefWidth="350.0" style="-fx-text-transform: uppercase;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <Label text="Số tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <TextField fx:id="txtBankAccount" prefHeight="35.0" prefWidth="350.0" promptText="" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <columnConstraints>
-                            <ColumnConstraints />
-                            <ColumnConstraints />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
+                        <TextField fx:id="txtBankAccount" prefHeight="35.0" prefWidth="350.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <columnConstraints><ColumnConstraints /><ColumnConstraints /></columnConstraints>
+                        <rowConstraints><RowConstraints /><RowConstraints /><RowConstraints /></rowConstraints>
                     </GridPane>
                     <Button onAction="#saveBank" prefHeight="40.0" prefWidth="160.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Lưu thông tin ngân hàng" />
                 </VBox>
 
                 <VBox fx:id="paneAddress" spacing="20" visible="false">
-                    <Label text="Địa chỉ của tôi"><font><Font name="System Bold" size="22"/></font></Label>
-                    <TextArea fx:id="txtAddressArea" prefHeight="100" promptText="Nhập địa chỉ chi tiết của bạn..." wrapText="true" />
-                    <Button onAction="#saveAddress" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Lưu địa chỉ" />
+                    <Label text="Địa chỉ nhận hàng"><font><Font name="System Bold" size="22"/></font></Label>
+
+                    <HBox spacing="25.0" VBox.vgrow="ALWAYS">
+                        <children>
+                            <VBox prefWidth="280.0" spacing="12.0">
+                                <children>
+                                    <TextField fx:id="txtReceiverName" prefHeight="35.0" promptText="Tên người nhận" />
+                                    <TextField fx:id="txtPhoneNumber" prefHeight="35.0" promptText="Số điện thoại" />
+                                    <TextField fx:id="txtStreet" prefHeight="35.0" promptText="Số nhà, tên đường" />
+                                    <TextField fx:id="txtCity" prefHeight="35.0" promptText="Tỉnh / Thành phố" />
+                                    <CheckBox fx:id="chkIsDefault" text="Đặt làm địa chỉ mặc định" />
+
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <Button onAction="#onAddAddress" prefHeight="35.0" prefWidth="80.0" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Thêm" />
+                                            <Button onAction="#onUpdateAddress" prefHeight="35.0" prefWidth="80.0" style="-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Sửa" />
+                                            <Button onAction="#onDeleteAddress" prefHeight="35.0" prefWidth="80.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Xóa" />
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+
+                            <TableView fx:id="tableAddress" HBox.hgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colReceiverName" prefWidth="120.0" text="Người nhận" />
+                                    <TableColumn fx:id="colPhoneNumber" prefWidth="110.0" text="Số điện thoại" />
+                                    <TableColumn fx:id="colAddressDetails" prefWidth="220.0" text="Địa chỉ chi tiết" />
+                                    <TableColumn fx:id="colIsDefault" prefWidth="90.0" text="Mặc định" />
+                                </columns>
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                </columnResizePolicy>
+                            </TableView>
+                        </children>
+                    </HBox>
                 </VBox>
 
                 <VBox fx:id="panePassword" spacing="20" visible="false">

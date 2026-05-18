@@ -5,12 +5,11 @@ import lombok.*;
 
 @Getter
 @Setter
-
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Entity  // Thêm dòng này để Spring biết đây là một bảng
-@Table(name = "auto_bids") // Thêm dòng này để đặt tên bảng
+@Entity
+@Table(name = "auto_bids")
 public class AutoBid extends BaseEntity {
     private Long auctionId;
     private Long bidderId;

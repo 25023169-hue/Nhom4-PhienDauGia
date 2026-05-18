@@ -1,8 +1,8 @@
 package io.auctionsystem.server.controller;
 
-import io.auctionsystem.common.dto.AuthResponse;
-import io.auctionsystem.common.dto.LoginRequest;
-import io.auctionsystem.common.dto.RegisterRequest;
+import io.auctionsystem.common.response.AuthResponse;
+import io.auctionsystem.common.request.LoginRequest;
+import io.auctionsystem.common.request.RegisterRequest;
 import io.auctionsystem.server.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

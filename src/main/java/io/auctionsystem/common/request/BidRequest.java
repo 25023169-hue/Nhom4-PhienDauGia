@@ -1,4 +1,4 @@
-package io.auctionsystem.common.dto;
+package io.auctionsystem.common.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,11 +8,9 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BidResponse implements Serializable {
+public class BidRequest implements Serializable {
     private static final long serialVersionUID = 1L;
-    private boolean isAccepted;
-    private String message;
     private Long auctionId;
-    private Double newCurrentPrice;
-    private String newWinnerName;
+    private Long bidderId;
+    private Double amount;
 }

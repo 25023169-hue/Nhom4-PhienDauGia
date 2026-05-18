@@ -1,10 +1,9 @@
-package io.auctionsystem.common.dto;
+package io.auctionsystem.common.response;
 
 import io.auctionsystem.common.enums.Role;
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthResponse {

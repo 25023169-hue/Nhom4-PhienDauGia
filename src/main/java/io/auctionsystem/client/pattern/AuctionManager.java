@@ -1,6 +1,6 @@
 package io.auctionsystem.client.pattern;
 
-import io.auctionsystem.common.dto.AuthResponse;
+import io.auctionsystem.common.response.AuthResponse;
 import io.auctionsystem.common.enums.Role;
 
 public class AuctionManager {

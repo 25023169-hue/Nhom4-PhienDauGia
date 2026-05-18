@@ -1,7 +1,7 @@
 package io.auctionsystem.server.service;
 
-import io.auctionsystem.common.dto.AddressRequest;
-import io.auctionsystem.common.dto.BankRequest;
+import io.auctionsystem.common.request.AddressRequest;
+import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

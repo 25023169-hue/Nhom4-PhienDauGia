@@ -1,4 +1,4 @@
-package io.auctionsystem.common.dto;
+package io.auctionsystem.common.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

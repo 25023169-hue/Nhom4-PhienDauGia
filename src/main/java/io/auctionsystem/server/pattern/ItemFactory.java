@@ -1,6 +1,6 @@
 package io.auctionsystem.server.pattern;
 
-import io.auctionsystem.common.dto.ItemRequest;
+import io.auctionsystem.common.request.ItemRequest;
 import io.auctionsystem.server.model.Art;
 import io.auctionsystem.server.model.Electronics;
 import io.auctionsystem.server.model.Item;

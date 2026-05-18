@@ -1,7 +1,7 @@
 package io.auctionsystem.server.controller;
 
-import io.auctionsystem.common.dto.AddressRequest;
-import io.auctionsystem.common.dto.BankRequest;
+import io.auctionsystem.common.request.AddressRequest;
+import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

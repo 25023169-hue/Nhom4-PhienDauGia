@@ -2,7 +2,7 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.SceneManager;
-import io.auctionsystem.common.dto.RegisterRequest;
+import io.auctionsystem.common.request.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

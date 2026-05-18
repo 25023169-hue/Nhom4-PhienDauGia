@@ -1,7 +1,7 @@
 package io.auctionsystem.server.service;
 
-import io.auctionsystem.common.dto.AuthResponse;
-import io.auctionsystem.common.dto.RegisterRequest;
+import io.auctionsystem.common.response.AuthResponse;
+import io.auctionsystem.common.request.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.server.repository.UserRepository;
 import io.auctionsystem.server.model.User;
@@ -54,8 +54,10 @@ public class AuthService {
         response.setFirstname(user.getFirstname());
         response.setLastname(user.getLastname());
         response.setBalance(user.getBalance());
+        response.setBankName(user.getBankName());
         response.setAccountName(user.getAccountName());
         response.setBankAccount(user.getBankAccount());
+        response.setAddress(user.getAddress());
 
         if (userRepository.isUserSeller(user.getId()) > 0) {
             response.setRole(Role.SELLER);

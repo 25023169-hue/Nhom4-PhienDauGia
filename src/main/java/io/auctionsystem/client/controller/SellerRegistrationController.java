@@ -2,7 +2,7 @@ package io.auctionsystem.client.controller;
 
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
-import io.auctionsystem.common.dto.AuthResponse;
+import io.auctionsystem.common.response.AuthResponse;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
