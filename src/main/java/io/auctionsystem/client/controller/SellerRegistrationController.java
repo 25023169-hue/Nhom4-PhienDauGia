@@ -123,7 +123,7 @@ public class SellerRegistrationController {
 
     @FXML
     public void onCancelButtonClicked() {
-        SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
     }
 
     private void showIntroPane() {

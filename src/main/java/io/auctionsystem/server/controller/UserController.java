@@ -3,9 +3,18 @@ package io.auctionsystem.server.controller;
 import io.auctionsystem.common.request.AddressRequest;
 import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.server.service.UserService;
+import io.auctionsystem.server.service.TransactionService;
+import io.auctionsystem.server.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -14,7 +23,55 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // API: PUT http://localhost:8080/api/user/{id}/bank
+    @Autowired
+    private TransactionService transactionService;
+
+    @PostMapping("/{id}/transaction")
+    public ResponseEntity<?> processWalletTransaction(
+            @PathVariable("id") Long id,
+            @RequestParam("amount") Double amount,
+            @RequestParam("type") String type,
+            @RequestParam(value = "note", required = false) String note,
+            @RequestParam("currentBalance") Double currentBalance) {
+        try {
+            Transaction tx = transactionService.processTransaction(id, amount, type, note, currentBalance);
+            return ResponseEntity.ok().body(tx);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi giao dịch: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<?> getTransactionHistory(@PathVariable("id") Long id) {
+        try {
+            List<Transaction> list = transactionService.getTransactionsByUserId(id);
+            List<Map<String, Object>> simplifiedList = new ArrayList<>();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+            for (Transaction tx : list) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("type", tx.getType());
+                map.put("moneyIn", tx.getMoneyIn());
+                map.put("moneyOut", tx.getMoneyOut());
+                map.put("lastBalance", tx.getLastBalance());
+                map.put("note", tx.getNote());
+
+                // Lấy đúng thời gian từ database
+                if (tx.getTransactionTime() != null) {
+                    map.put("time", tx.getTransactionTime().format(formatter));
+                } else {
+                    map.put("time", LocalDateTime.now().format(formatter));
+                }
+
+                simplifiedList.add(map);
+            }
+
+            return ResponseEntity.ok().body(simplifiedList);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Không thể tải lịch sử: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/{id}/bank")
     public ResponseEntity<?> updateBank(@PathVariable("id") Long id, @RequestBody BankRequest request) {
         try {
@@ -25,7 +82,6 @@ public class UserController {
         }
     }
 
-    // API: PUT http://localhost:8080/api/user/{id}/address
     @PutMapping("/{id}/address")
     public ResponseEntity<?> updateAddress(@PathVariable("id") Long id, @RequestBody AddressRequest request) {
         try {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.BankSettingController">
+    <Label text="Tài khoản ngân hàng"><font><Font name="System Bold" size="22.0" /></font></Label>
+    <Label text="Thông tin dùng để nạp và rút tiền." textFill="#7f8c8d" />
+    <GridPane hgap="15.0" vgap="15.0">
+        <Label text="Ngân hàng:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <ComboBox fx:id="cbBankName" editable="true" prefHeight="35.0" prefWidth="350.0" promptText="Gõ hoặc chọn tên ngân hàng..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+        <Label text="Tên chủ thẻ:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="txtAccountName" prefHeight="35.0" prefWidth="350.0" style="-fx-text-transform: uppercase;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+        <Label text="Số tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <TextField fx:id="txtBankAccount" prefHeight="35.0" prefWidth="350.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    </GridPane>
+    <Button onAction="#saveBank" prefHeight="40.0" prefWidth="160.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Lưu thông tin ngân hàng" />
+</VBox>

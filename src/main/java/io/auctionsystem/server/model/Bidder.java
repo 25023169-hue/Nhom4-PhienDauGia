@@ -9,6 +9,10 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "bidders")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Bidder extends User {
-    private String shippingAddress;
+    private String bankName;
+    private String accountName;
+    private String bankAccount;
+    private String address;
 }

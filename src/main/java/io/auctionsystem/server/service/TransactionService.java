@@ -2,45 +2,40 @@ package io.auctionsystem.server.service;
 
 import io.auctionsystem.server.model.Transaction;
 import io.auctionsystem.server.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class TransactionService {
 
-    private final TransactionRepository transactionRepository;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
-    public List<Transaction> getTransactionHistory(Long userId) {
-        return transactionRepository.findByUserIdOrderByTransactionTimeDesc(userId);
-    }
-
-    @Transactional
     public Transaction processTransaction(Long userId, Double amount, String type, String note, Double currentBalance) {
-        Transaction transaction = new Transaction();
-        transaction.setUserId(userId);
-        transaction.setType(type);
+        Transaction tx = new Transaction();
+        tx.setUserId(userId);
+        tx.setType(type);
+        tx.setNote(note);
+        tx.setTransactionTime(LocalDateTime.now()); // Dùng đúng biến transactionTime
 
-        double newBalance = currentBalance;
-
-        if ("NẠP".equalsIgnoreCase(type)) {
-            transaction.setMoneyIn(amount);
-            transaction.setMoneyOut(0.0);
-            newBalance = currentBalance + amount;
-        } else if ("RÚT".equalsIgnoreCase(type)) {
-            transaction.setMoneyIn(0.0);
-            transaction.setMoneyOut(amount);
-            newBalance = currentBalance - amount;
+        // Tự động phân bổ vào tiền vào/tiền ra và tính số dư
+        if ("Nạp".equals(type)) {
+            tx.setMoneyIn(amount);
+            tx.setMoneyOut(0.0);
+            tx.setLastBalance(currentBalance + amount);
+        } else if ("Rút".equals(type)) {
+            tx.setMoneyIn(0.0);
+            tx.setMoneyOut(amount);
+            tx.setLastBalance(currentBalance - amount);
         }
 
-        transaction.setLastBalance(newBalance);
-        transaction.setNote(note != null ? note : type + " tiền");
+        return transactionRepository.save(tx);
+    }
 
-
-        transaction.setTransactionTime(LocalDateTime.now());
-        return transactionRepository.save(transaction);
+    public List<Transaction> getTransactionsByUserId(Long userId) {
+        return transactionRepository.findByUserId(userId);
     }
 }

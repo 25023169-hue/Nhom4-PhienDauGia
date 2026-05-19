@@ -1,41 +1,44 @@
 package io.auctionsystem.client.controller;
 
+import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.response.AuthResponse;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 
-public class SellerDashboardController {
-
-    @FXML private TableView<?> tableMyProducts; // Tạm thời dùng <?> chờ bạn định nghĩa DTO Sản phẩm
-    @FXML private TableColumn<?, Long> colId;
-    @FXML private TableColumn<?, String> colName;
-    @FXML private TableColumn<?, Double> colPrice;
-    @FXML private TableColumn<?, String> colStatus;
+public class SellerDashboardController extends BaseDashboardController {
 
     @FXML
     public void initialize() {
-        // Sau này bạn sẽ code logic gọi API lấy danh sách sản phẩm của Seller ở đây
-        System.out.println("Giao diện Kênh người bán đã tải thành công!");
+        AuthResponse user = AuctionManager.getInstance().getCurrentUser();
+        String storeName = (user != null && user.getStoreName() != null) ? user.getStoreName().trim() : "";
+        lblWelcome.setText("Xin chào, " + storeName + "!");
+        onHomeButtonClicked();
+    }
+
+    // -- CÁC NÚT RIÊNG CỦA SELLER --
+    @FXML
+    public void onAddAuctionClicked() {
+        loadSubView("/client/fxml/add_auction_view.fxml");
     }
 
     @FXML
-    public void onAddProductClicked() {
-        // Nút thêm sản phẩm ở góc phải
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText("Tính năng Thêm sản phẩm đang được phát triển!");
-        alert.showAndWait();
+    public void onManageAuctionsClicked() {
+        loadSubView("/client/fxml/manage_auctions_view.fxml");
+    }
 
-        // Sau này thay bằng:
-        // SceneManager.getInstance().switchScene("/client/fxml/add_product.fxml");
+    @FXML
+    public void onRevenueChartClicked() {
+        loadSubView("/client/fxml/revenue_chart_view.fxml");
     }
 
     @FXML
     public void onBackToBuyerChannelClicked() {
-        // Nút quay lại màn hình chính của người mua
-        SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+    }
+
+    @FXML
+    public void onOpenSettings() {
+        SettingsController.isSellerChannel = true;
+        SceneManager.getInstance().switchScene("/client/fxml/settings.fxml");
     }
 }

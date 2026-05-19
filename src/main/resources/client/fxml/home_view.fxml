@@ -17,17 +17,6 @@
                 <Label text="Theo dõi phiên đấu giá, sản phẩm yêu thích và kênh người bán từ một nơi." textFill="#6b7c85" wrapText="true">
                     <font><Font size="15.0" /></font>
                 </Label>
-                <HBox spacing="12.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#onProductListButtonClicked" style="-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Xem danh sách sản phẩm">
-                            <padding><Insets bottom="10.0" left="18.0" right="18.0" top="10.0" /></padding>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#onSellerChannelButtonClicked" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Kênh Người Bán">
-                            <padding><Insets bottom="10.0" left="18.0" right="18.0" top="10.0" /></padding>
-                        </Button>
-                    </children>
-                    <VBox.margin><Insets top="14.0" /></VBox.margin>
-                </HBox>
             </children>
         </VBox>
         <HBox spacing="18.0">

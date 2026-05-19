@@ -18,4 +18,5 @@ public class AuthResponse {
     private String bankName;
     private String accountName;
     private String bankAccount;
+    private String storeName;
 }

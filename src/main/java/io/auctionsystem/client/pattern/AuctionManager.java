@@ -28,6 +28,10 @@ public class AuctionManager {
     public String getUsername() { return (isLoggedIn()) ? currentUser.getUsername() : "Guest"; }
     public String getFirstname() { return (isLoggedIn()) ? currentUser.getFirstname() : null; }
     public String getLastname() { return (isLoggedIn()) ? currentUser.getLastname() : null; }
+
+    // BỔ SUNG THÊM HÀM NÀY ĐỂ LẤY TÊN CỬA HÀNG NHÉ
+    public String getStoreName() { return (isLoggedIn()) ? currentUser.getStoreName() : "Seller"; }
+
     public double getBalance() { return (isLoggedIn()) ? currentUser.getBalance() : 0.0; }
     public void setBalance(double balance) { if (isLoggedIn()) currentUser.setBalance(balance); }
     public String getBankAccount() { return (isLoggedIn()) ? currentUser.getBankAccount() : null; }
@@ -35,6 +39,7 @@ public class AuctionManager {
     public String getAddress() { return (isLoggedIn()) ? currentUser.getAddress() : null; }
     public String getAccountName() { return (isLoggedIn()) ? currentUser.getAccountName() : null; }
     public boolean isAdmin() { return isLoggedIn() && currentUser.getRole() == Role.ADMIN; }
+
     public boolean hasBankInfo() {
         return isLoggedIn()
                 && currentUser.getAccountName() != null
@@ -42,6 +47,7 @@ public class AuctionManager {
                 && currentUser.getBankAccount() != null
                 && !currentUser.getBankAccount().trim().isEmpty();
     }
+
     public void requestSettingsTab(String tabName) { this.requestedSettingsTab = tabName; }
     public String consumeSettingsTabRequest() {
         String tabName = requestedSettingsTab;

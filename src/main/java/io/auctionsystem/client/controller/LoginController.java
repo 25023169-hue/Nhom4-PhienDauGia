@@ -77,7 +77,7 @@ public class LoginController {
                             System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
                             // CHUYỂN MÀN HÌNH SANG DASHBOARD THÔNG QUA SCENEMANAGER
-                            SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
+                            SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
 
                         } catch (Exception e) {
                             System.err.println(">>> Lỗi parse JSON ngầm (Đã bỏ qua): " + e.getMessage());

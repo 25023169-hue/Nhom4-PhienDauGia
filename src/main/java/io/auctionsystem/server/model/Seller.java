@@ -9,6 +9,6 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "sellers")
-public class Seller extends User {
+public class Seller extends Bidder {
     private String storeName;
 }
