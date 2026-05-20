@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Separator?>
+
+<VBox alignment="TOP_CENTER" prefHeight="700.0" prefWidth="900.0" spacing="20.0" style="-fx-padding: 40; -fx-background-color: white;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.PurchaseHistoryController">
+
+    <Label text="Lịch Sử Mua Hàng &amp; Đấu Giá" textFill="#2c3e50">
+        <font>
+            <Font name="System Bold" size="28.0" />
+        </font>
+    </Label>
+
+    <Label text="Theo dõi lại toàn bộ các mức giá bạn đã từng vung tay trong quá khứ." textFill="#7f8c8d">
+        <font>
+            <Font size="14.0" />
+        </font>
+    </Label>
+
+    <TableView fx:id="tableHistory" prefHeight="300.0" prefWidth="820.0" style="-fx-font-size: 14px;" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colAuctionId" prefWidth="150.0" text="Mã Phiên (Auction ID)" />
+            <TableColumn fx:id="colAmount" prefWidth="350.0" text="Mức giá đã đặt (VNĐ)" />
+            <TableColumn fx:id="colTime" prefWidth="300.0" text="Thời gian đặt lệnh" />
+        </columns>
+    </TableView>
+
+    <Separator prefWidth="820.0" style="-fx-padding: 10 0 10 0;" />
+
+    <fx:include source="inventory_view.fxml" />
+
+</VBox>

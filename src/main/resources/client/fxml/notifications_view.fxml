@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.NotificationController" spacing="15" style="-fx-padding: 20; -fx-background-color: white;">
+    <Label text="Thông báo của bạn" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <ListView fx:id="listNotifications" VBox.vgrow="ALWAYS" style="-fx-font-size: 14px;" />
+</VBox>
