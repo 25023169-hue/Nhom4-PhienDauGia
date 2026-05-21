@@ -5,6 +5,8 @@ import io.auctionsystem.server.model.Art;
 import io.auctionsystem.server.model.Electronics;
 import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.model.Vehicle;
+import io.auctionsystem.server.model.Fashion;
+import io.auctionsystem.server.model.Jewelry;
 
 public class ItemFactory {
 
@@ -25,11 +27,26 @@ public class ItemFactory {
             case VEHICLE:
                 item = new Vehicle();
                 break;
+            case FASHION:
+                Fashion fashion = new Fashion();
+                fashion.setBrand(request.getBrand());
+                fashion.setSize(request.getSize());
+                fashion.setMaterial(request.getMaterial());
+                fashion.setGender(request.getGender());
+                item = fashion;
+                break;
+            case JEWELRY:
+                Jewelry jewelry = new Jewelry();
+                jewelry.setMaterial(request.getMaterial());
+                jewelry.setWeight(request.getWeight());
+                jewelry.setGemstone(request.getGemstone());
+                item = jewelry;
+                break;
             default:
                 throw new IllegalArgumentException("Loại sản phẩm không hỗ trợ!");
         }
 
-        // Chỉ đổ các thông tin chung của Item
+        // Đổ các thông tin chung của Item
         item.setName(request.getName());
         item.setDescription(request.getDescription());
         item.setStartingPrice(request.getStartingPrice());

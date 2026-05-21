@@ -21,4 +21,10 @@ public class ItemRequest implements Serializable {
     private String artist;
     private String brand;
     private Integer manufactureYear;
+    // --- CÁC TRƯỜNG THÊM MỚI CHO FASHION & JEWELRY ---
+    private String size;
+    private String material;
+    private String gender;
+    private Double weight;
+    private String gemstone;
 }
