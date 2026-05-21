@@ -6,7 +6,7 @@ import io.auctionsystem.server.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +44,7 @@ public class AdminController {
 
             // balance nếu có logic
             dto.setBalance(user.getBalance());
+            dto.setBanned(user.isBanned());
 
             return dto;
         }).collect(Collectors.toList());
@@ -64,5 +65,12 @@ public class AdminController {
         }
 
         return ResponseEntity.badRequest().body("Không tìm thấy người dùng.");
+    }
+    // Thêm vào AdminController.java
+
+    @GetMapping("/stats/monthly")
+    public ResponseEntity<Map<Integer, Long>> getMonthlyStats(
+            @RequestParam(defaultValue = "2026") int year) {
+        return ResponseEntity.ok(adminService.getMonthlyAuctionStats(year));
     }
 }
