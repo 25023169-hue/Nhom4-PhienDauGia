@@ -15,7 +15,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="720.0" prefWidth="1150.0" style="-fx-background-color: #f0f4f8;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.SellerDashboardController">
+<BorderPane prefHeight="720.0" prefWidth="1150.0" style="-fx-background-color: #f0f4f8;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.SellerDashboardController">
 
     <!-- CỘT BÊN TRÁI (SIDEBAR) -->
     <left>
@@ -25,27 +25,35 @@
             </padding>
             <children>
 
-                <!-- Khu vực Profile -->
+                      <!-- Khu vực Profile -->
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
                         <Label alignment="CENTER" minHeight="54.0" minWidth="54.0" style="-fx-background-color: #fbd38d; -fx-background-radius: 27;" text="👨" textFill="#333333">
-                            <font><Font size="26.0" /></font>
+                            <font>
+                        <Font size="26.0" />
+                     </font>
                         </Label>
                         <VBox alignment="CENTER_LEFT" spacing="2.0">
                             <children>
-                                <Label text="Hòa Nguyễn" textFill="WHITE">
-                                    <font><Font name="System Bold" size="16.0" /></font>
+                                <Label textFill="WHITE">
+                                    <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
                                 </Label>
                                 <Label text="Chủ Kênh" textFill="#94a3b8">
-                                    <font><Font size="13.0" /></font>
+                                    <font>
+                              <Font size="13.0" />
+                           </font>
                                 </Label>
                             </children>
                         </VBox>
                     </children>
-                    <VBox.margin><Insets bottom="20.0" /></VBox.margin>
+                    <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
                 </HBox>
 
-                <!-- Tiêu đề Kênh -->
+                      <!-- Tiêu đề Kênh -->
                 <Label alignment="TOP_LEFT" text="KÊNH NGƯỜI BÁN 🔨" textFill="WHITE" wrapText="true">
                     <font>
                         <Font name="System Bold" size="20.0" />
@@ -55,33 +63,49 @@
                     </VBox.margin>
                 </Label>
 
-                <!-- Các nút Menu -->
+                      <!-- Các nút Menu -->
                 <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" style="-fx-background-color: #2d3748; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 8; -fx-border-color: #10b981; -fx-border-width: 0 0 0 4; -fx-border-radius: 8;" text="📦  Sản phẩm của tôi">
-                    <font><Font name="System Bold" size="14.0" /></font>
-                    <padding><Insets left="15.0" /></padding>
+                    <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+                    <padding>
+                  <Insets left="15.0" />
+               </padding>
                 </Button>
 
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="🛒  Quản lý Đơn hàng">
-                    <font><Font size="14.0" /></font>
-                    <padding><Insets left="15.0" /></padding>
+                      <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="🛒  Quản lý Đơn hàng">
+                    <font>
+                  <Font size="14.0" />
+               </font>
+                    <padding>
+                  <Insets left="15.0" />
+               </padding>
                 </Button>
 
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="📊  Thống kê doanh thu">
-                    <font><Font size="14.0" /></font>
-                    <padding><Insets left="15.0" /></padding>
+                      <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="50.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="📊  Thống kê doanh thu">
+                    <font>
+                  <Font size="14.0" />
+               </font>
+                    <padding>
+                  <Insets left="15.0" />
+               </padding>
                 </Button>
 
-                <Region VBox.vgrow="ALWAYS" />
+                      <Region VBox.vgrow="ALWAYS" />
 
-                <!-- Nút Trở về -->
+                      <!-- Nút Trở về -->
                 <Button mnemonicParsing="false" onAction="#onBackToBuyerChannelClicked" prefHeight="45.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-border-radius: 10; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-cursor: hand;" text="←  Trở về Kênh Người Mua">
-                    <font><Font size="13.0" /></font>
+                    <font>
+                  <Font size="13.0" />
+               </font>
                 </Button>
             </children>
 
-            <effect>
+                  <effect>
                 <DropShadow height="30.0" radius="14.5" width="30.0">
-                    <color><Color opacity="0.15" /></color>
+                    <color>
+                  <Color opacity="0.15" />
+               </color>
                 </DropShadow>
             </effect>
         </VBox>
