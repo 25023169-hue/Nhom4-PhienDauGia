@@ -5,6 +5,7 @@ import io.auctionsystem.server.model.*;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.BidRepository;
 import io.auctionsystem.server.repository.ItemRepository;
+import io.auctionsystem.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private BidRepository bidRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -41,13 +45,19 @@ public class DataInitializer implements CommandLineRunner {
         // ==========================================
         // 1. ĐỒ ĐIỆN TỬ (ELECTRONICS)
         // ==========================================
+        User sampleSeller = findExistingSeller();
+        if (sampleSeller == null) {
+            System.err.println(">>> KHONG CO SELLER MAU, BO QUA NAP SAN PHAM MAU DE SERVER KHOI DONG BINH THUONG.");
+            return;
+        }
+
         Electronics macbook = new Electronics();
         macbook.setName("Siêu phẩm MacBook Pro M3 Max");
         macbook.setDescription("Cấu hình khủng, code Java bao mượt không giật lag.");
         macbook.setStartingPrice(55000000.0);
         macbook.setCurrentPrice(55000000.0);
         macbook.setBrand("Apple");
-        macbook = itemRepository.save(macbook);
+        macbook = saveSampleItem(macbook, sampleSeller);
         createAuction(macbook.getId(), 2, AuctionState.RUNNING);
 
         Electronics iphone = new Electronics();
@@ -56,7 +66,7 @@ public class DataInitializer implements CommandLineRunner {
         iphone.setStartingPrice(35000000.0);
         iphone.setCurrentPrice(35000000.0);
         iphone.setBrand("Apple");
-        iphone = itemRepository.save(iphone);
+        iphone = saveSampleItem(iphone, sampleSeller);
         createAuction(iphone.getId(), 1, AuctionState.RUNNING);
 
         // ==========================================
@@ -70,7 +80,7 @@ public class DataInitializer implements CommandLineRunner {
         painting.setArtistName("Vincent van Gogh");
         painting.setMedium("Sơn dầu");
         painting.setDimensions("73x92 cm");
-        painting = itemRepository.save(painting);
+        painting = saveSampleItem(painting, sampleSeller);
         createAuction(painting.getId(), 5, AuctionState.RUNNING);
 
         // ==========================================
@@ -83,7 +93,7 @@ public class DataInitializer implements CommandLineRunner {
         oto.setCurrentPrice(850000000.0);
         oto.setFuelType("Điện");
         oto.setManufactureYear(2023);
-        oto = itemRepository.save(oto);
+        oto = saveSampleItem(oto, sampleSeller);
         createAuction(oto.getId(), 7, AuctionState.RUNNING);
 
         Vehicle xemay = new Vehicle();
@@ -93,7 +103,7 @@ public class DataInitializer implements CommandLineRunner {
         xemay.setCurrentPrice(110000000.0);
         xemay.setFuelType("Xăng");
         xemay.setManufactureYear(2022);
-        xemay = itemRepository.save(xemay);
+        xemay = saveSampleItem(xemay, sampleSeller);
         createAuction(xemay.getId(), 3, AuctionState.RUNNING);
 
         // ==========================================
@@ -108,7 +118,7 @@ public class DataInitializer implements CommandLineRunner {
         aoDai.setGender("Nữ");
         aoDai.setSize("M");
         aoDai.setMaterial("Lụa tơ tằm");
-        aoDai = itemRepository.save(aoDai);
+        aoDai = saveSampleItem(aoDai, sampleSeller);
         createAuction(aoDai.getId(), 4, AuctionState.RUNNING);
 
         Fashion tuiXach = new Fashion();
@@ -119,7 +129,7 @@ public class DataInitializer implements CommandLineRunner {
         tuiXach.setBrand("Hermès");
         tuiXach.setGender("Nữ");
         tuiXach.setMaterial("Da bò Togo");
-        tuiXach = itemRepository.save(tuiXach);
+        tuiXach = saveSampleItem(tuiXach, sampleSeller);
         createAuction(tuiXach.getId(), 10, AuctionState.RUNNING);
 
         // ==========================================
@@ -133,7 +143,7 @@ public class DataInitializer implements CommandLineRunner {
         nhanKC.setMaterial("Bạch kim");
         nhanKC.setGemstone("Kim cương tự nhiên");
         nhanKC.setWeight(4.5); // 4.5 gram
-        nhanKC = itemRepository.save(nhanKC);
+        nhanKC = saveSampleItem(nhanKC, sampleSeller);
         createAuction(nhanKC.getId(), 6, AuctionState.RUNNING);
 
         Jewelry dayChuyen = new Jewelry();
@@ -143,13 +153,25 @@ public class DataInitializer implements CommandLineRunner {
         dayChuyen.setCurrentPrice(18000000.0);
         dayChuyen.setMaterial("Vàng 18K");
         dayChuyen.setGemstone("Ngọc trai Akoya");
-        dayChuyen = itemRepository.save(dayChuyen);
+        dayChuyen = saveSampleItem(dayChuyen, sampleSeller);
         createAuction(dayChuyen.getId(), 2, AuctionState.RUNNING);
 
         System.out.println(">>> ĐÃ NẠP XONG TOÀN BỘ SẢN PHẨM MẪU VÀO SÀN ĐẤU GIÁ!");
     }
 
     // Hàm hỗ trợ tạo nhanh phiên đấu giá để code ở trên ngắn gọn hơn
+    private User findExistingSeller() {
+        return userRepository.findAll().stream()
+                .filter(user -> userRepository.isUserSeller(user.getId()) > 0)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private <T extends Item> T saveSampleItem(T item, User seller) {
+        item.setSeller(seller);
+        return itemRepository.save(item);
+    }
+
     private void createAuction(Long itemId, int daysToAdd, AuctionState status) {
         Auction auction = new Auction();
         auction.setItemId(itemId);
