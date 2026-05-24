@@ -1,7 +1,7 @@
 package io.auctionsystem.server.service;
 
-import io.auctionsystem.common.response.AuthResponse;
-import io.auctionsystem.common.request.RegisterRequest;
+import io.auctionsystem.common.dto.AuthResponse;
+import io.auctionsystem.common.dto.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.server.repository.UserRepository;
 import io.auctionsystem.server.model.User;
@@ -19,6 +19,8 @@ public class AuthService {
     public String register(RegisterRequest request) {
         String username = request.getUsername();
 
+        // CHỈ KIỂM TRA KÝ TỰ ĐẶC BIỆT VÀ KHOẢNG TRẮNG BẰNG REGEX
+        // ^[a-zA-Z0-9]+$ : Bắt buộc chỉ gồm chữ cái (không dấu) và số.
         if (!username.matches("^[a-zA-Z0-9]+$")) {
             throw new IllegalArgumentException("Tên đăng nhập chỉ được chứa chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt!");
         }
@@ -27,7 +29,7 @@ public class AuthService {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
         }
 
-        User newUser = (request.getRole() == Role.SELLER) ? new Seller() : new Bidder();
+        User newUser = ("SELLER".equalsIgnoreCase(request.getRole())) ? new Seller() : new Bidder();
         newUser.setUsername(username);
         newUser.setPassword(request.getPassword());
         newUser.setFirstname(request.getFirstname());
@@ -38,33 +40,19 @@ public class AuthService {
     }
 
     public AuthResponse login(String username, String password) {
+        // Tìm User, nếu không có thì trả về null luôn cho gọn
         User user = userRepository.findByUsername(username).orElse(null);
 
-        if (user == null || !user.getPassword().equals(password) || !username.matches("^[a-zA-Z0-9]+$")) {
+        // Dùng toán tử OR (||) để kiểm tra: Nếu User không tồn tại HOẶC sai mật khẩu
+        if (user == null || !user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
         }
 
         AuthResponse response = new AuthResponse();
-        response.setUserId(user.getId());
+        response.setId(user.getId());
         response.setUsername(user.getUsername());
         response.setFirstname(user.getFirstname());
         response.setLastname(user.getLastname());
-        response.setBalance(user.getBalance());
-
-        // ====================================================================
-        // SỬA TẠI ĐÂY: Vì ngân hàng và địa chỉ nằm ở Bidder (và Seller extends Bidder)
-        // ====================================================================
-        if (user instanceof Bidder bidder) {
-            response.setAddress(bidder.getAddress());
-            response.setBankName(bidder.getBankName());
-            response.setAccountName(bidder.getAccountName());
-            response.setBankAccount(bidder.getBankAccount());
-        }
-
-        // Nếu là Seller thì lấy thêm storeName
-        if (user instanceof Seller seller) {
-            response.setStoreName(seller.getStoreName());
-        }
 
         if (userRepository.isUserSeller(user.getId()) > 0) {
             response.setRole(Role.SELLER);

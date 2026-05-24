@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,19 +17,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
 
-    // THÊM MỚI: Hàm xóa quyền Bidder
-    @Modifying
+    // Dành cho Admin: Chỉ lấy những User thuộc nhóm Bidder hoặc Seller
+    @Query("SELECT u FROM User u WHERE TYPE(u) IN (Bidder, Seller)")
+    List<User> findAllClients();
+
+    // Xóa quyền Bidder
+    @Modifying(clearAutomatically = true) // Ép xóa cache sau khi chạy query
     @Transactional
     @Query(value = "DELETE FROM bidders WHERE id = :userId", nativeQuery = true)
-    void removeBidderRole(@Param("userId") Long Id);
+    void removeBidderRole(@Param("userId") Long userId);
 
-    // Hàm nâng cấp Seller (Sửa lại tên tham số cho đồng bộ)
-    @Modifying
+    // Nâng cấp lên Seller
+    @Modifying(clearAutomatically = true) // Ép xóa cache sau khi chạy query
     @Transactional
     @Query(value = "INSERT INTO sellers (id, store_name) VALUES (:userId, :storeName)", nativeQuery = true)
-    void upgradeToSellerNative(@Param("userId") Long Id, @Param("storeName") String storeName);
+    void upgradeToSellerNative(@Param("userId") Long userId, @Param("storeName") String storeName);
 
-    // Hàm kiểm tra
-    @Query(value = "SELECT COUNT(*) FROM sellers WHERE id = :Id", nativeQuery = true)
-    int isUserSeller(@Param("Id") Long Id);
+    // Kiểm tra xem User có phải là Seller không
+    @Query(value = "SELECT COUNT(*) FROM sellers WHERE id = :userId", nativeQuery = true)
+    int isUserSeller(@Param("userId") Long userId);
 }

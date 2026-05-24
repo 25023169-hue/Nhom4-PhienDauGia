@@ -3,6 +3,9 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.dto.AuthResponse;
+import io.auctionsystem.common.dto.LoginRequest;
+import io.auctionsystem.common.enums.Role; // Import thêm Enum Role
 import io.auctionsystem.common.response.AuthResponse;
 import io.auctionsystem.common.request.LoginRequest;
 import javafx.application.Platform;
@@ -77,7 +80,7 @@ public class LoginController {
                             System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
                             // CHUYỂN MÀN HÌNH SANG DASHBOARD THÔNG QUA SCENEMANAGER
-                            SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+                            SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
 
                         } catch (Exception e) {
                             System.err.println(">>> Lỗi parse JSON ngầm (Đã bỏ qua): " + e.getMessage());
