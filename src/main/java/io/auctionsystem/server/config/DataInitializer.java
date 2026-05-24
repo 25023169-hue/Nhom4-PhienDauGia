@@ -29,28 +29,27 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println(">>> ĐANG KIỂM TRA VÀ DỌN DẸP DỮ LIỆU CŨ...");
 
-        try {
-            bidRepository.deleteAll();
-            auctionRepository.deleteAll();
-            itemRepository.deleteAll();
-            System.out.println(">>> ĐÃ DỌN SẠCH DỮ LIỆU RÁC!");
-        } catch (Exception e) {
-            System.err.println(">>> BỎ QUA DỌN DẸP VÌ DATABASE ĐÃ SẠCH.");
+        // LỖI ĐÃ SỬA: Trước đây deleteAll() được gọi KHÔNG CÓ ĐIỀU KIỆN mỗi lần server khởi động
+        // → xóa sạch toàn bộ dữ liệu thật (bid, auction, item) mỗi lần restart.
+        // Sửa: Chỉ nạp dữ liệu mẫu khi database đang TRỐNG (item chưa có dòng nào).
+        // Điều này giữ an toàn dữ liệu khi server restart trong môi trường thực tế.
+        if (itemRepository.count() > 0) {
+            System.out.println(">>> DATABASE ĐÃ CÓ DỮ LIỆU, BỎ QUA KHỞI TẠO MẪU.");
+            return;
         }
 
-        System.out.println(">>> ĐANG BƠM DỮ LIỆU MẪU ĐA DẠNG VÀO HỆ THỐNG...");
+        System.out.println(">>> DATABASE ĐANG TRỐNG, BẮT ĐẦU NẠP DỮ LIỆU MẪU...");
 
-        // ==========================================
-        // 1. ĐỒ ĐIỆN TỬ (ELECTRONICS)
-        // ==========================================
         User sampleSeller = findExistingSeller();
         if (sampleSeller == null) {
             System.err.println(">>> KHONG CO SELLER MAU, BO QUA NAP SAN PHAM MAU DE SERVER KHOI DONG BINH THUONG.");
             return;
         }
 
+        // ==========================================
+        // 1. ĐỒ ĐIỆN TỬ (ELECTRONICS)
+        // ==========================================
         Electronics macbook = new Electronics();
         macbook.setName("Siêu phẩm MacBook Pro M3 Max");
         macbook.setDescription("Cấu hình khủng, code Java bao mượt không giật lag.");
@@ -142,7 +141,7 @@ public class DataInitializer implements CommandLineRunner {
         nhanKC.setCurrentPrice(250000000.0);
         nhanKC.setMaterial("Bạch kim");
         nhanKC.setGemstone("Kim cương tự nhiên");
-        nhanKC.setWeight(4.5); // 4.5 gram
+        nhanKC.setWeight(4.5);
         nhanKC = saveSampleItem(nhanKC, sampleSeller);
         createAuction(nhanKC.getId(), 6, AuctionState.RUNNING);
 
@@ -159,7 +158,6 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println(">>> ĐÃ NẠP XONG TOÀN BỘ SẢN PHẨM MẪU VÀO SÀN ĐẤU GIÁ!");
     }
 
-    // Hàm hỗ trợ tạo nhanh phiên đấu giá để code ở trên ngắn gọn hơn
     private User findExistingSeller() {
         return userRepository.findAll().stream()
                 .filter(user -> userRepository.isUserSeller(user.getId()) > 0)

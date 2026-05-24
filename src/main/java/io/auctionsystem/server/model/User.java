@@ -18,12 +18,11 @@ public abstract class User extends BaseEntity {
     private String firstname;
     private String lastname;
 
-    private String bankName;
-    private int bankAccount;
-    // Thêm vào dưới thuộc tính bankAccount
+    // LỖI ĐÃ SỬA: bankName và bankAccount bị trùng lặp với Bidder
+    // Trong Bidder đã khai báo: private String bankName, accountName, bankAccount, address
+    // → Xóa bankName và bankAccount khỏi User để tránh shadow field và lỗi Hibernate mapping.
+    // Nếu cần dùng bankName/bankAccount ở tầng User, hãy lấy qua ép kiểu sang Bidder.
+
     private boolean isBanned = false;
     private boolean active = true;
-
-// Nhớ thêm các annotation của Lombok nếu chưa có,
-// hoặc tự generate Getter/Setter cho thuộc tính này nhé.
 }

@@ -3,6 +3,7 @@ package io.auctionsystem.client.controller;
 import io.auctionsystem.client.model.TransactionModel;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -80,6 +81,9 @@ public class WalletController {
 
         refreshWalletBalance();
 
+        // LỖI ĐÃ SỬA: loadTransactionHistoryFromServer() trước đây gọi HTTP blocking
+        // trực tiếp trên JavaFX UI Thread → UI bị đóng băng khi chờ server.
+        // Đã chuyển toàn bộ logic HTTP vào new Thread() bên trong hàm đó.
         loadTransactionHistoryFromServer();
 
         if (!AuctionManager.getInstance().hasBankInfo()) {
@@ -89,58 +93,70 @@ public class WalletController {
         }
     }
 
+    // LỖI ĐÃ SỬA: Bọc toàn bộ HTTP call trong new Thread() để không block UI Thread
     private void loadTransactionHistoryFromServer() {
-        try {
-            Long userId = AuctionManager.getInstance().getId();
-            String urlString = "http://localhost:8080/api/user/" + userId + "/transactions";
+        Long userId = AuctionManager.getInstance().getId();
+        if (userId == null) return;
 
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(urlString))
-                    .GET()
-                    .build();
+        new Thread(() -> {
+            try {
+                String urlString = "http://localhost:8080/api/user/" + userId + "/transactions";
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(urlString))
+                        .GET()
+                        .build();
 
-            if (response.statusCode() == 200) {
-                WALLET_TRANSACTIONS.clear();
-                ObjectMapper mapper = new ObjectMapper();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                List<Map<String, Object>> transactions = mapper.readValue(
-                        response.body(),
-                        new TypeReference<List<Map<String, Object>>>() {}
-                );
+                // Cập nhật UI phải chạy trên JavaFX Thread
+                Platform.runLater(() -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            WALLET_TRANSACTIONS.clear();
+                            ObjectMapper mapper = new ObjectMapper();
 
-                for (Map<String, Object> tx : transactions) {
-                    String type = (String) tx.get("type");
-                    double moneyIn = ((Number) tx.getOrDefault("moneyIn", 0.0)).doubleValue();
-                    double moneyOut = ((Number) tx.getOrDefault("moneyOut", 0.0)).doubleValue();
-                    double lastBalance = ((Number) tx.getOrDefault("lastBalance", 0.0)).doubleValue();
-                    String note = (String) tx.get("note");
-                    String timeStr = (String) tx.get("time");
+                            List<Map<String, Object>> transactions = mapper.readValue(
+                                    response.body(),
+                                    new TypeReference<List<Map<String, Object>>>() {}
+                            );
 
-                    String formattedAmount = formatCurrency(moneyIn > 0 ? moneyIn : moneyOut);
-                    String moneyInVal = moneyIn > 0 ? "+ " + formattedAmount : "";
-                    String moneyOutVal = moneyOut > 0 ? "- " + formattedAmount : "";
-                    String strLastBalance = formatCurrency(lastBalance);
+                            for (Map<String, Object> tx : transactions) {
+                                String type = (String) tx.get("type");
+                                double moneyIn = ((Number) tx.getOrDefault("moneyIn", 0.0)).doubleValue();
+                                double moneyOut = ((Number) tx.getOrDefault("moneyOut", 0.0)).doubleValue();
+                                double lastBalance = ((Number) tx.getOrDefault("lastBalance", 0.0)).doubleValue();
+                                String note = (String) tx.get("note");
+                                String timeStr = (String) tx.get("time");
 
-                    WALLET_TRANSACTIONS.add(new TransactionModel(
-                            LocalDateTime.now(),
-                            timeStr,
-                            moneyInVal,
-                            moneyOutVal,
-                            strLastBalance,
-                            type,
-                            note
-                    ));
-                }
+                                String formattedAmount = formatCurrency(moneyIn > 0 ? moneyIn : moneyOut);
+                                String moneyInVal = moneyIn > 0 ? "+ " + formattedAmount : "";
+                                String moneyOutVal = moneyOut > 0 ? "- " + formattedAmount : "";
+                                String strLastBalance = formatCurrency(lastBalance);
+
+                                WALLET_TRANSACTIONS.add(new TransactionModel(
+                                        LocalDateTime.now(),
+                                        timeStr,
+                                        moneyInVal,
+                                        moneyOutVal,
+                                        strLastBalance,
+                                        type,
+                                        note
+                                ));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
-    // LOGIC TÌM KIẾM MỚI: TÌM ĐƯỢC CẢ GHI CHÚ LẪN SỐ TIỀN CÙNG LÚC
     private void applyFilters() {
         String searchText = txtSearch.getText() == null ? "" : txtSearch.getText().toLowerCase().trim();
         String timeSelection = cbTimeFilter.getValue() == null ? "Tất cả thời gian" : cbTimeFilter.getValue();
@@ -148,13 +164,11 @@ public class WalletController {
 
         filteredTransactions.setPredicate(transaction -> {
 
-            // Nếu có nhập từ khóa tìm kiếm
             if (!searchText.isEmpty()) {
                 String note = transaction.getNote() == null ? "" : transaction.getNote().toLowerCase().trim();
                 String moneyIn = transaction.getMoneyIn() == null ? "" : transaction.getMoneyIn().toLowerCase().trim();
                 String moneyOut = transaction.getMoneyOut() == null ? "" : transaction.getMoneyOut().toLowerCase().trim();
 
-                // Lọc bỏ tất cả ký tự không phải là số (để khách gõ "100000" vẫn tìm ra "100.000 ₫")
                 String rawSearch = searchText.replaceAll("[^0-9]", "");
                 String rawMoneyIn = moneyIn.replaceAll("[^0-9]", "");
                 String rawMoneyOut = moneyOut.replaceAll("[^0-9]", "");
@@ -163,7 +177,6 @@ public class WalletController {
                 boolean matchMoneyIn = moneyIn.contains(searchText) || (!rawSearch.isEmpty() && rawMoneyIn.contains(rawSearch));
                 boolean matchMoneyOut = moneyOut.contains(searchText) || (!rawSearch.isEmpty() && rawMoneyOut.contains(rawSearch));
 
-                // Nếu từ khóa không nằm trong ghi chú VÀ cũng không nằm trong cột tiền -> loại khỏi bảng
                 if (!matchNote && !matchMoneyIn && !matchMoneyOut) {
                     return false;
                 }

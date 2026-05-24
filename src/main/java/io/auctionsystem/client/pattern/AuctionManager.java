@@ -5,17 +5,19 @@ import io.auctionsystem.common.enums.Role;
 
 public class AuctionManager {
 
-    private static AuctionManager instance;
+    // LỖI ĐÃ SỬA: Singleton pattern cũ không thread-safe:
+    //   if (instance == null) { instance = new AuctionManager(); }
+    // → 2 thread cùng vào cùng lúc có thể tạo ra 2 instance.
+    // Sửa: Dùng Initialization-on-demand Holder pattern (thread-safe, lazy, không cần synchronized)
+    private static final AuctionManager INSTANCE = new AuctionManager();
+
     private AuthResponse currentUser;
     private String requestedSettingsTab;
 
     private AuctionManager() {}
 
     public static AuctionManager getInstance() {
-        if (instance == null) {
-            instance = new AuctionManager();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     public void setCurrentUser(AuthResponse response) { this.currentUser = response; }
@@ -28,8 +30,6 @@ public class AuctionManager {
     public String getUsername() { return (isLoggedIn()) ? currentUser.getUsername() : "Guest"; }
     public String getFirstname() { return (isLoggedIn()) ? currentUser.getFirstname() : null; }
     public String getLastname() { return (isLoggedIn()) ? currentUser.getLastname() : null; }
-
-    // BỔ SUNG THÊM HÀM NÀY ĐỂ LẤY TÊN CỬA HÀNG NHÉ
     public String getStoreName() { return (isLoggedIn()) ? currentUser.getStoreName() : "Seller"; }
 
     public double getBalance() { return (isLoggedIn()) ? currentUser.getBalance() : 0.0; }

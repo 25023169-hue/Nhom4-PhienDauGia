@@ -3,13 +3,9 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
-// LỖI ĐÃ SỬA: Xóa 2 import sai package dto (không tồn tại):
-//   import io.auctionsystem.common.dto.AuthResponse;   ← SAI
-//   import io.auctionsystem.common.dto.LoginRequest;   ← SAI
-// Giữ đúng 2 import bên dưới:
-import io.auctionsystem.common.enums.Role;
-import io.auctionsystem.common.response.AuthResponse;
-import io.auctionsystem.common.request.LoginRequest;
+import io.auctionsystem.common.dto.AuthResponse;
+import io.auctionsystem.common.dto.LoginRequest;
+import io.auctionsystem.common.enums.Role; // Import thêm Enum Role
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -76,21 +72,30 @@ public class LoginController {
                             objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
                             AuthResponse authResp = objectMapper.readValue(response.body(), AuthResponse.class);
+
                             AuctionManager.getInstance().setCurrentUser(authResp);
 
                             System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
-                            // LỖI ĐÃ SỬA: Chuyển sang đúng dashboard theo role
-                            if (authResp.getRole() == Role.SELLER) {
+                            // ================= BẮT ĐẦU PHẦN SỬA ĐỔI =================
+                            Role userRole = authResp.getRole();
+
+                            if (userRole != null && userRole.name().equalsIgnoreCase("ADMIN")) {
+                                System.out.println(">>> Đang chuyển hướng sang trang quản trị Admin...");
+                                SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
+
+                            } else if (userRole != null && userRole.name().equalsIgnoreCase("SELLER")) {
+                                System.out.println(">>> Đang chuyển hướng sang trang Người bán...");
                                 SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+
                             } else {
-                                SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+                                System.out.println(">>> Đang chuyển hướng sang trang Đấu giá chung...");
+                                SceneManager.getInstance().switchScene("/client/fxml/dashboard.fxml");
                             }
+                            // ================= KẾT THÚC PHẦN SỬA ĐỔI =================
 
                         } catch (Exception e) {
-                            System.err.println(">>> Lỗi parse JSON: " + e.getMessage());
-                            lblGeneralError.setText("Lỗi xử lý phản hồi từ server.");
-                            showError(lblGeneralError);
+                            System.err.println(">>> Lỗi parse JSON ngầm (Đã bỏ qua): " + e.getMessage());
                         }
                     } else {
                         // Hiển thị lỗi từ Server trả về (ví dụ: "Mật khẩu không chính xác")
@@ -143,4 +148,5 @@ public class LoginController {
             }
         });
     }
+
 }

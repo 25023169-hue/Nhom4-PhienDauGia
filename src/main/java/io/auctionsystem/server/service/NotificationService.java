@@ -14,11 +14,13 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
-    private final NotificationRepository notificationRepogistory;
+    // LỖI ĐÃ SỬA: Đổi tên biến từ "notificationRepogistory" (đánh máy sai)
+    // thành "notificationRepository" (đúng chính tả)
+    private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
-    public NotificationService(NotificationRepository notificationDAO, UserRepository userRepository) {
-        this.notificationRepogistory = notificationDAO;
+    public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
+        this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
     }
 
@@ -27,13 +29,12 @@ public class NotificationService {
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             Notification notification = new Notification(user, message, type);
-            notificationRepogistory.save(notification);
-            // TODO: Gọi WebSocketNotificationService.sendToUser(userId, message) tại đây
+            notificationRepository.save(notification);
         }
     }
 
     public List<NotificationDTO> getNotificationsForUser(Long userId) {
-        return notificationRepogistory.findByUserIdOrderByCreatedAtDesc(userId)
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(n -> new NotificationDTO(n.getId(), n.getMessage(), n.getCreatedAt(), n.isRead(), n.getType()))
                 .collect(Collectors.toList());
@@ -41,6 +42,13 @@ public class NotificationService {
 
     @Transactional
     public void markAsRead(Long notificationId) {
-        notificationRepogistory.findById(notificationId).ifPresent(n -> n.setRead(true));
+        // LỖI ĐÃ SỬA: Thêm gọi save() sau khi set isRead = true.
+        // Trước đây chỉ gọi n.setRead(true) mà không save() → thay đổi
+        // KHÔNG được ghi vào database dù có @Transactional, vì entity có thể
+        // ở trạng thái detached (không được managed bởi EntityManager hiện tại).
+        notificationRepository.findById(notificationId).ifPresent(n -> {
+            n.setRead(true);
+            notificationRepository.save(n); // ← THÊM DÒNG NÀY
+        });
     }
 }
