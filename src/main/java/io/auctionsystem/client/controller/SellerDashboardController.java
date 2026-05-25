@@ -1,6 +1,7 @@
 package io.auctionsystem.client.controller;
 
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.SceneManager;
 import io.auctionsystem.common.response.AuthResponse;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -51,5 +52,10 @@ public class SellerDashboardController extends BaseDashboardController {
     public void onManageAuctionsClicked() {
         loadSubView("/client/fxml/manage_auctions_view.fxml");
         setActiveMenu(btnProducts);
+    }
+
+    @FXML
+    public void onBuyerChannelClicked() {
+        SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
     }
 }

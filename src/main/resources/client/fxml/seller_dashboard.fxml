@@ -45,9 +45,9 @@
     </top>
 
     <left>
-        <VBox prefWidth="300.0" spacing="24.0" style="-fx-background-color: #111c31;" BorderPane.alignment="CENTER">
+        <VBox prefWidth="300.0" spacing="14.0" style="-fx-background-color: #111c31;" BorderPane.alignment="CENTER">
             <padding>
-                <Insets bottom="26.0" left="28.0" right="28.0" top="34.0" />
+                <Insets bottom="18.0" left="28.0" right="28.0" top="20.0" />
             </padding>
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="16.0">
@@ -85,9 +85,9 @@
                     </font>
                 </Label>
 
-                <VBox spacing="12.0">
+                <VBox spacing="4.0">
                     <children>
-                        <Button fx:id="btnProducts" maxWidth="Infinity" mnemonicParsing="false" onAction="#onManageAuctionsClicked" prefHeight="52.0" style="-fx-background-color: #243149; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-background-radius: 7; -fx-border-color: #13d6a3; -fx-border-width: 0 0 0 4; -fx-border-radius: 7;" text="▣  Sản phẩm của tôi">
+                        <Button fx:id="btnProducts" maxWidth="Infinity" mnemonicParsing="false" onAction="#onManageAuctionsClicked" prefHeight="44.0" style="-fx-background-color: #243149; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-background-radius: 7; -fx-border-color: #13d6a3; -fx-border-width: 0 0 0 4; -fx-border-radius: 7;" text="▣  Sản phẩm của tôi">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -95,7 +95,7 @@
                                 <Insets left="18.0" right="12.0" />
                             </padding>
                         </Button>
-                        <Button disable="true" maxWidth="Infinity" mnemonicParsing="false" prefHeight="48.0" style="-fx-background-color: transparent; -fx-text-fill: #8d99ab; -fx-alignment: CENTER_LEFT;" text="▤  Quản lý Đơn hàng">
+                        <Button disable="true" maxWidth="Infinity" mnemonicParsing="false" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #8d99ab; -fx-alignment: CENTER_LEFT;" text="▤  Quản lý Đơn hàng">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -103,7 +103,23 @@
                                 <Insets left="18.0" right="12.0" />
                             </padding>
                         </Button>
-                        <Button disable="true" maxWidth="Infinity" mnemonicParsing="false" prefHeight="48.0" style="-fx-background-color: transparent; -fx-text-fill: #8d99ab; -fx-alignment: CENTER_LEFT;" text="▥  Thống kê doanh thu">
+                        <Button disable="true" maxWidth="Infinity" mnemonicParsing="false" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #8d99ab; -fx-alignment: CENTER_LEFT;" text="▥  Thống kê doanh thu">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <padding>
+                                <Insets left="18.0" right="12.0" />
+                            </padding>
+                        </Button>
+                        <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-alignment: CENTER_LEFT;" text="Ví tiền">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <padding>
+                                <Insets left="18.0" right="12.0" />
+                            </padding>
+                        </Button>
+                        <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-alignment: CENTER_LEFT;" text="Thông báo">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -114,6 +130,26 @@
                     </children>
                 </VBox>
                 <Region VBox.vgrow="ALWAYS" />
+                <VBox spacing="4.0">
+                    <children>
+                        <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onBuyerChannelClicked" prefHeight="45.0" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-background-radius: 5;" text="Kênh Người Mua">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <padding>
+                                <Insets left="18.0" right="12.0" />
+                            </padding>
+                        </Button>
+                        <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="42.0" style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-alignment: CENTER_LEFT;" text="Cài đặt">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <padding>
+                                <Insets left="18.0" right="12.0" />
+                            </padding>
+                        </Button>
+                    </children>
+                </VBox>
             </children>
         </VBox>
     </left>
