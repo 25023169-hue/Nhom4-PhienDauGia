@@ -81,7 +81,9 @@ public class LoginController {
                             System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
                             // LỖI ĐÃ SỬA: Chuyển sang đúng dashboard theo role
-                            if (authResp.getRole() == Role.SELLER) {
+                            if (authResp.getRole() == Role.ADMIN) {
+                                SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
+                            } else if (authResp.getRole() == Role.SELLER) {
                                 SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
                             } else {
                                 SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
