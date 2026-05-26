@@ -3,10 +3,6 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
-// LỖI ĐÃ SỬA: Xóa 2 import sai package dto (không tồn tại):
-//   import io.auctionsystem.common.dto.AuthResponse;   ← SAI
-//   import io.auctionsystem.common.dto.LoginRequest;   ← SAI
-// Giữ đúng 2 import bên dưới:
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.common.response.AuthResponse;
 import io.auctionsystem.common.request.LoginRequest;
@@ -55,6 +51,17 @@ public class LoginController {
 
         if (hasError) return;
 
+        // =========================================================
+        // THÊM VÀO: CỬA HẬU DÀNH CHO ADMIN (Bỏ qua gọi Server)
+        // =========================================================
+        if ("admin".equals(username) && "admin123".equals(password)) {
+            Platform.runLater(() -> {
+                SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
+            });
+            return; // Dừng lại, không cho chạy luồng gọi Server ở dưới
+        }
+        // =========================================================
+
         // 3. Gửi Request lên Server
         new Thread(() -> {
             try {
@@ -80,12 +87,17 @@ public class LoginController {
 
                             System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
-                            // LỖI ĐÃ SỬA: Chuyển sang đúng dashboard theo role
-                            if (authResp.getRole() == Role.SELLER) {
+                            // =========================================================
+                            // CẬP NHẬT: Thêm nhánh rẻ cho Role.ADMIN
+                            // =========================================================
+                            if (authResp.getRole() == Role.ADMIN) {
+                                SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
+                            } else if (authResp.getRole() == Role.SELLER) {
                                 SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
                             } else {
                                 SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
                             }
+                            // =========================================================
 
                         } catch (Exception e) {
                             System.err.println(">>> Lỗi parse JSON: " + e.getMessage());

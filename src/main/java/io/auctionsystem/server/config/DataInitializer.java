@@ -29,6 +29,19 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        if (!userRepository.existsByUsername("admin")) {
+            Admin admin = new Admin();
+            admin.setUsername("admin");
+            admin.setPassword("admin123");
+            admin.setFirstname("Quản");
+            admin.setLastname("Trị");
+
+            // Set Employee Code như bạn muốn
+            admin.setEmployeeCode("ADMIN-001");
+
+            userRepository.save(admin);
+            System.out.println(">>> HỆ THỐNG: Đã tạo tài khoản Admin mặc định (admin / admin123)");
+        }
 
         // LỖI ĐÃ SỬA: Trước đây deleteAll() được gọi KHÔNG CÓ ĐIỀU KIỆN mỗi lần server khởi động
         // → xóa sạch toàn bộ dữ liệu thật (bid, auction, item) mỗi lần restart.
