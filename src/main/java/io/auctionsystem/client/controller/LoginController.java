@@ -51,17 +51,6 @@ public class LoginController {
 
         if (hasError) return;
 
-        // =========================================================
-        // THÊM VÀO: CỬA HẬU DÀNH CHO ADMIN (Bỏ qua gọi Server)
-        // =========================================================
-        if ("admin".equals(username) && "admin123".equals(password)) {
-            Platform.runLater(() -> {
-                SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
-            });
-            return; // Dừng lại, không cho chạy luồng gọi Server ở dưới
-        }
-        // =========================================================
-
         // 3. Gửi Request lên Server
         new Thread(() -> {
             try {
@@ -87,17 +76,12 @@ public class LoginController {
 
                             System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
-                            // =========================================================
-                            // CẬP NHẬT: Thêm nhánh rẻ cho Role.ADMIN
-                            // =========================================================
-                            if (authResp.getRole() == Role.ADMIN) {
-                                SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
-                            } else if (authResp.getRole() == Role.SELLER) {
+                            // LỖI ĐÃ SỬA: Chuyển sang đúng dashboard theo role
+                            if (authResp.getRole() == Role.SELLER) {
                                 SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
                             } else {
                                 SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
                             }
-                            // =========================================================
 
                         } catch (Exception e) {
                             System.err.println(">>> Lỗi parse JSON: " + e.getMessage());

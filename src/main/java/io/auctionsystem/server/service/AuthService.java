@@ -7,6 +7,7 @@ import io.auctionsystem.common.response.AuthResponse;
 import io.auctionsystem.common.request.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.server.repository.UserRepository;
+import io.auctionsystem.server.model.Admin;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
@@ -77,7 +78,9 @@ public class AuthService {
         }
 
         // Xác định Role
-        if (userRepository.isUserSeller(user.getId()) > 0) {
+        if (user instanceof Admin) {
+            response.setRole(Role.ADMIN);
+        } else if (userRepository.isUserSeller(user.getId()) > 0) {
             response.setRole(Role.SELLER);
         } else {
             response.setRole(Role.BIDDER);
