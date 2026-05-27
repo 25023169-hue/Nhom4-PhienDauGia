@@ -58,13 +58,11 @@
 
                                 <Label text="Giá khởi điểm" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                 <TextField fx:id="txtStartingPrice" promptText="Ví dụ: 1000000" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                <Label text="Bước giá" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                <TextField fx:id="txtBidIncrement" promptText="Ví dụ: 50000" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                <Label text="Loại sản phẩm" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <ComboBox fx:id="cbItemType" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
                                 <Label text="Giá mua đứt" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                                 <TextField fx:id="txtBuyNowPrice" promptText="Không bắt buộc" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                <Label text="Loại sản phẩm" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                <ComboBox fx:id="cbItemType" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
                                 <Label text="Hình ảnh" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                                 <TextField fx:id="txtImageUrl" promptText="URL hình ảnh nếu có" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4" />

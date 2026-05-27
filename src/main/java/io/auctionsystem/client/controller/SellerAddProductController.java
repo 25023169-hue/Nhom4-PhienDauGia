@@ -39,7 +39,6 @@ public class SellerAddProductController {
     @FXML private TextField txtName;
     @FXML private TextArea txtDescription;
     @FXML private TextField txtStartingPrice;
-    @FXML private TextField txtBidIncrement;
     @FXML private TextField txtBuyNowPrice;
     @FXML private TextField txtImageUrl;
     @FXML private ComboBox<ItemType> cbItemType;
@@ -123,7 +122,6 @@ public class SellerAddProductController {
         request.setName(requiredText(txtName, "Tên sản phẩm"));
         request.setDescription(optionalText(txtDescription));
         request.setStartingPrice(parseRequiredPositiveDouble(txtStartingPrice, "Giá khởi điểm"));
-        request.setBidIncrement(parseRequiredPositiveDouble(txtBidIncrement, "Bước giá"));
         request.setBuyNowPrice(parseOptionalPositiveDouble(txtBuyNowPrice, "Giá mua đứt"));
         request.setImageUrl(optionalText(txtImageUrl));
         request.setItemType(cbItemType.getValue());

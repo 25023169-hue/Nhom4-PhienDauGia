@@ -61,7 +61,6 @@ public class SellerProductService {
         SellerProductListing listing = new SellerProductListing();
         listing.setItemId(savedItem.getId());
         listing.setSellerId(seller.getId());
-        listing.setBidIncrement(request.getBidIncrement());
         listing.setBuyNowPrice(request.getBuyNowPrice());
         listing.setImageUrl(blankToNull(request.getImageUrl()));
         listing.setStartTime(request.getStartTime());
@@ -104,9 +103,6 @@ public class SellerProductService {
         }
         if (request.getStartingPrice() == null || request.getStartingPrice() <= 0) {
             throw new IllegalArgumentException("Giá khởi điểm phải lớn hơn 0");
-        }
-        if (request.getBidIncrement() == null || request.getBidIncrement() <= 0) {
-            throw new IllegalArgumentException("Bước giá phải lớn hơn 0");
         }
         if (request.getStartTime() == null) {
             throw new IllegalArgumentException("Thời gian bắt đầu không được để trống");
@@ -179,7 +175,6 @@ public class SellerProductService {
         dto.setItemType(listing.getItemType());
         dto.setStartingPrice(item.getStartingPrice());
         dto.setCurrentPrice(item.getCurrentPrice());
-        dto.setBidIncrement(listing.getBidIncrement());
         dto.setBuyNowPrice(listing.getBuyNowPrice());
         dto.setImageUrl(listing.getImageUrl());
         dto.setStartTime(listing.getStartTime() == null ? "" : listing.getStartTime().format(DISPLAY_FORMATTER));

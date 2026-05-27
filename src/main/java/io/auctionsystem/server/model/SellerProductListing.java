@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 public class SellerProductListing extends BaseEntity {
     private Long itemId;
     private Long sellerId;
-    private Double bidIncrement;
     private Double buyNowPrice;
     private String imageUrl;
     private LocalDateTime startTime;
