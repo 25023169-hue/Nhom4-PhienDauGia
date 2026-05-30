@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="admin">
+      <change beforePath="$PROJECT_DIR$/.ai/mcp/mcp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/model/AddressRow.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/dto/AddressDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/enums/ItemState.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/Address.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -147,6 +154,11 @@
     "Spring Boot.ServerApp.executor": "Run",
     "git-widget-placeholder": "demo",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -161,10 +173,10 @@
       <recent name="io.auctionsystem.client" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration name="ClientLauncher2" type="Application" factoryName="Application" singleton="false">
+  <component name="RunManager" selected="Spring Boot.ServerApp">
+    <configuration name="ClientLauncher" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="io.auctionsystem.client.ClientLauncher" />
-      <module name="Auctionsystem" />
+      <module name="Nhom4-PhienDauGia" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -174,6 +186,29 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ServerApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="Nhom4-PhienDauGia" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="io.auctionsystem.server.ServerApp" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="io.auctionsystem.server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.ClientLauncher" />
+      <item itemvalue="Spring Boot.ServerApp" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.ServerApp" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
