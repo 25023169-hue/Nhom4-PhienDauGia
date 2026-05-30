@@ -13,5 +13,5 @@ import lombok.*;
 public class Electronics extends Item {
     private String brand;
     private String model;
-    private Integer warrantyMonths;
+    private Integer condition;
 }

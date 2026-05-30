@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="650.0" prefWidth="900.0" spacing="15.0" style="-fx-padding: 20; -fx-background-color: white;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.LiveBidsController">
+<VBox fx:id="rootPane" alignment="CENTER" prefHeight="650.0" prefWidth="900.0" spacing="15.0" style="-fx-padding: 20; -fx-background-color: white;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.LiveBidsController">
 
     <Label text="Phòng Đấu Giá Trực Tiếp Tích Hợp Auto-Bid">
         <font>
@@ -20,6 +20,7 @@
 
     <Label fx:id="lblProductName" style="-fx-font-size: 16px; -fx-text-fill: #34495e;" text="Sản phẩm đang tải..." />
     <Label fx:id="lblCurrentPrice" style="-fx-font-size: 24px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;" text="0 ₫" />
+    <Label fx:id="lblTimeRemaining" style="-fx-font-size: 15px; -fx-text-fill: #d35400; -fx-font-weight: bold;" text="Thời gian còn lại: --:--:--" />
 
     <LineChart fx:id="priceChart" animated="false" prefHeight="320.0" prefWidth="850.0" title="Đồ thị diễn biến giá đấu">
         <xAxis>

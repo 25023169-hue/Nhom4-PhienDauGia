@@ -13,6 +13,7 @@ import lombok.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User extends BaseEntity {
     private double balance = 0.0;
+    private double heldBalance = 0.0;
     private String username;
     private String password;
     private String firstname;
@@ -25,4 +26,8 @@ public abstract class User extends BaseEntity {
 
     private boolean isBanned = false;
     private boolean active = true;
+
+    public double getAvailableBalance() {
+        return balance - heldBalance;
+    }
 }

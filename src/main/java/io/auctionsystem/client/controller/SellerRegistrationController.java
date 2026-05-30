@@ -105,7 +105,7 @@ public class SellerRegistrationController {
                         // Dừng lại 2 giây để người dùng kịp đọc trước khi chuyển màn hình
                         PauseTransition pause = new PauseTransition(Duration.seconds(2));
                         pause.setOnFinished(event -> {
-                            SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+                            SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
                         });
                         pause.play();
 
@@ -123,7 +123,7 @@ public class SellerRegistrationController {
 
     @FXML
     public void onCancelButtonClicked() {
-        SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/user/bidder/bidder_dashboard.fxml");
     }
 
     private void showIntroPane() {

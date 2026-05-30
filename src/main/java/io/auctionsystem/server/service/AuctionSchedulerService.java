@@ -3,8 +3,8 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.repository.AuctionRepository;
+import io.auctionsystem.server.repository.SellerProductListingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,26 +19,44 @@ public class AuctionSchedulerService {
     private AuctionRepository auctionRepository;
 
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private SellerProductListingRepository listingRepository;
 
-    // Chạy ngầm định kỳ mỗi 1000 mili-giây (1 giây)
+    @Autowired
+    private AuctionSettlementService settlementService;
+
+    @Autowired
+    private AuctionRealtimePublisher realtimePublisher;
+
     @Scheduled(fixedRate = 1000)
     @Transactional
+    public void autoStartScheduledAuctions() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Auction> scheduledAuctions = auctionRepository
+                .findByStatusAndStartTimeLessThanEqual(AuctionState.OPEN, now);
+
+        for (Auction auction : scheduledAuctions) {
+            if (auction.getEndTime() == null || !now.isBefore(auction.getEndTime())) {
+                continue;
+            }
+
+            auction.setStatus(AuctionState.RUNNING);
+            auctionRepository.save(auction);
+            listingRepository.findByItemId(auction.getItemId()).ifPresent(listing -> {
+                listing.setStatus(AuctionState.RUNNING);
+                listingRepository.save(listing);
+            });
+            realtimePublisher.publishStatusAfterCommit(auction.getId(), "RUNNING");
+            realtimePublisher.publishAuctionListChangedAfterCommit();
+        }
+    }
+
+    @Scheduled(fixedRate = 1000)
     public void autoCloseExpiredAuctions() {
         LocalDateTime now = LocalDateTime.now();
-
-        // Gọi hàm repository đã được định nghĩa sẵn trong hệ thống của nhóm
         List<Auction> expiredAuctions = auctionRepository.findByStatusAndEndTimeBefore(AuctionState.RUNNING, now);
 
-        if (!expiredAuctions.isEmpty()) {
-            for (Auction auction : expiredAuctions) {
-                // Chuyển trạng thái sang FINISHED (Đã kết thúc)
-                auction.setStatus(AuctionState.FINISHED);
-                auctionRepository.save(auction);
-
-                // Phát tín hiệu WebSocket cho tất cả Client đang xem biết phiên này đã đóng
-                messagingTemplate.convertAndSend("/topic/auctions/" + auction.getId() + "/status", "CLOSED");
-
+        for (Auction auction : expiredAuctions) {
+            if (settlementService.closeExpiredAuction(auction.getId(), now)) {
                 System.out.println(">>> [HỆ THỐNG] Đã tự động đóng phiên đấu giá ID: " + auction.getId()
                         + " | Người thắng cuộc ID: " + auction.getWinnerId()
                         + " | Giá chốt: " + auction.getFinalPrice());

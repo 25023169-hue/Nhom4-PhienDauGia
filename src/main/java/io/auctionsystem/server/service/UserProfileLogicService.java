@@ -16,6 +16,7 @@ public class UserProfileLogicService {
     public User updateProfile(Long userId, Map<String, String> payload) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+        ensureActive(user);
         user.setFirstname(payload.get("firstname"));
         user.setLastname(payload.get("lastname"));
         return userRepository.save(user);
@@ -24,6 +25,7 @@ public class UserProfileLogicService {
     public void updatePassword(Long userId, Map<String, String> payload) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+        ensureActive(user);
 
         if (!user.getPassword().equals(payload.get("oldPassword"))) {
             throw new RuntimeException("Mật khẩu cũ không chính xác!");
@@ -31,5 +33,11 @@ public class UserProfileLogicService {
 
         user.setPassword(payload.get("newPassword"));
         userRepository.save(user);
+    }
+
+    private void ensureActive(User user) {
+        if (!user.isActive()) {
+            throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+        }
     }
 }

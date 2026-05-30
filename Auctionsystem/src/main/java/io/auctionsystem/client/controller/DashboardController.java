@@ -59,7 +59,7 @@ public class DashboardController {
         alert.showAndWait().ifPresent(response -> {
             if (response == btnYes) {
                 AuctionManager.getInstance().logout();
-                SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
+                SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
             }
         });
     }
@@ -68,13 +68,13 @@ public class DashboardController {
         Role currentRole = AuctionManager.getInstance().getRole();
 
         if (currentRole == Role.SELLER) {
-            SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+            SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
         } else {
-            SceneManager.getInstance().switchScene("/client/fxml/seller_registration.fxml");
+            SceneManager.getInstance().switchScene("/client/fxml/user/bidder/seller_registration.fxml");
         }
     }
     @FXML
     public void onOpenSettings() {
-        SceneManager.getInstance().switchScene("/client/fxml/settings.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/settings/settings.fxml");
     }
 }

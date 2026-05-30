@@ -45,7 +45,7 @@ public class SellerProductController {
             SellerProductDTO product = sellerProductService.saveProductAndPrepareAuction(request);
             return ResponseEntity.ok(new ApiResponse<>(
                     true,
-                    "Đã lưu sản phẩm vào database. Chức năng khởi tạo phiên đấu giá sẽ được bổ sung sau.",
+                    "Đã tạo sản phẩm và lên lịch phiên đấu giá thành công.",
                     product
             ));
         } catch (IllegalArgumentException e) {

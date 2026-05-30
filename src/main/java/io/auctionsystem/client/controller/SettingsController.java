@@ -27,10 +27,10 @@ public class SettingsController {
     }
 
     // Đổi tên các file fxml gọi ở đây
-    public void showProfile() { loadTab("/client/fxml/profile_setting.fxml", btnProfile); }
-    public void showBank() { loadTab("/client/fxml/bank_setting.fxml", btnBank); }
-    public void showAddress() { loadTab("/client/fxml/address_setting.fxml", btnAddress); }
-    public void showPassword() { loadTab("/client/fxml/password_setting.fxml", btnPassword); }
+    public void showProfile() { loadTab("/client/fxml/settings/profile_setting.fxml", btnProfile); }
+    public void showBank() { loadTab("/client/fxml/settings/bank_setting.fxml", btnBank); }
+    public void showAddress() { loadTab("/client/fxml/settings/address_setting.fxml", btnAddress); }
+    public void showPassword() { loadTab("/client/fxml/settings/password_setting.fxml", btnPassword); }
 
     private void loadTab(String fxmlPath, Button activeBtn) {
         try {
@@ -57,9 +57,9 @@ public class SettingsController {
     @FXML
     public void onBack() {
         if (isSellerChannel) {
-            SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+            SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
         } else {
-            SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+            SceneManager.getInstance().switchScene("/client/fxml/user/bidder/bidder_dashboard.fxml");
         }
     }
 }

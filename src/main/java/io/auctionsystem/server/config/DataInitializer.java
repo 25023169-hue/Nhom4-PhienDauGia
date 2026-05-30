@@ -1,10 +1,12 @@
 package io.auctionsystem.server.config;
 
 import io.auctionsystem.common.enums.AuctionState;
+import io.auctionsystem.common.enums.ItemType;
 import io.auctionsystem.server.model.*;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.BidRepository;
 import io.auctionsystem.server.repository.ItemRepository;
+import io.auctionsystem.server.repository.SellerProductListingRepository;
 import io.auctionsystem.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -26,6 +28,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SellerProductListingRepository sellerProductListingRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -70,7 +75,7 @@ public class DataInitializer implements CommandLineRunner {
         macbook.setCurrentPrice(55000000.0);
         macbook.setBrand("Apple");
         macbook = saveSampleItem(macbook, sampleSeller);
-        createAuction(macbook.getId(), 2, AuctionState.RUNNING);
+        createAuction(macbook, 2, AuctionState.RUNNING);
 
         Electronics iphone = new Electronics();
         iphone.setName("iPhone 15 Pro Max 1TB Titan");
@@ -79,7 +84,7 @@ public class DataInitializer implements CommandLineRunner {
         iphone.setCurrentPrice(35000000.0);
         iphone.setBrand("Apple");
         iphone = saveSampleItem(iphone, sampleSeller);
-        createAuction(iphone.getId(), 1, AuctionState.RUNNING);
+        createAuction(iphone, 1, AuctionState.RUNNING);
 
         // ==========================================
         // 2. NGHỆ THUẬT (ART)
@@ -93,7 +98,7 @@ public class DataInitializer implements CommandLineRunner {
         painting.setMedium("Sơn dầu");
         painting.setDimensions("73x92 cm");
         painting = saveSampleItem(painting, sampleSeller);
-        createAuction(painting.getId(), 5, AuctionState.RUNNING);
+        createAuction(painting, 5, AuctionState.RUNNING);
 
         // ==========================================
         // 3. PHƯƠNG TIỆN (VEHICLE)
@@ -106,7 +111,7 @@ public class DataInitializer implements CommandLineRunner {
         oto.setFuelType("Điện");
         oto.setManufactureYear(2023);
         oto = saveSampleItem(oto, sampleSeller);
-        createAuction(oto.getId(), 7, AuctionState.RUNNING);
+        createAuction(oto, 7, AuctionState.RUNNING);
 
         Vehicle xemay = new Vehicle();
         xemay.setName("Honda SH 150i ABS");
@@ -116,7 +121,7 @@ public class DataInitializer implements CommandLineRunner {
         xemay.setFuelType("Xăng");
         xemay.setManufactureYear(2022);
         xemay = saveSampleItem(xemay, sampleSeller);
-        createAuction(xemay.getId(), 3, AuctionState.RUNNING);
+        createAuction(xemay, 3, AuctionState.RUNNING);
 
         // ==========================================
         // 4. THỜI TRANG (FASHION)
@@ -131,7 +136,7 @@ public class DataInitializer implements CommandLineRunner {
         aoDai.setSize("M");
         aoDai.setMaterial("Lụa tơ tằm");
         aoDai = saveSampleItem(aoDai, sampleSeller);
-        createAuction(aoDai.getId(), 4, AuctionState.RUNNING);
+        createAuction(aoDai, 4, AuctionState.RUNNING);
 
         Fashion tuiXach = new Fashion();
         tuiXach.setName("Túi xách Hermès Birkin 25");
@@ -142,7 +147,7 @@ public class DataInitializer implements CommandLineRunner {
         tuiXach.setGender("Nữ");
         tuiXach.setMaterial("Da bò Togo");
         tuiXach = saveSampleItem(tuiXach, sampleSeller);
-        createAuction(tuiXach.getId(), 10, AuctionState.RUNNING);
+        createAuction(tuiXach, 10, AuctionState.RUNNING);
 
         // ==========================================
         // 5. TRANG SỨC (JEWELRY)
@@ -156,7 +161,7 @@ public class DataInitializer implements CommandLineRunner {
         nhanKC.setGemstone("Kim cương tự nhiên");
         nhanKC.setWeight(4.5);
         nhanKC = saveSampleItem(nhanKC, sampleSeller);
-        createAuction(nhanKC.getId(), 6, AuctionState.RUNNING);
+        createAuction(nhanKC, 6, AuctionState.RUNNING);
 
         Jewelry dayChuyen = new Jewelry();
         dayChuyen.setName("Dây chuyền ngọc trai Akoya");
@@ -166,7 +171,7 @@ public class DataInitializer implements CommandLineRunner {
         dayChuyen.setMaterial("Vàng 18K");
         dayChuyen.setGemstone("Ngọc trai Akoya");
         dayChuyen = saveSampleItem(dayChuyen, sampleSeller);
-        createAuction(dayChuyen.getId(), 2, AuctionState.RUNNING);
+        createAuction(dayChuyen, 2, AuctionState.RUNNING);
 
         System.out.println(">>> ĐÃ NẠP XONG TOÀN BỘ SẢN PHẨM MẪU VÀO SÀN ĐẤU GIÁ!");
     }
@@ -183,12 +188,37 @@ public class DataInitializer implements CommandLineRunner {
         return itemRepository.save(item);
     }
 
-    private void createAuction(Long itemId, int daysToAdd, AuctionState status) {
+    private void createAuction(Item item, int daysToAdd, AuctionState status) {
         Auction auction = new Auction();
-        auction.setItemId(itemId);
+        auction.setItemId(item.getId());
         auction.setStartTime(LocalDateTime.now());
         auction.setEndTime(LocalDateTime.now().plusDays(daysToAdd));
         auction.setStatus(status);
         auctionRepository.save(auction);
+
+        if (item.getSeller() != null) {
+            SellerProductListing listing = new SellerProductListing();
+            listing.setItemId(item.getId());
+            listing.setSellerId(item.getSeller().getId());
+            listing.setStartTime(auction.getStartTime());
+            listing.setEndTime(auction.getEndTime());
+            listing.setStatus(status);
+            listing.setItemType(resolveItemType(item));
+
+            Double startingPrice = item.getStartingPrice();
+            if (startingPrice != null && startingPrice > 0) {
+                listing.setBuyNowPrice(startingPrice * 1.2);
+            }
+            sellerProductListingRepository.save(listing);
+        }
+    }
+
+    private ItemType resolveItemType(Item item) {
+        if (item instanceof Art) return ItemType.ART;
+        if (item instanceof Electronics) return ItemType.ELECTRONICS;
+        if (item instanceof Vehicle) return ItemType.VEHICLE;
+        if (item instanceof Fashion) return ItemType.FASHION;
+        if (item instanceof Jewelry) return ItemType.JEWELRY;
+        throw new IllegalArgumentException("Loại sản phẩm không được hỗ trợ");
     }
 }

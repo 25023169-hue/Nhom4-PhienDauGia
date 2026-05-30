@@ -1,5 +1,7 @@
 package io.auctionsystem.client.pattern;
 
+import org.springframework.messaging.converter.CompositeMessageConverter;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
@@ -7,6 +9,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.util.concurrent.ExecutionException;
+import java.util.List;
 
 public class WebSocketClientManager {
     private static WebSocketClientManager instance;
@@ -27,7 +30,10 @@ public class WebSocketClientManager {
         // Khởi tạo STOMP Client hỗ trợ giao tiếp WebSocket
         StandardWebSocketClient client = new StandardWebSocketClient();
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
-        stompClient.setMessageConverter(new StringMessageConverter());
+        stompClient.setMessageConverter(new CompositeMessageConverter(List.of(
+                new StringMessageConverter(),
+                new MappingJackson2MessageConverter()
+        )));
 
         try {
             // Kết nối tới endpoint /ws của Server (đã cấu hình ở WebSocketConfig)

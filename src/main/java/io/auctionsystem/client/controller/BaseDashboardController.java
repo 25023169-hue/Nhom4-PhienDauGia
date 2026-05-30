@@ -50,12 +50,12 @@ public abstract class BaseDashboardController {
     @FXML
     public void onHomeButtonClicked() {
         // Code này giả định bạn sẽ tách phần giao diện chính giữa thành home_view.fxml
-        loadSubView("/client/fxml/home_view.fxml");
+        loadSubView("/client/fxml/user/home_view.fxml");
     }
 
     @FXML
     public void onWalletButtonClicked() {
-        loadSubView("/client/fxml/wallet_view.fxml");
+        loadSubView("/client/fxml/user/wallet_view.fxml");
     }
 
     @FXML
@@ -65,7 +65,7 @@ public abstract class BaseDashboardController {
 
     @FXML
     public void onOpenSettings() {
-        SceneManager.getInstance().switchScene("/client/fxml/settings.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/settings/settings.fxml");
     }
 
     @FXML
@@ -84,7 +84,7 @@ public abstract class BaseDashboardController {
         alert.showAndWait().ifPresent(response -> {
             if (response == btnYes) {
                 AuctionManager.getInstance().isLoggedOut();
-                SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
+                SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
             }
         });
     }

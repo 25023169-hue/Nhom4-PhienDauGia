@@ -26,10 +26,12 @@
                 <Region HBox.hgrow="ALWAYS" />
                 <VBox alignment="CENTER_RIGHT" spacing="4.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 16;">
                     <children>
-                        <Label text="Số dư hiện có" textFill="#7f8c8d" />
+                        <Label text="Số dư khả dụng" textFill="#7f8c8d" />
                         <Label fx:id="lblBalance" text="0 ₫" textFill="#1abc9c">
                             <font><Font name="System Bold" size="26.0" /></font>
                         </Label>
+                        <Label fx:id="lblTotalBalance" text="Tổng số dư: 0 ₫" textFill="#7f8c8d" />
+                        <Label fx:id="lblHeldBalance" text="Đang giữ đấu giá: 0 ₫" textFill="#e67e22" />
                     </children>
                 </VBox>
             </children>

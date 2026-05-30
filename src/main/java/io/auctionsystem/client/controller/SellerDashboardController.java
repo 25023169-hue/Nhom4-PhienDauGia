@@ -14,6 +14,8 @@ public class SellerDashboardController extends BaseDashboardController {
     @FXML private Label lblSellerName;
     @FXML private Label lblSellerRole;
     @FXML private Button btnProducts;
+    @FXML private Button btnWallet;
+    @FXML private Button btnNotifications;
 
     public SellerDashboardController() {
         instance = this;
@@ -25,6 +27,7 @@ public class SellerDashboardController extends BaseDashboardController {
 
     @FXML
     public void initialize() {
+        SettingsController.isSellerChannel = true;
         AuthResponse user = AuctionManager.getInstance().getCurrentUser();
         String storeName = user != null && user.getStoreName() != null && !user.getStoreName().trim().isEmpty()
                 ? user.getStoreName().trim()
@@ -44,18 +47,37 @@ public class SellerDashboardController extends BaseDashboardController {
 
     @FXML
     public void onAddAuctionClicked() {
-        loadSubView("/client/fxml/add_auction_view.fxml");
-        setActiveMenu(btnProducts);
+        loadSubView("/client/fxml/user/seller/add_auction_view.fxml");
+        setActiveMenu(btnProducts, btnWallet, btnNotifications);
     }
 
     @FXML
     public void onManageAuctionsClicked() {
-        loadSubView("/client/fxml/manage_auctions_view.fxml");
-        setActiveMenu(btnProducts);
+        loadSubView("/client/fxml/user/seller/manage_auctions_view.fxml");
+        setActiveMenu(btnProducts, btnWallet, btnNotifications);
+    }
+
+    @Override
+    @FXML
+    public void onWalletButtonClicked() {
+        super.onWalletButtonClicked();
+        setActiveMenu(btnWallet, btnProducts, btnNotifications);
+    }
+
+    @Override
+    @FXML
+    public void onNotificationsClicked() {
+        super.onNotificationsClicked();
+        setActiveMenu(btnNotifications, btnProducts, btnWallet);
     }
 
     @FXML
     public void onBuyerChannelClicked() {
-        SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/user/bidder/bidder_dashboard.fxml");
+    }
+    @FXML
+    public void onOpenSettings() {
+        SettingsController.isSellerChannel = true;
+        SceneManager.getInstance().switchScene("/client/fxml/settings/settings.fxml");
     }
 }

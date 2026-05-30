@@ -7,6 +7,7 @@ import io.auctionsystem.common.response.AuthResponse;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 public class ProfileSettingController {
     @FXML private TextField txtUsername, txtLastName, txtFirstName;
+    @FXML private Button btnDeleteAccount;
 
     // --- PHẦN THÊM MỚI ---
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -87,8 +89,39 @@ public class ProfileSettingController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
+            AuthResponse user = AuctionManager.getInstance().getCurrentUser();
+            if (user == null) return;
+
+            btnDeleteAccount.setDisable(true);
+            new Thread(() -> {
+                try {
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create("http://localhost:8080/api/user/" + user.getUserId()))
+                            .DELETE()
+                            .build();
+
+                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    Platform.runLater(() -> handleDeleteResponse(response));
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        btnDeleteAccount.setDisable(false);
+                        showAlert("Không thể kết nối đến Server để xóa tài khoản!");
+                    });
+                }
+            }).start();
         }
+    }
+
+    private void handleDeleteResponse(HttpResponse<String> response) {
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            AuctionManager.getInstance().isLoggedOut();
+            showAlert("Tài khoản đã được xóa thành công.");
+            SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
+            return;
+        }
+
+        btnDeleteAccount.setDisable(false);
+        showAlert("Không thể xóa tài khoản: " + response.body());
     }
 
     private void showAlert(String msg) {

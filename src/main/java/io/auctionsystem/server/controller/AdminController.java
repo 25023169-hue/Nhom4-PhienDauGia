@@ -1,6 +1,6 @@
-package io.auctionsystem.server.Controller;
+package io.auctionsystem.server.controller;
 
-import io.auctionsystem.common.dto.AuthResponse;
+import io.auctionsystem.common.response.AuthResponse;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class AdminController {
         List<AuthResponse> result = users.stream().map(user -> {
             AuthResponse dto = new AuthResponse();
 
-            dto.setId(user.getId());
+            dto.setUserId(user.getId());
             dto.setUsername(user.getUsername());
             dto.setFirstname(user.getFirstname());
             dto.setLastname(user.getLastname());

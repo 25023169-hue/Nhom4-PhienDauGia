@@ -1,7 +1,9 @@
 package io.auctionsystem.server.repository;
 
 import io.auctionsystem.server.model.User;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +18,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM User u WHERE u.id = :userId")
+    Optional<User> findByIdForUpdate(@Param("userId") Long userId);
 
     // Dành cho Admin: Chỉ lấy những User thuộc nhóm Bidder hoặc Seller
     @Query("SELECT u FROM User u WHERE TYPE(u) IN (Bidder, Seller)")

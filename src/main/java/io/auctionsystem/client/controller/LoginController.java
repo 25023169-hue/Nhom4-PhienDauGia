@@ -93,9 +93,9 @@ public class LoginController {
                             if (authResp.getRole() == Role.ADMIN) {
                                 SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
                             } else if (authResp.getRole() == Role.SELLER) {
-                                SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+                                SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
                             } else {
-                                SceneManager.getInstance().switchScene("/client/fxml/bidder_dashboard.fxml");
+                                SceneManager.getInstance().switchScene("/client/fxml/user/bidder/bidder_dashboard.fxml");
                             }
                             // =========================================================
 
@@ -121,7 +121,7 @@ public class LoginController {
 
     @FXML
     public void onRegisterLinkClick() {
-        SceneManager.getInstance().switchScene("/client/fxml/register.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/user/register.fxml");
     }
 
     // ================= HÀM HỖ TRỢ HIỂN THỊ LỖI =================

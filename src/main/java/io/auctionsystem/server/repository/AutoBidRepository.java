@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface AutoBidRepository extends JpaRepository<AutoBid, Long> {
     List<AutoBid> findByAuctionIdAndActiveTrue(Long auctionId);
+    List<AutoBid> findByBidderIdAndActiveTrue(Long bidderId);
     Optional<AutoBid> findByAuctionIdAndBidderId(Long auctionId, Long bidderId);
 }

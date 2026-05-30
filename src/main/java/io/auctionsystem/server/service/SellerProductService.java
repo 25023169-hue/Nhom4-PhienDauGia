@@ -6,6 +6,7 @@ import io.auctionsystem.common.enums.ItemType;
 import io.auctionsystem.common.request.ItemRequest;
 import io.auctionsystem.common.request.SellerProductRequest;
 import io.auctionsystem.server.model.Art;
+import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Electronics;
 import io.auctionsystem.server.model.Fashion;
 import io.auctionsystem.server.model.Item;
@@ -15,6 +16,7 @@ import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Vehicle;
 import io.auctionsystem.server.pattern.ItemFactory;
 import io.auctionsystem.server.repository.ItemRepository;
+import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.SellerProductListingRepository;
 import io.auctionsystem.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class SellerProductService {
@@ -35,10 +40,16 @@ public class SellerProductService {
     private ItemRepository itemRepository;
 
     @Autowired
+    private AuctionRepository auctionRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private SellerProductListingRepository listingRepository;
+
+    @Autowired
+    private AuctionRealtimePublisher realtimePublisher;
 
     @Transactional
     public SellerProductDTO saveProductAndPrepareAuction(SellerProductRequest request) {
@@ -46,6 +57,9 @@ public class SellerProductService {
 
         User seller = userRepository.findById(request.getSellerId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy seller hiện tại"));
+        if (!seller.isActive()) {
+            throw new IllegalArgumentException("Tài khoản seller đã bị vô hiệu hóa");
+        }
 
         if (userRepository.isUserSeller(request.getSellerId()) <= 0) {
             throw new IllegalArgumentException("Tài khoản hiện tại chưa có quyền Seller");
@@ -58,6 +72,18 @@ public class SellerProductService {
 
         Item savedItem = itemRepository.save(item);
 
+        AuctionState auctionStatus = request.getStartTime().isAfter(LocalDateTime.now())
+                ? AuctionState.OPEN
+                : AuctionState.RUNNING;
+
+        Auction auction = new Auction();
+        auction.setItemId(savedItem.getId());
+        auction.setStartTime(request.getStartTime());
+        auction.setEndTime(request.getEndTime());
+        auction.setFinalPrice(request.getStartingPrice());
+        auction.setStatus(auctionStatus);
+        auctionRepository.save(auction);
+
         SellerProductListing listing = new SellerProductListing();
         listing.setItemId(savedItem.getId());
         listing.setSellerId(seller.getId());
@@ -66,9 +92,10 @@ public class SellerProductService {
         listing.setStartTime(request.getStartTime());
         listing.setEndTime(request.getEndTime());
         listing.setItemType(request.getItemType());
-        listing.setStatus(AuctionState.OPEN);
+        listing.setStatus(auctionStatus);
 
         SellerProductListing savedListing = listingRepository.save(listing);
+        realtimePublisher.publishAuctionListChangedAfterCommit();
         return toDTO(savedListing, savedItem);
     }
 
@@ -82,11 +109,28 @@ public class SellerProductService {
                 : listingRepository.findBySellerIdAndStatusOrderByIdDesc(sellerId, status);
 
         List<SellerProductDTO> result = new ArrayList<>();
+        Set<Long> listedItemIds = new HashSet<>();
         for (SellerProductListing listing : listings) {
+            listedItemIds.add(listing.getItemId());
             itemRepository.findById(listing.getItemId())
                     .map(item -> toDTO(listing, item))
                     .filter(dto -> matchesKeyword(dto, keyword))
                     .ifPresent(result::add);
+        }
+
+        // Dữ liệu cũ và dữ liệu mẫu có thể đã có item + auction nhưng chưa có listing.
+        // Vẫn hiển thị các phiên đó trong màn quản lý Seller mà không tạo bản ghi trùng.
+        for (Item item : itemRepository.findBySellerId(sellerId)) {
+            if (listedItemIds.contains(item.getId())) {
+                continue;
+            }
+
+            for (Auction auction : auctionRepository.findByItemId(item.getId())) {
+                SellerProductDTO dto = toDTO(auction, item, sellerId);
+                if ((status == null || dto.getStatus() == status) && matchesKeyword(dto, keyword)) {
+                    result.add(dto);
+                }
+            }
         }
         return result;
     }
@@ -112,6 +156,9 @@ public class SellerProductService {
         }
         if (!request.getEndTime().isAfter(request.getStartTime())) {
             throw new IllegalArgumentException("Thời gian kết thúc phải sau thời gian bắt đầu");
+        }
+        if (!request.getEndTime().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Thời gian kết thúc phải ở tương lai");
         }
         if (request.getItemType() == null) {
             throw new IllegalArgumentException("Loại sản phẩm không được để trống");
@@ -175,6 +222,7 @@ public class SellerProductService {
         dto.setItemType(listing.getItemType());
         dto.setStartingPrice(item.getStartingPrice());
         dto.setCurrentPrice(item.getCurrentPrice());
+        dto.setSoldPrice(findSoldPrice(item.getId(), listing.getStatus()));
         dto.setBuyNowPrice(listing.getBuyNowPrice());
         dto.setImageUrl(listing.getImageUrl());
         dto.setStartTime(listing.getStartTime() == null ? "" : listing.getStartTime().format(DISPLAY_FORMATTER));
@@ -182,6 +230,48 @@ public class SellerProductService {
         dto.setStatus(listing.getStatus());
         dto.setEditable(listing.getStatus() != AuctionState.RUNNING && listing.getStatus() != AuctionState.FINISHED);
         return dto;
+    }
+
+    private SellerProductDTO toDTO(Auction auction, Item item, Long sellerId) {
+        SellerProductDTO dto = new SellerProductDTO();
+        dto.setItemId(item.getId());
+        dto.setSellerId(sellerId);
+        dto.setItemName(item.getName());
+        dto.setDescription(item.getDescription());
+        dto.setItemType(resolveItemType(item));
+        dto.setStartingPrice(item.getStartingPrice());
+        dto.setCurrentPrice(item.getCurrentPrice());
+        dto.setSoldPrice(getSoldPrice(auction));
+        dto.setStartTime(auction.getStartTime() == null ? "" : auction.getStartTime().format(DISPLAY_FORMATTER));
+        dto.setEndTime(auction.getEndTime() == null ? "" : auction.getEndTime().format(DISPLAY_FORMATTER));
+        dto.setStatus(auction.getStatus());
+        dto.setEditable(auction.getStatus() != AuctionState.RUNNING && auction.getStatus() != AuctionState.FINISHED);
+        return dto;
+    }
+
+    private Double findSoldPrice(Long itemId, AuctionState listingStatus) {
+        if (listingStatus != AuctionState.FINISHED) {
+            return null;
+        }
+        return auctionRepository.findTopByItemIdOrderByIdDesc(itemId)
+                .map(this::getSoldPrice)
+                .orElse(null);
+    }
+
+    private Double getSoldPrice(Auction auction) {
+        if (auction.getStatus() != AuctionState.FINISHED || auction.getWinnerId() == null) {
+            return null;
+        }
+        return auction.getFinalPrice();
+    }
+
+    private ItemType resolveItemType(Item item) {
+        if (item instanceof Art) return ItemType.ART;
+        if (item instanceof Electronics) return ItemType.ELECTRONICS;
+        if (item instanceof Vehicle) return ItemType.VEHICLE;
+        if (item instanceof Fashion) return ItemType.FASHION;
+        if (item instanceof Jewelry) return ItemType.JEWELRY;
+        throw new IllegalArgumentException("Loại sản phẩm không được hỗ trợ");
     }
 
     private boolean matchesKeyword(SellerProductDTO dto, String keyword) {

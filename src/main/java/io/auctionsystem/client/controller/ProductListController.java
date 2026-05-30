@@ -2,7 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.auctionsystem.client.pattern.WebSocketClientManager;
 import io.auctionsystem.common.dto.AuctionItemDTO;
+import io.auctionsystem.common.dto.AuctionPriceUpdateDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +15,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -35,6 +41,8 @@ public class ProductListController {
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
+    private StompSession.Subscription priceSubscription;
+    private StompSession.Subscription listChangedSubscription;
 
     @FXML
     public void initialize() {
@@ -66,6 +74,7 @@ public class ProductListController {
                     LiveBidsController.selectedAuctionId = selected.getId();
                     LiveBidsController.selectedAuctionName = selected.getName();
                     LiveBidsController.selectedInitialPrice = selected.getCurrentPrice();
+                    LiveBidsController.selectedEndTime = selected.getEndTime();
 
                     // Chuyển tab
                     BidderDashboardController.getInstance().onLiveBidsClicked();
@@ -76,6 +85,16 @@ public class ProductListController {
         // 4. Load dữ liệu
         tableItems.setItems(auctionList);
         loadProductsFromServer();
+        tableItems.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                unsubscribeRealtimeUpdates();
+            } else {
+                subscribeToRealtimeUpdates();
+            }
+        });
+        if (tableItems.getScene() != null) {
+            subscribeToRealtimeUpdates();
+        }
     }
 
     // --- CÁC HÀM XỬ LÝ API THÊM MỚI ---
@@ -108,6 +127,62 @@ public class ProductListController {
                 Platform.runLater(() -> showAlert("Lỗi kết nối đến máy chủ khi tải sản phẩm!"));
             }
         }).start();
+    }
+
+    private void subscribeToRealtimeUpdates() {
+        if (priceSubscription != null || listChangedSubscription != null) return;
+
+        WebSocketClientManager.getInstance().connect();
+        StompSession session = WebSocketClientManager.getInstance().getSession();
+        if (session == null || !session.isConnected()) return;
+
+        priceSubscription = session.subscribe("/topic/auctions/prices", new StompSessionHandlerAdapter() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return AuctionPriceUpdateDTO.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                if (!(payload instanceof AuctionPriceUpdateDTO update)) return;
+                Platform.runLater(() -> applyPriceUpdate(update));
+            }
+        });
+
+        listChangedSubscription = session.subscribe("/topic/auctions/changed", new StompSessionHandlerAdapter() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return String.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                loadProductsFromServer();
+            }
+        });
+    }
+
+    private void unsubscribeRealtimeUpdates() {
+        if (priceSubscription != null) {
+            priceSubscription.unsubscribe();
+            priceSubscription = null;
+        }
+        if (listChangedSubscription != null) {
+            listChangedSubscription.unsubscribe();
+            listChangedSubscription = null;
+        }
+    }
+
+    private void applyPriceUpdate(AuctionPriceUpdateDTO update) {
+        if (update.getAuctionId() == null || update.getCurrentPrice() == null) return;
+
+        for (AuctionItemDTO item : auctionList) {
+            if (update.getAuctionId().equals(item.getId())) {
+                item.setCurrentPrice(update.getCurrentPrice());
+                tableItems.refresh();
+                return;
+            }
+        }
     }
 
     private void showAlert(String msg) {

@@ -31,10 +31,14 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class SellerAddProductController {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
+    private static final DateTimeFormatter DISPLAY_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final long SUGGESTED_AUCTION_DURATION_MINUTES = 5;
+    private static ProductDraft savedDraft;
 
     @FXML private TextField txtName;
     @FXML private TextArea txtDescription;
@@ -59,7 +63,6 @@ public class SellerAddProductController {
     @FXML private TextField txtWarrantyMonths;
 
     @FXML private VBox vehicleFields;
-    @FXML private TextField txtVinCode;
     @FXML private TextField txtManufactureYear;
     @FXML private TextField txtFuelType;
 
@@ -88,21 +91,28 @@ public class SellerAddProductController {
 
         LocalDateTime defaultStart = LocalDateTime.now().plusMinutes(5).truncatedTo(ChronoUnit.MINUTES);
         dpStartDate.setValue(defaultStart.toLocalDate());
-        txtStartTime.setText(defaultStart.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-        dpEndDate.setValue(defaultStart.plusDays(1).toLocalDate());
-        txtEndTime.setText(defaultStart.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+        txtStartTime.setText(defaultStart.toLocalTime().format(DISPLAY_TIME_FORMATTER));
+        updateSuggestedEndTime();
 
         cbItemType.valueProperty().addListener((observable, oldValue, newValue) -> showFieldsForType(newValue));
+        dpStartDate.valueProperty().addListener((observable, oldValue, newValue) -> updateSuggestedEndTime());
+        txtStartTime.textProperty().addListener((observable, oldValue, newValue) -> updateSuggestedEndTime());
+        restoreDraft();
         showFieldsForType(cbItemType.getValue());
     }
 
     @FXML
     public void onBackClicked() {
+        saveDraft();
+        navigateBack();
+    }
+
+    private void navigateBack() {
         SellerDashboardController controller = SellerDashboardController.getInstance();
         if (controller != null) {
             controller.onManageAuctionsClicked();
         } else {
-            SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+            SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
         }
     }
 
@@ -159,7 +169,6 @@ public class SellerAddProductController {
                 request.setWarrantyMonths(parseOptionalInteger(txtWarrantyMonths, "Tháng bảo hành"));
             }
             case VEHICLE -> {
-                request.setVinCode(optionalText(txtVinCode));
                 request.setManufactureYear(parseOptionalInteger(txtManufactureYear, "Năm sản xuất"));
                 request.setFuelType(optionalText(txtFuelType));
             }
@@ -204,8 +213,9 @@ public class SellerAddProductController {
         btnStartAuction.setDisable(false);
         String message = extractMessage(response.body());
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            savedDraft = null;
             showAlert(Alert.AlertType.INFORMATION, message);
-            onBackClicked();
+            navigateBack();
             return;
         }
 
@@ -223,6 +233,90 @@ public class SellerAddProductController {
     private void setVisible(Node node, boolean visible) {
         node.setVisible(visible);
         node.setManaged(visible);
+    }
+
+    private void saveDraft() {
+        ProductDraft draft = new ProductDraft();
+        draft.sellerId = AuctionManager.getInstance().getId();
+        draft.name = txtName.getText();
+        draft.description = txtDescription.getText();
+        draft.startingPrice = txtStartingPrice.getText();
+        draft.buyNowPrice = txtBuyNowPrice.getText();
+        draft.imageUrl = txtImageUrl.getText();
+        draft.itemType = cbItemType.getValue();
+        draft.startDate = dpStartDate.getValue();
+        draft.startTime = txtStartTime.getText();
+        draft.endDate = dpEndDate.getValue();
+        draft.endTime = txtEndTime.getText();
+        draft.artistName = txtArtistName.getText();
+        draft.medium = txtMedium.getText();
+        draft.dimensions = txtDimensions.getText();
+        draft.creationYear = txtCreationYear.getText();
+        draft.electronicsBrand = txtElectronicsBrand.getText();
+        draft.electronicsModel = txtElectronicsModel.getText();
+        draft.warrantyMonths = txtWarrantyMonths.getText();
+        draft.manufactureYear = txtManufactureYear.getText();
+        draft.fuelType = txtFuelType.getText();
+        draft.fashionBrand = txtFashionBrand.getText();
+        draft.fashionSize = txtFashionSize.getText();
+        draft.fashionMaterial = txtFashionMaterial.getText();
+        draft.fashionGender = txtFashionGender.getText();
+        draft.jewelryMaterial = txtJewelryMaterial.getText();
+        draft.weight = txtWeight.getText();
+        draft.gemstone = txtGemstone.getText();
+        savedDraft = draft;
+    }
+
+    private void restoreDraft() {
+        ProductDraft draft = savedDraft;
+        if (draft == null || !Objects.equals(draft.sellerId, AuctionManager.getInstance().getId())) {
+            return;
+        }
+
+        txtName.setText(draft.name);
+        txtDescription.setText(draft.description);
+        txtStartingPrice.setText(draft.startingPrice);
+        txtBuyNowPrice.setText(draft.buyNowPrice);
+        txtImageUrl.setText(draft.imageUrl);
+        cbItemType.setValue(draft.itemType);
+        dpStartDate.setValue(draft.startDate);
+        txtStartTime.setText(draft.startTime);
+        dpEndDate.setValue(draft.endDate);
+        txtEndTime.setText(draft.endTime);
+        txtArtistName.setText(draft.artistName);
+        txtMedium.setText(draft.medium);
+        txtDimensions.setText(draft.dimensions);
+        txtCreationYear.setText(draft.creationYear);
+        txtElectronicsBrand.setText(draft.electronicsBrand);
+        txtElectronicsModel.setText(draft.electronicsModel);
+        txtWarrantyMonths.setText(draft.warrantyMonths);
+        txtManufactureYear.setText(draft.manufactureYear);
+        txtFuelType.setText(draft.fuelType);
+        txtFashionBrand.setText(draft.fashionBrand);
+        txtFashionSize.setText(draft.fashionSize);
+        txtFashionMaterial.setText(draft.fashionMaterial);
+        txtFashionGender.setText(draft.fashionGender);
+        txtJewelryMaterial.setText(draft.jewelryMaterial);
+        txtWeight.setText(draft.weight);
+        txtGemstone.setText(draft.gemstone);
+    }
+
+    private void updateSuggestedEndTime() {
+        LocalDate startDate = dpStartDate.getValue();
+        String startTimeText = txtStartTime.getText();
+        if (startDate == null || startTimeText == null || startTimeText.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            LocalTime startTime = LocalTime.parse(startTimeText.trim(), TIME_FORMATTER);
+            LocalDateTime suggestedEnd = LocalDateTime.of(startDate, startTime)
+                    .plusMinutes(SUGGESTED_AUCTION_DURATION_MINUTES);
+            dpEndDate.setValue(suggestedEnd.toLocalDate());
+            txtEndTime.setText(suggestedEnd.toLocalTime().format(DISPLAY_TIME_FORMATTER));
+        } catch (DateTimeParseException ignored) {
+            // Keep the current end time while the user is still typing.
+        }
     }
 
     private LocalDateTime parseDateTime(DatePicker datePicker, TextField timeField, String fieldName) {
@@ -336,5 +430,35 @@ public class SellerAddProductController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private static class ProductDraft {
+        private Long sellerId;
+        private String name;
+        private String description;
+        private String startingPrice;
+        private String buyNowPrice;
+        private String imageUrl;
+        private ItemType itemType;
+        private LocalDate startDate;
+        private String startTime;
+        private LocalDate endDate;
+        private String endTime;
+        private String artistName;
+        private String medium;
+        private String dimensions;
+        private String creationYear;
+        private String electronicsBrand;
+        private String electronicsModel;
+        private String warrantyMonths;
+        private String manufactureYear;
+        private String fuelType;
+        private String fashionBrand;
+        private String fashionSize;
+        private String fashionMaterial;
+        private String fashionGender;
+        private String jewelryMaterial;
+        private String weight;
+        private String gemstone;
     }
 }

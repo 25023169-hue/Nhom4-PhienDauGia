@@ -86,7 +86,7 @@ public class LoginController {
 
                             } else if (userRole != null && userRole.name().equalsIgnoreCase("SELLER")) {
                                 System.out.println(">>> Đang chuyển hướng sang trang Người bán...");
-                                SceneManager.getInstance().switchScene("/client/fxml/seller_dashboard.fxml");
+                                SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
 
                             } else {
                                 System.out.println(">>> Đang chuyển hướng sang trang Đấu giá chung...");
@@ -114,7 +114,7 @@ public class LoginController {
 
     @FXML
     public void onRegisterLinkClick() {
-        SceneManager.getInstance().switchScene("/client/fxml/register.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/user/register.fxml");
     }
 
     // ================= HÀM HỖ TRỢ HIỂN THỊ LỖI =================

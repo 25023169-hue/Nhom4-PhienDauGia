@@ -148,12 +148,10 @@
                                                 <ColumnConstraints hgrow="ALWAYS" />
                                             </columnConstraints>
                                             <children>
-                                                <Label text="Mã VIN" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                                <TextField fx:id="txtVinCode" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                                 <Label text="Năm sản xuất" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                                 <TextField fx:id="txtManufactureYear" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                                <Label text="Nhiên liệu" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                                <TextField fx:id="txtFuelType" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="Nhiên liệu" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtFuelType" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                             </children>
                                         </GridPane>
                                     </children>

@@ -48,7 +48,7 @@ public class AuthService {
         // Tìm User, nếu không có thì ném lỗi
         User user = userRepository.findByUsername(username).orElse(null);
 
-        if (user == null || !user.getPassword().equals(password)) {
+        if (user == null || !user.isActive() || !user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
         }
 
@@ -62,7 +62,7 @@ public class AuthService {
         response.setLastname(user.getLastname());
 
         // LỖI ĐÃ SỬA: Thêm balance vào response (trước đây bị thiếu → client luôn thấy số dư = 0)
-        response.setBalance(user.getBalance());
+        response.setBalance(user.getAvailableBalance());
 
         // LỖI ĐÃ SỬA: Thêm thông tin bankName, accountName, bankAccount, address, storeName
         // Các trường này nằm ở Bidder/Seller, cần ép kiểu để lấy
@@ -87,6 +87,11 @@ public class AuthService {
     }
 
     public String upgradeToSeller(Long id, String storeName) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+        if (!user.isActive()) {
+            throw new RuntimeException("Tài khoản đã bị vô hiệu hóa");
+        }
         if (userRepository.isUserSeller(id) > 0) {
             throw new RuntimeException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
         }

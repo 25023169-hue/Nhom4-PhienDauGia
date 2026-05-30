@@ -16,5 +16,5 @@
     <Button onAction="#saveProfile" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Lưu thay đổi" />
     <Region VBox.vgrow="ALWAYS" />
     <Separator />
-    <Button onAction="#deleteAccount" style="-fx-text-fill: #e74c3c; -fx-background-color: transparent; -fx-border-color: #e74c3c; -fx-border-radius: 4;" text="Xóa tài khoản vĩnh viễn" />
+    <Button fx:id="btnDeleteAccount" onAction="#deleteAccount" style="-fx-text-fill: #e74c3c; -fx-background-color: transparent; -fx-border-color: #e74c3c; -fx-border-radius: 4;" text="Xóa tài khoản vĩnh viễn" />
 </VBox>

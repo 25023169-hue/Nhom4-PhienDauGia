@@ -13,6 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.net.URI;
@@ -33,6 +34,8 @@ import java.util.Map;
 public class WalletController {
 
     @FXML private Label lblBalance;
+    @FXML private Label lblTotalBalance;
+    @FXML private Label lblHeldBalance;
     @FXML private Label lblTransactionError;
     @FXML private HBox bankErrorBox;
     @FXML private Button btnSetupBank;
@@ -240,7 +243,7 @@ public class WalletController {
     @FXML
     public void onOpenBankSettings() {
         AuctionManager.getInstance().requestSettingsTab(SETTINGS_BANK_TAB);
-        SceneManager.getInstance().switchScene("/client/fxml/settings.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/settings/settings.fxml");
     }
 
     private void handleWalletTransaction(String type, boolean isDeposit) {
@@ -283,8 +286,10 @@ public class WalletController {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                double newBalance = isDeposit ? currentBalance + amount : currentBalance - amount;
+                JsonNode transaction = new ObjectMapper().readTree(response.body());
+                double newBalance = transaction.path("lastBalance").asDouble(currentBalance);
                 AuctionManager.getInstance().setBalance(newBalance);
+                updateDisplayedBalance(newBalance, 0.0, newBalance);
                 refreshWalletBalance();
 
                 String formattedAmount = formatCurrency(amount);
@@ -318,7 +323,45 @@ public class WalletController {
     }
 
     private void refreshWalletBalance() {
-        lblBalance.setText(formatCurrency(AuctionManager.getInstance().getBalance()));
+        Long userId = AuctionManager.getInstance().getId();
+        if (userId == null) {
+            updateDisplayedBalance(0.0, 0.0, 0.0);
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:8080/api/user/" + userId + "/wallet"))
+                        .GET()
+                        .build();
+                HttpResponse<String> response = HttpClient.newHttpClient()
+                        .send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    JsonNode summary = new ObjectMapper().readTree(response.body());
+                    double totalBalance = summary.path("totalBalance").asDouble();
+                    double heldBalance = summary.path("heldBalance").asDouble();
+                    double availableBalance = summary.path("availableBalance").asDouble();
+                    Platform.runLater(() -> {
+                        AuctionManager.getInstance().setBalance(availableBalance);
+                        updateDisplayedBalance(totalBalance, heldBalance, availableBalance);
+                    });
+                }
+            } catch (Exception e) {
+                Platform.runLater(() -> updateDisplayedBalance(
+                        AuctionManager.getInstance().getBalance(),
+                        0.0,
+                        AuctionManager.getInstance().getBalance()
+                ));
+            }
+        }).start();
+    }
+
+    private void updateDisplayedBalance(double totalBalance, double heldBalance, double availableBalance) {
+        lblBalance.setText(formatCurrency(availableBalance));
+        lblTotalBalance.setText("Tổng số dư: " + formatCurrency(totalBalance));
+        lblHeldBalance.setText("Đang giữ đấu giá: " + formatCurrency(heldBalance));
     }
 
     private String formatCurrency(double amount) {

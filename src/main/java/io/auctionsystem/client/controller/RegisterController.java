@@ -61,7 +61,7 @@ public class RegisterController {
 
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200 || response.statusCode() == 201) {
-                        SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
+                        SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
                     } else {
                         showError("Lỗi: " + response.body());
                     }
@@ -75,7 +75,7 @@ public class RegisterController {
 
     @FXML
     private void onBackToLoginClick() {
-        SceneManager.getInstance().switchScene("/client/fxml/login.fxml");
+        SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
     }
 
     private void showError(String message) {

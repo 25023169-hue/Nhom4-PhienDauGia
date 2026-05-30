@@ -7,6 +7,7 @@ import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.AutoBidRepository;
 import io.auctionsystem.server.repository.ItemRepository;
+import io.auctionsystem.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +29,17 @@ public class AutoBidService {
     @Autowired
     private BidService bidService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // Lưu hoặc cập nhật cấu hình đặt giá tự động
     public void registerAutoBid(Long auctionId, Long bidderId, Double maxAmount, Double incrementAmount) {
+        if (!userRepository.findById(bidderId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"))
+                .isActive()) {
+            throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+        }
+
         AutoBid autoBid = autoBidRepository.findByAuctionIdAndBidderId(auctionId, bidderId)
                 .orElse(new AutoBid());
 

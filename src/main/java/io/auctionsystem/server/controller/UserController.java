@@ -5,6 +5,7 @@ import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.server.service.UserService;
 import io.auctionsystem.server.service.TransactionService;
 import io.auctionsystem.server.model.Transaction;
+import io.auctionsystem.server.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,28 @@ public class UserController {
             @RequestParam("amount") Double amount,
             @RequestParam("type") String type,
             @RequestParam(value = "note", required = false) String note,
-            @RequestParam("currentBalance") Double currentBalance) {
+            @RequestParam(value = "currentBalance", required = false) Double ignoredCurrentBalance) {
         try {
-            Transaction tx = transactionService.processTransaction(id, amount, type, note, currentBalance);
+            Transaction tx = transactionService.processTransaction(id, amount, type, note);
             return ResponseEntity.ok().body(tx);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi giao dịch: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/wallet")
+    public ResponseEntity<?> getWalletSummary(@PathVariable("id") Long id) {
+        try {
+            User user = userService.getUser(id);
+            Map<String, Double> summary = new HashMap<>();
+            summary.put("totalBalance", user.getBalance());
+            summary.put("heldBalance", user.getHeldBalance());
+            summary.put("availableBalance", user.getAvailableBalance());
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Không thể tải số dư ví: " + e.getMessage());
         }
     }
 
@@ -89,6 +106,18 @@ public class UserController {
             return ResponseEntity.ok().body("Cập nhật địa chỉ thành công!");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi Server: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAccount(@PathVariable("id") Long id) {
+        try {
+            userService.deleteAccount(id);
+            return ResponseEntity.ok("Tài khoản đã được xóa thành công");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi xóa tài khoản: " + e.getMessage());
         }
     }
 }

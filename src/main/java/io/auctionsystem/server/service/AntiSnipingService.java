@@ -3,7 +3,6 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.repository.AuctionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,7 @@ public class AntiSnipingService {
     private AuctionRepository auctionRepository;
 
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private AuctionRealtimePublisher realtimePublisher;
 
     @Transactional
     public void notifyIfAntiSnipingTriggered(Long auctionId) {
@@ -30,7 +29,7 @@ public class AntiSnipingService {
         if (secondsLeft > 0 && secondsLeft <= 61) {
             // Phát tín hiệu WebSocket cho tất cả Client đang xem phiên
             // Client có thể lắng nghe topic này để load lại thời gian EndTime mới
-            messagingTemplate.convertAndSend("/topic/auctions/" + auctionId + "/extended", auction.getEndTime().toString());
+            realtimePublisher.publishExtendedEndTimeAfterCommit(auctionId, auction.getEndTime().toString());
             System.out.println(">>> [ANTI-SNIPING] Đã phát tín hiệu Web-Socket gia hạn thời gian cho phiên " + auctionId);
         }
     }

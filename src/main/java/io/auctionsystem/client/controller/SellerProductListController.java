@@ -184,6 +184,7 @@ public class SellerProductListController {
                 + "Mã sản phẩm: " + product.getItemId() + "\n"
                 + "Loại: " + nullToEmpty(product.getItemType()) + "\n"
                 + "Giá khởi điểm: " + currencyFormat.format(product.getStartingPrice()) + "\n"
+                + "Giá đã bán: " + (product.getSoldPrice() == null ? "Chưa bán" : currencyFormat.format(product.getSoldPrice())) + "\n"
                 + "Giá mua đứt: " + (product.getBuyNowPrice() == null ? "Không có" : currencyFormat.format(product.getBuyNowPrice())) + "\n"
                 + "Trạng thái: " + formatStatus(product.getStatus()) + "\n"
                 + "Bắt đầu: " + nullToEmpty(product.getStartTime()) + "\n"
