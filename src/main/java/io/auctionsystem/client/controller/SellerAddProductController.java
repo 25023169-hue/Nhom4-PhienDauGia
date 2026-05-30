@@ -60,7 +60,7 @@ public class SellerAddProductController {
     @FXML private VBox electronicsFields;
     @FXML private TextField txtElectronicsBrand;
     @FXML private TextField txtElectronicsModel;
-    @FXML private TextField txtWarrantyMonths;
+    @FXML private TextField txtCondition;
 
     @FXML private VBox vehicleFields;
     @FXML private TextField txtManufactureYear;
@@ -166,7 +166,7 @@ public class SellerAddProductController {
             case ELECTRONICS -> {
                 request.setBrand(optionalText(txtElectronicsBrand));
                 request.setModel(optionalText(txtElectronicsModel));
-                request.setWarrantyMonths(parseOptionalInteger(txtWarrantyMonths, "Tháng bảo hành"));
+                request.setCondition(optionalText(txtCondition));
             }
             case VEHICLE -> {
                 request.setManufactureYear(parseOptionalInteger(txtManufactureYear, "Năm sản xuất"));
@@ -254,7 +254,7 @@ public class SellerAddProductController {
         draft.creationYear = txtCreationYear.getText();
         draft.electronicsBrand = txtElectronicsBrand.getText();
         draft.electronicsModel = txtElectronicsModel.getText();
-        draft.warrantyMonths = txtWarrantyMonths.getText();
+        draft.condition = txtCondition.getText();
         draft.manufactureYear = txtManufactureYear.getText();
         draft.fuelType = txtFuelType.getText();
         draft.fashionBrand = txtFashionBrand.getText();
@@ -289,7 +289,7 @@ public class SellerAddProductController {
         txtCreationYear.setText(draft.creationYear);
         txtElectronicsBrand.setText(draft.electronicsBrand);
         txtElectronicsModel.setText(draft.electronicsModel);
-        txtWarrantyMonths.setText(draft.warrantyMonths);
+        txtCondition.setText(draft.condition);
         txtManufactureYear.setText(draft.manufactureYear);
         txtFuelType.setText(draft.fuelType);
         txtFashionBrand.setText(draft.fashionBrand);
@@ -450,7 +450,7 @@ public class SellerAddProductController {
         private String creationYear;
         private String electronicsBrand;
         private String electronicsModel;
-        private String warrantyMonths;
+        private String condition;
         private String manufactureYear;
         private String fuelType;
         private String fashionBrand;

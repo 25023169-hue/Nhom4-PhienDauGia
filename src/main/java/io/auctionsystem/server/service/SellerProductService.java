@@ -195,7 +195,7 @@ public class SellerProductService {
         } else if (item instanceof Electronics electronics) {
             electronics.setBrand(blankToNull(request.getBrand()));
             electronics.setModel(blankToNull(request.getModel()));
-            electronics.setWarrantyMonths(request.getWarrantyMonths());
+            electronics.setCondition(request.getCondition());
         } else if (item instanceof Vehicle vehicle) {
             vehicle.setVinCode(blankToNull(request.getVinCode()));
             vehicle.setManufactureYear(request.getManufactureYear());

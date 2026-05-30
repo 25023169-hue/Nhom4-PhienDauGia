@@ -31,7 +31,7 @@ public class SellerProductRequest implements Serializable {
 
     private String brand;
     private String model;
-    private Integer warrantyMonths;
+    private String condition;
 
     private String vinCode;
     private Integer manufactureYear;
@@ -43,4 +43,5 @@ public class SellerProductRequest implements Serializable {
 
     private Double weight;
     private String gemstone;
+
 }

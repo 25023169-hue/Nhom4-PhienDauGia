@@ -13,5 +13,6 @@ import lombok.*;
 public class Electronics extends Item {
     private String brand;
     private String model;
-    private Integer condition;
+    @Column(name = "item_condition")
+    private String condition;
 }

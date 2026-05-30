@@ -128,8 +128,8 @@
                                                 <TextField fx:id="txtElectronicsBrand" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                                 <Label text="Model" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                                 <TextField fx:id="txtElectronicsModel" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                                <Label text="Bảo hành tháng" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                                <TextField fx:id="txtWarrantyMonths" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="Tình trạng" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtCondition" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                             </children>
                                         </GridPane>
                                     </children>
