@@ -260,6 +260,50 @@ class SellerProductServiceTest {
     }
 
     @Test
+    void testStartOpenAuction_StartsImmediatelyAndPreservesDuration() {
+        Seller seller = new Seller();
+        seller.setId(10L);
+
+        Electronics item = new Electronics();
+        item.setId(20L);
+        item.setSeller(seller);
+
+        LocalDateTime scheduledStart = LocalDateTime.now().plusHours(2);
+        LocalDateTime scheduledEnd = scheduledStart.plusHours(3);
+        Auction auction = new Auction();
+        auction.setId(30L);
+        auction.setItemId(20L);
+        auction.setStartTime(scheduledStart);
+        auction.setEndTime(scheduledEnd);
+        auction.setStatus(AuctionState.OPEN);
+
+        SellerProductListing listing = new SellerProductListing();
+        listing.setItemId(20L);
+        listing.setSellerId(10L);
+        listing.setItemType(ItemType.ELECTRONICS);
+        listing.setStatus(AuctionState.OPEN);
+
+        when(itemRepository.findById(20L)).thenReturn(Optional.of(item));
+        when(auctionRepository.findTopByItemIdOrderByIdDesc(20L)).thenReturn(Optional.of(auction));
+        when(auctionRepository.findByIdForUpdate(30L)).thenReturn(Optional.of(auction));
+        when(listingRepository.findByItemId(20L)).thenReturn(Optional.of(listing));
+        when(listingRepository.save(listing)).thenReturn(listing);
+
+        LocalDateTime beforeStart = LocalDateTime.now();
+        var result = sellerProductService.startOpenAuction(20L, 10L);
+        LocalDateTime afterStart = LocalDateTime.now();
+
+        assertEquals(AuctionState.RUNNING, auction.getStatus());
+        assertTrue(!auction.getStartTime().isBefore(beforeStart) && !auction.getStartTime().isAfter(afterStart));
+        assertEquals(java.time.Duration.ofHours(3), java.time.Duration.between(auction.getStartTime(), auction.getEndTime()));
+        assertEquals(auction.getStartTime(), listing.getStartTime());
+        assertEquals(auction.getEndTime(), listing.getEndTime());
+        assertEquals(AuctionState.RUNNING, result.getStatus());
+        verify(realtimePublisher).publishStatusAfterCommit(30L, "RUNNING");
+        verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    }
+
+    @Test
     void testGetSellerProducts_DoesNotShowHiddenListing() {
         SellerProductListing listing = new SellerProductListing();
         listing.setItemId(20L);

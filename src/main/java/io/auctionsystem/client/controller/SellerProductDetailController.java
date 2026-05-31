@@ -29,12 +29,12 @@ public class SellerProductDetailController {
     @FXML private Label lblItemType;
     @FXML private Label lblDescription;
     @FXML private Label lblStartingPrice;
-    @FXML private Label lblCurrentPrice;
     @FXML private Label lblSoldPrice;
     @FXML private Label lblBuyNowPrice;
     @FXML private Label lblStatus;
     @FXML private Label lblStartTime;
     @FXML private Label lblEndTime;
+    @FXML private Button btnStart;
     @FXML private Button btnEdit;
     @FXML private Button btnDelete;
 
@@ -51,6 +51,8 @@ public class SellerProductDetailController {
         SellerProductDTO product = selectedProduct;
         if (product == null) {
             lblItemName.setText("Không tìm thấy sản phẩm");
+            btnStart.setVisible(false);
+            btnStart.setManaged(false);
             btnEdit.setVisible(false);
             btnEdit.setManaged(false);
             btnDelete.setVisible(false);
@@ -59,6 +61,8 @@ public class SellerProductDetailController {
         }
 
         boolean editable = product.getStatus() == AuctionState.OPEN;
+        btnStart.setVisible(editable);
+        btnStart.setManaged(editable);
         btnEdit.setVisible(editable);
         btnEdit.setManaged(editable);
         lblItemName.setText(valueOrDash(product.getItemName()));
@@ -66,7 +70,6 @@ public class SellerProductDetailController {
         lblItemType.setText(valueOrDash(product.getItemType()));
         lblDescription.setText(valueOrDash(product.getDescription()));
         lblStartingPrice.setText(formatPrice(product.getStartingPrice(), "Chưa cài đặt"));
-        lblCurrentPrice.setText(formatPrice(product.getCurrentPrice(), "Chưa có"));
         lblSoldPrice.setText(formatPrice(product.getSoldPrice(), "Chưa bán"));
         lblBuyNowPrice.setText(formatPrice(product.getBuyNowPrice(), "Không có"));
         lblStatus.setText(valueOrDash(product.getStatus()));
@@ -89,6 +92,45 @@ public class SellerProductDetailController {
         if (product != null && product.getStatus() == AuctionState.OPEN && controller != null) {
             controller.onEditProductClicked(product);
         }
+    }
+
+    @FXML
+    public void onStartClicked() {
+        SellerProductDTO product = selectedProduct;
+        Long sellerId = AuctionManager.getInstance().getId();
+        if (product == null || product.getItemId() == null || sellerId == null
+                || product.getStatus() != AuctionState.OPEN) {
+            return;
+        }
+
+        Alert confirmation = new Alert(
+                Alert.AlertType.CONFIRMATION,
+                "Bắt đầu phiên ngay bây giờ? Thời gian kết thúc sẽ được tính lại theo thời lượng đã cài đặt.",
+                ButtonType.YES,
+                ButtonType.NO
+        );
+        confirmation.setHeaderText("Xác nhận bắt đầu phiên");
+        if (confirmation.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
+            return;
+        }
+
+        btnStart.setDisable(true);
+        new Thread(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(Constants.BASE_URL + "/seller/products/" + product.getItemId()
+                                + "/start?sellerId=" + sellerId))
+                        .POST(HttpRequest.BodyPublishers.noBody())
+                        .build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                Platform.runLater(() -> handleStartResponse(response));
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    btnStart.setDisable(false);
+                    showAlert(Alert.AlertType.ERROR, "Không thể kết nối đến server khi bắt đầu phiên.");
+                });
+            }
+        }).start();
     }
 
     @FXML
@@ -127,6 +169,17 @@ public class SellerProductDetailController {
                 });
             }
         }).start();
+    }
+
+    private void handleStartResponse(HttpResponse<String> response) {
+        btnStart.setDisable(false);
+        String message = extractMessage(response.body());
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            showAlert(Alert.AlertType.INFORMATION, message);
+            onBackClicked();
+            return;
+        }
+        showAlert(Alert.AlertType.ERROR, message);
     }
 
     private void handleDeleteResponse(HttpResponse<String> response) {

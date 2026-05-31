@@ -14,30 +14,32 @@
 
 <VBox fx:id="rootPane" alignment="CENTER" prefHeight="650.0" prefWidth="900.0" spacing="15.0" style="-fx-padding: 20; -fx-background-color: white;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.LiveBidsController">
 
-    <Label text="Các Phiên Đang Tham Gia">
-        <font>
-            <Font name="System Bold" size="24.0" />
-        </font>
-    </Label>
+    <VBox fx:id="participatingListPane" alignment="CENTER" spacing="15.0">
+        <Label text="Các Phiên Đang Tham Gia">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
 
-    <Label style="-fx-text-fill: #64748b;" text="Chọn một sản phẩm đã đặt giá để xem biểu đồ và tiếp tục đấu giá." />
+        <Label style="-fx-text-fill: #64748b;" text="Chọn một sản phẩm đã đặt giá để xem biểu đồ và tiếp tục đấu giá." />
 
-    <TableView fx:id="tableParticipating" prefHeight="190.0" prefWidth="850.0">
-        <columns>
-            <TableColumn fx:id="colProductName" prefWidth="390.0" text="Sản phẩm" />
-            <TableColumn fx:id="colCurrentPrice" prefWidth="200.0" text="Giá hiện tại" />
-            <TableColumn fx:id="colEndTime" prefWidth="240.0" text="Kết thúc" />
-        </columns>
-    </TableView>
+        <TableView fx:id="tableParticipating" prefHeight="430.0" prefWidth="850.0">
+            <columns>
+                <TableColumn fx:id="colProductName" prefWidth="390.0" text="Sản phẩm" />
+                <TableColumn fx:id="colCurrentPrice" prefWidth="200.0" text="Giá hiện tại" />
+                <TableColumn fx:id="colEndTime" prefWidth="240.0" text="Kết thúc" />
+            </columns>
+        </TableView>
 
-    <Label fx:id="lblEmptyState" style="-fx-text-fill: #64748b; -fx-font-style: italic;" text="Bạn chưa đặt giá ở phiên đấu giá nào đang chạy." />
+        <Label fx:id="lblEmptyState" style="-fx-text-fill: #64748b; -fx-font-style: italic;" text="Bạn chưa đặt giá ở phiên đấu giá nào đang chạy." />
+    </VBox>
 
     <VBox fx:id="detailPane" alignment="CENTER" managed="false" spacing="12.0" visible="false">
         <Label fx:id="lblProductName" style="-fx-font-size: 16px; -fx-text-fill: #34495e;" text="Sản phẩm đang tải..." />
         <Label fx:id="lblCurrentPrice" style="-fx-font-size: 24px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;" text="0 ₫" />
         <Label fx:id="lblTimeRemaining" style="-fx-font-size: 15px; -fx-text-fill: #d35400; -fx-font-weight: bold;" text="Thời gian còn lại: --:--:--" />
 
-        <LineChart fx:id="priceChart" animated="false" prefHeight="280.0" prefWidth="850.0" title="Đồ thị diễn biến giá đấu">
+        <LineChart fx:id="priceChart" animated="false" prefHeight="390.0" prefWidth="850.0" title="Đồ thị diễn biến giá đấu">
             <xAxis>
                 <CategoryAxis label="Thời gian" side="BOTTOM" />
             </xAxis>

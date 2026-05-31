@@ -73,6 +73,21 @@ public class SellerProductController {
         }
     }
 
+    @PostMapping("/{itemId}/start")
+    public ResponseEntity<ApiResponse<SellerProductDTO>> startSellerProductAuction(
+            @PathVariable Long itemId,
+            @RequestParam Long sellerId
+    ) {
+        try {
+            SellerProductDTO product = sellerProductService.startOpenAuction(itemId, sellerId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Đã bắt đầu phiên đấu giá.", product));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(new ApiResponse<>(false, "Lỗi Server: " + e.getMessage(), null));
+        }
+    }
+
     @DeleteMapping("/{itemId}")
     public ResponseEntity<ApiResponse<Void>> deleteSellerProduct(
             @PathVariable Long itemId,

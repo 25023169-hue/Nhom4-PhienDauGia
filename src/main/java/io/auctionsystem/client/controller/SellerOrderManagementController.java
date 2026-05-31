@@ -8,7 +8,6 @@ import io.auctionsystem.client.pattern.WebSocketClientManager;
 import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.AuctionItemDTO;
 import io.auctionsystem.common.dto.AuctionPriceUpdateDTO;
-import io.auctionsystem.common.request.BidRequest;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -17,12 +16,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -42,54 +39,45 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-public class LiveBidsController {
+public class SellerOrderManagementController {
 
     @FXML private VBox rootPane;
     @FXML private Label lblEmptyState;
-    @FXML private TableView<AuctionItemDTO> tableParticipating;
+    @FXML private TableView<AuctionItemDTO> tableOrders;
     @FXML private TableColumn<AuctionItemDTO, String> colProductName;
     @FXML private TableColumn<AuctionItemDTO, Double> colCurrentPrice;
     @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
-    @FXML private VBox participatingListPane;
     @FXML private VBox detailPane;
     @FXML private Label lblProductName;
     @FXML private Label lblCurrentPrice;
     @FXML private Label lblTimeRemaining;
-    @FXML private TextField txtBidAmount;
     @FXML private LineChart<String, Number> priceChart;
 
-    public static Long selectedAuctionId;
-    public static String selectedAuctionName = "";
-    public static Double selectedInitialPrice = 0.0;
-    public static String selectedEndTime = "";
-
+    private final ObservableList<AuctionItemDTO> runningOrders = FXCollections.observableArrayList();
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
-    private final ObservableList<AuctionItemDTO> participatingAuctions = FXCollections.observableArrayList();
 
     private Long currentAuctionId;
-    private XYChart.Series<String, Number> priceSeries;
     private LocalDateTime auctionEndTime;
     private Timeline countdownTimeline;
+    private XYChart.Series<String, Number> priceSeries;
+    private StompSession.Subscription listPriceSubscription;
+    private StompSession.Subscription listChangedSubscription;
     private StompSession.Subscription priceSubscription;
     private StompSession.Subscription statusSubscription;
     private StompSession.Subscription extendedSubscription;
-    private StompSession.Subscription listPriceSubscription;
-    private StompSession.Subscription listChangedSubscription;
 
     @FXML
     public void initialize() {
-        configureParticipatingTable();
+        configureTable();
         configureChart();
-        configureBidInput();
         setDetailVisible(false);
 
         WebSocketClientManager.getInstance().connect();
-        subscribeToParticipatingListUpdates();
-        loadParticipatingAuctions();
-        openRequestedAuction();
+        subscribeToListUpdates();
+        loadOrders();
 
         rootPane.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene == null) {
@@ -98,7 +86,7 @@ public class LiveBidsController {
         });
     }
 
-    private void configureParticipatingTable() {
+    private void configureTable() {
         colProductName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
         colEndTime.setCellValueFactory(new PropertyValueFactory<>("endTime"));
@@ -109,11 +97,11 @@ public class LiveBidsController {
                 setText(empty || price == null ? null : currencyFormat.format(price));
             }
         });
-        tableParticipating.setItems(participatingAuctions);
-        tableParticipating.getSelectionModel().selectedItemProperty().addListener(
+        tableOrders.setItems(runningOrders);
+        tableOrders.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, selected) -> {
                     if (selected != null) {
-                        openAuctionDetail(selected);
+                        openOrderDetail(selected);
                     }
                 }
         );
@@ -127,36 +115,10 @@ public class LiveBidsController {
         priceChart.setAnimated(false);
     }
 
-    private void configureBidInput() {
-        txtBidAmount.setOnKeyPressed(event -> {
-            if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
-                onPlaceBidClicked();
-            }
-        });
-    }
-
-    private void openRequestedAuction() {
-        if (selectedAuctionId == null) {
-            return;
-        }
-
-        AuctionItemDTO requestedAuction = new AuctionItemDTO();
-        requestedAuction.setId(selectedAuctionId);
-        requestedAuction.setName(selectedAuctionName);
-        requestedAuction.setCurrentPrice(selectedInitialPrice);
-        requestedAuction.setEndTime(selectedEndTime);
-        openAuctionDetail(requestedAuction);
-
-        selectedAuctionId = null;
-        selectedAuctionName = "";
-        selectedInitialPrice = 0.0;
-        selectedEndTime = "";
-    }
-
-    private void loadParticipatingAuctions() {
-        Long bidderId = AuctionManager.getInstance().getId();
-        if (bidderId == null) {
-            participatingAuctions.clear();
+    private void loadOrders() {
+        Long sellerId = AuctionManager.getInstance().getId();
+        if (sellerId == null) {
+            runningOrders.clear();
             updateEmptyState();
             return;
         }
@@ -164,33 +126,33 @@ public class LiveBidsController {
         new Thread(() -> {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(Constants.BASE_URL + "/auctions/participating/" + bidderId))
+                        .uri(URI.create(Constants.BASE_URL + "/auctions/running/seller/" + sellerId))
                         .GET()
                         .build();
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
-                    List<AuctionItemDTO> auctions = objectMapper.readValue(
+                    List<AuctionItemDTO> orders = objectMapper.readValue(
                             response.body(),
                             new TypeReference<List<AuctionItemDTO>>() {}
                     );
                     Platform.runLater(() -> {
-                        participatingAuctions.setAll(auctions);
+                        runningOrders.setAll(orders);
                         updateEmptyState();
                     });
                 }
             } catch (Exception e) {
-                System.err.println("Không thể tải danh sách phiên đang tham gia: " + e.getMessage());
+                System.err.println("Không thể tải danh sách đơn hàng seller: " + e.getMessage());
             }
         }).start();
     }
 
     private void updateEmptyState() {
-        boolean empty = participatingAuctions.isEmpty();
+        boolean empty = runningOrders.isEmpty();
         lblEmptyState.setVisible(empty);
         lblEmptyState.setManaged(empty);
     }
 
-    private void openAuctionDetail(AuctionItemDTO auction) {
+    private void openOrderDetail(AuctionItemDTO auction) {
         stopAuctionRealtimeUpdates();
         currentAuctionId = auction.getId();
         auctionEndTime = null;
@@ -198,8 +160,6 @@ public class LiveBidsController {
         lblProductName.setText(auction.getName());
         lblCurrentPrice.setText(currencyFormat.format(auction.getCurrentPrice() == null ? 0.0 : auction.getCurrentPrice()));
         lblTimeRemaining.setText("Thời gian còn lại: --:--:--");
-        txtBidAmount.setDisable(false);
-        txtBidAmount.clear();
         setDetailVisible(true);
         parseAuctionEndTime(auction.getEndTime());
         startCountdown();
@@ -208,51 +168,8 @@ public class LiveBidsController {
     }
 
     private void setDetailVisible(boolean visible) {
-        participatingListPane.setVisible(!visible);
-        participatingListPane.setManaged(!visible);
         detailPane.setVisible(visible);
         detailPane.setManaged(visible);
-    }
-
-    @FXML
-    public void onPlaceBidClicked() {
-        if (currentAuctionId == null) {
-            return;
-        }
-        try {
-            double amount = Double.parseDouble(txtBidAmount.getText().trim());
-            Long bidderId = AuctionManager.getInstance().getId();
-            sendBidToServer(new BidRequest(currentAuctionId, bidderId, amount));
-            txtBidAmount.clear();
-            txtBidAmount.requestFocus();
-        } catch (NumberFormatException e) {
-            showAlert("Vui lòng nhập số tiền hợp lệ!");
-        }
-    }
-
-    private void sendBidToServer(BidRequest requestDto) {
-        new Thread(() -> {
-            try {
-                String jsonBody = objectMapper.writeValueAsString(requestDto);
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(Constants.BASE_URL + "/bids/place"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                        .build();
-
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                Platform.runLater(() -> {
-                    if (response.statusCode() == 200) {
-                        loadParticipatingAuctions();
-                        showAlert("Đặt giá thành công!");
-                    } else {
-                        showAlert("Lỗi: " + response.body());
-                    }
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> showAlert("Không thể kết nối đến máy chủ!"));
-            }
-        }).start();
     }
 
     private void loadInitialChartData() {
@@ -283,12 +200,12 @@ public class LiveBidsController {
                     });
                 }
             } catch (Exception e) {
-                System.err.println("Không thể tải biểu đồ: " + e.getMessage());
+                System.err.println("Không thể tải biểu đồ seller: " + e.getMessage());
             }
         }).start();
     }
 
-    private void subscribeToParticipatingListUpdates() {
+    private void subscribeToListUpdates() {
         StompSession session = WebSocketClientManager.getInstance().getSession();
         if (session == null || !session.isConnected()) {
             return;
@@ -303,7 +220,7 @@ public class LiveBidsController {
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
                 if (payload instanceof AuctionPriceUpdateDTO update) {
-                    Platform.runLater(() -> applyParticipatingPriceUpdate(update));
+                    Platform.runLater(() -> applyListPriceUpdate(update));
                 }
             }
         });
@@ -316,19 +233,19 @@ public class LiveBidsController {
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                loadParticipatingAuctions();
+                loadOrders();
             }
         });
     }
 
-    private void applyParticipatingPriceUpdate(AuctionPriceUpdateDTO update) {
+    private void applyListPriceUpdate(AuctionPriceUpdateDTO update) {
         if (update.getAuctionId() == null || update.getCurrentPrice() == null) {
             return;
         }
-        for (AuctionItemDTO auction : participatingAuctions) {
-            if (update.getAuctionId().equals(auction.getId())) {
-                auction.setCurrentPrice(update.getCurrentPrice());
-                tableParticipating.refresh();
+        for (AuctionItemDTO order : runningOrders) {
+            if (update.getAuctionId().equals(order.getId())) {
+                order.setCurrentPrice(update.getCurrentPrice());
+                tableOrders.refresh();
                 return;
             }
         }
@@ -352,12 +269,10 @@ public class LiveBidsController {
                 if (!(payload instanceof Number price) || !auctionId.equals(currentAuctionId)) {
                     return;
                 }
-
                 double newPrice = price.doubleValue();
-                String currentTime = LocalTime.now().format(timeFormatter);
                 Platform.runLater(() -> {
                     lblCurrentPrice.setText(currencyFormat.format(newPrice));
-                    priceSeries.getData().add(new XYChart.Data<>(currentTime, newPrice));
+                    priceSeries.getData().add(new XYChart.Data<>(LocalTime.now().format(timeFormatter), newPrice));
                 });
             }
         });
@@ -372,12 +287,10 @@ public class LiveBidsController {
             public void handleFrame(StompHeaders headers, Object payload) {
                 if (payload != null && payload.toString().contains("CLOSED") && auctionId.equals(currentAuctionId)) {
                     Platform.runLater(() -> {
-                        lblTimeRemaining.setText("Phiên đấu giá đã kết thúc");
-                        txtBidAmount.setDisable(true);
-                        if (countdownTimeline != null) {
-                            countdownTimeline.stop();
-                        }
-                        returnToProductList();
+                        stopAuctionRealtimeUpdates();
+                        currentAuctionId = null;
+                        setDetailVisible(false);
+                        loadOrders();
                     });
                 }
             }
@@ -396,45 +309,6 @@ public class LiveBidsController {
                 }
             }
         });
-    }
-
-    private void stopRealtimeUpdates() {
-        stopAuctionRealtimeUpdates();
-        if (listPriceSubscription != null) {
-            listPriceSubscription.unsubscribe();
-            listPriceSubscription = null;
-        }
-        if (listChangedSubscription != null) {
-            listChangedSubscription.unsubscribe();
-            listChangedSubscription = null;
-        }
-    }
-
-    private void returnToProductList() {
-        currentAuctionId = null;
-        BidderDashboardController dashboard = BidderDashboardController.getInstance();
-        if (dashboard != null) {
-            dashboard.onProductListButtonClicked();
-        }
-    }
-
-    private void stopAuctionRealtimeUpdates() {
-        if (priceSubscription != null) {
-            priceSubscription.unsubscribe();
-            priceSubscription = null;
-        }
-        if (statusSubscription != null) {
-            statusSubscription.unsubscribe();
-            statusSubscription = null;
-        }
-        if (extendedSubscription != null) {
-            extendedSubscription.unsubscribe();
-            extendedSubscription = null;
-        }
-        if (countdownTimeline != null) {
-            countdownTimeline.stop();
-            countdownTimeline = null;
-        }
     }
 
     private void parseAuctionEndTime(String value) {
@@ -468,7 +342,6 @@ public class LiveBidsController {
         long seconds = java.time.Duration.between(LocalDateTime.now(), auctionEndTime).getSeconds();
         if (seconds <= 0) {
             lblTimeRemaining.setText("Đang chờ hệ thống kết toán...");
-            txtBidAmount.setDisable(true);
             return;
         }
 
@@ -478,10 +351,34 @@ public class LiveBidsController {
         lblTimeRemaining.setText(String.format("Thời gian còn lại: %02d:%02d:%02d", hours, minutes, remainingSeconds));
     }
 
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void stopRealtimeUpdates() {
+        stopAuctionRealtimeUpdates();
+        if (listPriceSubscription != null) {
+            listPriceSubscription.unsubscribe();
+            listPriceSubscription = null;
+        }
+        if (listChangedSubscription != null) {
+            listChangedSubscription.unsubscribe();
+            listChangedSubscription = null;
+        }
+    }
+
+    private void stopAuctionRealtimeUpdates() {
+        if (priceSubscription != null) {
+            priceSubscription.unsubscribe();
+            priceSubscription = null;
+        }
+        if (statusSubscription != null) {
+            statusSubscription.unsubscribe();
+            statusSubscription = null;
+        }
+        if (extendedSubscription != null) {
+            extendedSubscription.unsubscribe();
+            extendedSubscription = null;
+        }
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
     }
 }

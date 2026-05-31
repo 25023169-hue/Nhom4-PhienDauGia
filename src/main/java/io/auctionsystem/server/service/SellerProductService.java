@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -140,6 +141,42 @@ public class SellerProductService {
         listing.setStatus(AuctionState.OPEN);
 
         SellerProductListing savedListing = listingRepository.save(listing);
+        realtimePublisher.publishAuctionListChangedAfterCommit();
+        return toDTO(savedListing, item);
+    }
+
+    @Transactional
+    public SellerProductDTO startOpenAuction(Long itemId, Long sellerId) {
+        Item item = getOwnedItem(itemId, sellerId);
+        Auction latestAuction = getLatestAuction(itemId);
+        Auction auction = auctionRepository.findByIdForUpdate(latestAuction.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá của sản phẩm"));
+        if (auction.getStatus() != AuctionState.OPEN) {
+            throw new IllegalArgumentException("Chỉ có thể bắt đầu sản phẩm ở trạng thái OPEN");
+        }
+        if (auction.getStartTime() == null || auction.getEndTime() == null
+                || !auction.getEndTime().isAfter(auction.getStartTime())) {
+            throw new IllegalArgumentException("Thời lượng phiên đấu giá không hợp lệ");
+        }
+
+        LocalDateTime startTime = LocalDateTime.now();
+        LocalDateTime endTime = startTime.plus(Duration.between(auction.getStartTime(), auction.getEndTime()));
+        auction.setStartTime(startTime);
+        auction.setEndTime(endTime);
+        auction.setStatus(AuctionState.RUNNING);
+        auctionRepository.save(auction);
+
+        SellerProductListing listing = listingRepository.findByItemId(itemId)
+                .orElseGet(() -> listingFor(item, auction, sellerId));
+        if (listing.isHidden()) {
+            throw new IllegalArgumentException("Sản phẩm đã bị xóa khỏi danh sách quản lý");
+        }
+        listing.setStartTime(startTime);
+        listing.setEndTime(endTime);
+        listing.setStatus(AuctionState.RUNNING);
+
+        SellerProductListing savedListing = listingRepository.save(listing);
+        realtimePublisher.publishStatusAfterCommit(auction.getId(), "RUNNING");
         realtimePublisher.publishAuctionListChangedAfterCommit();
         return toDTO(savedListing, item);
     }
