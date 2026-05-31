@@ -104,7 +104,7 @@
                                 <Insets left="18.0" right="12.0" />
                             </padding>
                         </Button>
-                        <Button disable="true" maxWidth="Infinity" mnemonicParsing="false" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #8d99ab; -fx-alignment: CENTER_LEFT;" text="▥  Thống kê doanh thu">
+                        <Button fx:id="btnRevenue" maxWidth="Infinity" mnemonicParsing="false" onAction="#onRevenueStatisticsClicked" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="▥  Thống kê doanh thu">
                             <font>
                                 <Font size="14.0" />
                             </font>

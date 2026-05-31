@@ -89,6 +89,15 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{id}/revenue-stats")
+    public ResponseEntity<?> getSellerRevenueStats(@PathVariable("id") Long id) {
+        try {
+            return ResponseEntity.ok(transactionService.getSellerRevenueStats(id));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Không thể tải thống kê doanh thu: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/{id}/bank")
     public ResponseEntity<?> updateBank(@PathVariable("id") Long id, @RequestBody BankRequest request) {
         try {

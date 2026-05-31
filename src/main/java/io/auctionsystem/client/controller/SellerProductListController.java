@@ -31,10 +31,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class SellerProductListController {
+
+    private static final List<SellerProductDTO> pendingCreatedProducts = new ArrayList<>();
 
     private static final String ALL_STATUS = "Tất cả trạng thái";
 
@@ -55,6 +58,17 @@ public class SellerProductListController {
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
     private final PauseTransition searchDelay = new PauseTransition(Duration.millis(350));
 
+    public static void rememberCreatedProduct(SellerProductDTO product) {
+        if (product == null) {
+            return;
+        }
+
+        synchronized (pendingCreatedProducts) {
+            pendingCreatedProducts.removeIf(pending -> sameProduct(pending, product));
+            pendingCreatedProducts.add(0, product);
+        }
+    }
+
     @FXML
     public void initialize() {
         colItemName.setCellValueFactory(new PropertyValueFactory<>("itemName"));
@@ -74,6 +88,7 @@ public class SellerProductListController {
         configureSearch();
 
         tableProducts.setItems(products);
+        showPendingCreatedProducts();
         loadProducts();
     }
 
@@ -168,8 +183,7 @@ public class SellerProductListController {
                         response.body(),
                         new TypeReference<List<SellerProductDTO>>() {}
                 );
-                products.setAll(loadedProducts);
-                updateSummary(loadedProducts);
+                applyLoadedProducts(loadedProducts);
             } catch (Exception e) {
                 showAlert(Alert.AlertType.ERROR, "Không đọc được dữ liệu sản phẩm của Seller.");
             }
@@ -222,6 +236,72 @@ public class SellerProductListController {
 
     private String nullToEmpty(Object value) {
         return value == null ? "" : value.toString();
+    }
+
+    private void showPendingCreatedProducts() {
+        List<SellerProductDTO> pendingProducts = pendingSnapshot();
+        pendingProducts.removeIf(product -> !matchesCurrentFilters(product));
+        if (!pendingProducts.isEmpty()) {
+            products.setAll(pendingProducts);
+            updateSummary(products);
+        }
+    }
+
+    private void applyLoadedProducts(List<SellerProductDTO> loadedProducts) {
+        List<SellerProductDTO> mergedProducts = new ArrayList<>(loadedProducts);
+
+        synchronized (pendingCreatedProducts) {
+            pendingCreatedProducts.removeIf(pending ->
+                    loadedProducts.stream().anyMatch(loaded -> sameProduct(loaded, pending)));
+            for (int i = pendingCreatedProducts.size() - 1; i >= 0; i--) {
+                SellerProductDTO pending = pendingCreatedProducts.get(i);
+                if (matchesCurrentFilters(pending)
+                        && mergedProducts.stream().noneMatch(loaded -> sameProduct(loaded, pending))) {
+                    mergedProducts.add(0, pending);
+                }
+            }
+        }
+
+        products.setAll(mergedProducts);
+        updateSummary(mergedProducts);
+    }
+
+    private List<SellerProductDTO> pendingSnapshot() {
+        synchronized (pendingCreatedProducts) {
+            return new ArrayList<>(pendingCreatedProducts);
+        }
+    }
+
+    private boolean matchesCurrentFilters(SellerProductDTO product) {
+        String status = cbStatus.getValue();
+        if (status != null && !ALL_STATUS.equals(status)
+                && (product.getStatus() == null || !status.equals(product.getStatus().name()))) {
+            return false;
+        }
+
+        String keyword = txtSearch.getText();
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return true;
+        }
+
+        String normalizedKeyword = keyword.trim().toLowerCase(Locale.ROOT);
+        String itemName = product.getItemName() == null ? "" : product.getItemName().toLowerCase(Locale.ROOT);
+        String itemId = product.getItemId() == null ? "" : product.getItemId().toString();
+        String listingId = product.getListingId() == null ? "" : product.getListingId().toString();
+
+        return itemName.contains(normalizedKeyword)
+                || itemId.contains(normalizedKeyword)
+                || listingId.contains(normalizedKeyword);
+    }
+
+    private static boolean sameProduct(SellerProductDTO first, SellerProductDTO second) {
+        if (first == null || second == null) {
+            return false;
+        }
+        if (first.getListingId() != null && second.getListingId() != null) {
+            return first.getListingId().equals(second.getListingId());
+        }
+        return first.getItemId() != null && first.getItemId().equals(second.getItemId());
     }
 
     private void showAlert(Alert.AlertType type, String message) {

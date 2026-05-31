@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
 import io.auctionsystem.common.Constants;
+import io.auctionsystem.common.dto.SellerProductDTO;
 import io.auctionsystem.common.enums.ItemType;
 import io.auctionsystem.common.request.SellerProductRequest;
 import javafx.application.Platform;
@@ -144,6 +145,9 @@ public class SellerAddProductController {
         if (request.getItemType() == null) {
             throw new IllegalArgumentException("Vui lòng chọn loại sản phẩm.");
         }
+        if (request.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Thời gian bắt đầu không được ở quá khứ.");
+        }
         if (!request.getEndTime().isAfter(request.getStartTime())) {
             throw new IllegalArgumentException("Thời gian kết thúc phải sau thời gian bắt đầu.");
         }
@@ -214,6 +218,7 @@ public class SellerAddProductController {
         String message = extractMessage(response.body());
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             savedDraft = null;
+            SellerProductListController.rememberCreatedProduct(extractCreatedProduct(response.body()));
             showAlert(Alert.AlertType.INFORMATION, message);
             navigateBack();
             return;
@@ -423,6 +428,18 @@ public class SellerAddProductController {
         } catch (Exception ignored) {
         }
         return responseBody == null || responseBody.isBlank() ? "Server trả về kết quả không xác định." : responseBody;
+    }
+
+    private SellerProductDTO extractCreatedProduct(String responseBody) {
+        try {
+            JsonNode node = objectMapper.readTree(responseBody);
+            JsonNode dataNode = node.get("data");
+            if (dataNode != null && dataNode.isObject()) {
+                return objectMapper.treeToValue(dataNode, SellerProductDTO.class);
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     private void showAlert(Alert.AlertType type, String message) {

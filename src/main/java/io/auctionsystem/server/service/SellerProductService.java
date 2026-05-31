@@ -151,6 +151,9 @@ public class SellerProductService {
         if (request.getStartTime() == null) {
             throw new IllegalArgumentException("Thời gian bắt đầu không được để trống");
         }
+        if (request.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Thời gian bắt đầu không được ở quá khứ");
+        }
         if (request.getEndTime() == null) {
             throw new IllegalArgumentException("Thời gian kết thúc không được để trống");
         }

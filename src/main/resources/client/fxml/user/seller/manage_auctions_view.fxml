@@ -54,7 +54,6 @@
             <children>
                 <Label fx:id="lblOpenCount" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #d7dee8; -fx-border-radius: 8; -fx-padding: 10 14;" text="OPEN: 0" textFill="#334155" />
                 <Label fx:id="lblFinishedCount" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #d7dee8; -fx-border-radius: 8; -fx-padding: 10 14;" text="FINISHED: 0" textFill="#334155" />
-                <Label style="-fx-background-color: #fff7ed; -fx-background-radius: 8; -fx-border-color: #f0c66d; -fx-border-radius: 8; -fx-padding: 10 14;" text="Quản lý đơn hàng và thống kê doanh thu sẽ xử lý sau" textFill="#92400e" />
             </children>
         </HBox>
 
