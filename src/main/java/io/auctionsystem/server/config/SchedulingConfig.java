@@ -6,6 +6,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 public class SchedulingConfig {
-    // Chỉ cần 2 annotation @Configuration và @EnableScheduling
-    // Hệ thống sẽ tự động cho phép các hàm @Scheduled hoạt động ngầm.
+  // Chỉ cần 2 annotation @Configuration và @EnableScheduling
+  // Hệ thống sẽ tự động cho phép các hàm @Scheduled hoạt động ngầm.
 }

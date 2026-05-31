@@ -1,4 +1,5 @@
 package io.auctionsystem.server.model;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,8 +12,8 @@ import lombok.*;
 @Table(name = "bidders")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Bidder extends User {
-    private String bankName;
-    private String accountName;
-    private String bankAccount;
-    private String address;
+  private String bankName;
+  private String accountName;
+  private String bankAccount;
+  private String address;
 }

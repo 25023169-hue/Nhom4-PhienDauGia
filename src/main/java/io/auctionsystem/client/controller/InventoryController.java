@@ -4,6 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.common.dto.AuctionItemDTO;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,69 +20,71 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.text.NumberFormat;
-import java.util.List;
-import java.util.Locale;
-
 public class InventoryController {
-    @FXML private TableView<AuctionItemDTO> tableInventory;
-    @FXML private TableColumn<AuctionItemDTO, String> colName;
-    @FXML private TableColumn<AuctionItemDTO, Double> colFinalPrice;
-    @FXML private TableColumn<AuctionItemDTO, String> colStatus;
+  @FXML private TableView<AuctionItemDTO> tableInventory;
+  @FXML private TableColumn<AuctionItemDTO, String> colName;
+  @FXML private TableColumn<AuctionItemDTO, Double> colFinalPrice;
+  @FXML private TableColumn<AuctionItemDTO, String> colStatus;
 
-    private final ObservableList<AuctionItemDTO> wonItemList = FXCollections.observableArrayList();
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
+  private final ObservableList<AuctionItemDTO> wonItemList = FXCollections.observableArrayList();
+  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final NumberFormat currencyFormat =
+      NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
 
-    @FXML
-    public void initialize() {
-        colName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        colFinalPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+  @FXML
+  public void initialize() {
+    colName.setCellValueFactory(new PropertyValueFactory<>("name"));
+    colFinalPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
+    colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        colFinalPrice.setCellFactory(tc -> new TableCell<AuctionItemDTO, Double>() {
-            @Override
-            protected void updateItem(Double price, boolean empty) {
+    colFinalPrice.setCellFactory(
+        tc ->
+            new TableCell<AuctionItemDTO, Double>() {
+              @Override
+              protected void updateItem(Double price, boolean empty) {
                 super.updateItem(price, empty);
                 if (empty || price == null) setText(null);
                 else setText(currencyFormat.format(price));
-            }
-        });
+              }
+            });
 
-        tableInventory.setItems(wonItemList);
-        loadWonItems();
-    }
+    tableInventory.setItems(wonItemList);
+    loadWonItems();
+  }
 
-    private void loadWonItems() {
-        Long bidderId = AuctionManager.getInstance().getId();
-        if (bidderId == null) return;
+  private void loadWonItems() {
+    Long bidderId = AuctionManager.getInstance().getId();
+    if (bidderId == null) return;
 
-        new Thread(() -> {
-            try {
-                HttpRequest request = HttpRequest.newBuilder()
+    new Thread(
+            () -> {
+              try {
+                HttpRequest request =
+                    HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:8080/api/inventory/" + bidderId))
                         .GET()
                         .build();
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-                Platform.runLater(() -> {
-                    if (response.statusCode() == 200) {
+                Platform.runLater(
+                    () -> {
+                      if (response.statusCode() == 200) {
                         try {
-                            List<AuctionItemDTO> items = objectMapper.readValue(response.body(), new TypeReference<List<AuctionItemDTO>>() {});
-                            wonItemList.setAll(items);
+                          List<AuctionItemDTO> items =
+                              objectMapper.readValue(
+                                  response.body(), new TypeReference<List<AuctionItemDTO>>() {});
+                          wonItemList.setAll(items);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                          e.printStackTrace();
                         }
-                    }
-                });
-            } catch (Exception e) {
+                      }
+                    });
+              } catch (Exception e) {
                 e.printStackTrace();
-            }
-        }).start();
-    }
+              }
+            })
+        .start();
+  }
 }

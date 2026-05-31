@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BankRequest {
-    private String bankName;
-    private String accountName;
-    private String bankAccount;
+  private String bankName;
+  private String accountName;
+  private String bankAccount;
 }

@@ -12,11 +12,12 @@ import lombok.*;
 @Table(name = "items")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Item extends BaseEntity {
-    private String name;
-    private String description;
-    private double startingPrice;
-    private double currentPrice;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id")
-    private User seller;
+  private String name;
+  private String description;
+  private double startingPrice;
+  private double currentPrice;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "seller_id")
+  private User seller;
 }

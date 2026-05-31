@@ -12,7 +12,7 @@ import lombok.*;
 @Entity
 @Table(name = "jewelry_items")
 public class Jewelry extends Item {
-    private String material; // Vàng, Bạc, Kim cương...
-    private Double weight;   // Trọng lượng
-    private String gemstone; // Đá quý đính kèm
+  private String material; // Vàng, Bạc, Kim cương...
+  private Double weight; // Trọng lượng
+  private String gemstone; // Đá quý đính kèm
 }

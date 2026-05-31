@@ -10,49 +10,50 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Service
 public class AuctionRealtimePublisher {
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+  @Autowired private SimpMessagingTemplate messagingTemplate;
 
-    public void publishPriceAfterCommit(Long auctionId, Double currentPrice) {
-        afterCommit(() -> {
-            messagingTemplate.convertAndSend("/topic/bids/" + auctionId, currentPrice);
-            messagingTemplate.convertAndSend(
-                    "/topic/auctions/prices",
-                    new AuctionPriceUpdateDTO(auctionId, currentPrice)
-            );
+  public void publishPriceAfterCommit(Long auctionId, Double currentPrice) {
+    afterCommit(
+        () -> {
+          messagingTemplate.convertAndSend("/topic/bids/" + auctionId, currentPrice);
+          messagingTemplate.convertAndSend(
+              "/topic/auctions/prices", new AuctionPriceUpdateDTO(auctionId, currentPrice));
         });
-    }
+  }
 
-    public void publishStatusAfterCommit(Long auctionId, String status) {
-        afterCommit(() -> messagingTemplate.convertAndSend("/topic/auctions/" + auctionId + "/status", status));
-    }
+  public void publishStatusAfterCommit(Long auctionId, String status) {
+    afterCommit(
+        () -> messagingTemplate.convertAndSend("/topic/auctions/" + auctionId + "/status", status));
+  }
 
-    public void publishExtendedEndTimeAfterCommit(Long auctionId, String endTime) {
-        afterCommit(() -> {
-            messagingTemplate.convertAndSend("/topic/auctions/" + auctionId + "/extended", endTime);
-            publishAuctionListChanged();
+  public void publishExtendedEndTimeAfterCommit(Long auctionId, String endTime) {
+    afterCommit(
+        () -> {
+          messagingTemplate.convertAndSend("/topic/auctions/" + auctionId + "/extended", endTime);
+          publishAuctionListChanged();
         });
+  }
+
+  public void publishAuctionListChangedAfterCommit() {
+    afterCommit(this::publishAuctionListChanged);
+  }
+
+  private void publishAuctionListChanged() {
+    messagingTemplate.convertAndSend("/topic/auctions/changed", "RELOAD");
+  }
+
+  private void afterCommit(Runnable action) {
+    if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+      action.run();
+      return;
     }
 
-    public void publishAuctionListChangedAfterCommit() {
-        afterCommit(this::publishAuctionListChanged);
-    }
-
-    private void publishAuctionListChanged() {
-        messagingTemplate.convertAndSend("/topic/auctions/changed", "RELOAD");
-    }
-
-    private void afterCommit(Runnable action) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
             action.run();
-            return;
-        }
-
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                action.run();
-            }
+          }
         });
-    }
+  }
 }

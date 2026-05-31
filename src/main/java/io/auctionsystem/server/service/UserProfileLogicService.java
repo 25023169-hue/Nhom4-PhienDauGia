@@ -2,42 +2,44 @@ package io.auctionsystem.server.service;
 
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.repository.UserRepository;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class UserProfileLogicService {
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-    public User updateProfile(Long userId, Map<String, String> payload) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
-        ensureActive(user);
-        user.setFirstname(payload.get("firstname"));
-        user.setLastname(payload.get("lastname"));
-        return userRepository.save(user);
+  public User updateProfile(Long userId, Map<String, String> payload) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+    ensureActive(user);
+    user.setFirstname(payload.get("firstname"));
+    user.setLastname(payload.get("lastname"));
+    return userRepository.save(user);
+  }
+
+  public void updatePassword(Long userId, Map<String, String> payload) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+    ensureActive(user);
+
+    if (!user.getPassword().equals(payload.get("oldPassword"))) {
+      throw new RuntimeException("Mật khẩu cũ không chính xác!");
     }
 
-    public void updatePassword(Long userId, Map<String, String> payload) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
-        ensureActive(user);
+    user.setPassword(payload.get("newPassword"));
+    userRepository.save(user);
+  }
 
-        if (!user.getPassword().equals(payload.get("oldPassword"))) {
-            throw new RuntimeException("Mật khẩu cũ không chính xác!");
-        }
-
-        user.setPassword(payload.get("newPassword"));
-        userRepository.save(user);
+  private void ensureActive(User user) {
+    if (!user.isActive()) {
+      throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
     }
-
-    private void ensureActive(User user) {
-        if (!user.isActive()) {
-            throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
-        }
-    }
+  }
 }

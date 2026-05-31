@@ -9,10 +9,10 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "io.auctionsystem")
 public class ServerApp {
 
-    public static void main(String[] args) {
-        // Chạy Spring Boot ở cổng 8080 (mặc định)
-        // Không liên quan gì đến giao diện ở đây
-        SpringApplication.run(ServerApp.class, args);
-        System.out.println("=== SERVER ĐÃ SẴN SÀNG (Port 8080) ===");
-    }
+  public static void main(String[] args) {
+    // Chạy Spring Boot ở cổng 8080 (mặc định)
+    // Không liên quan gì đến giao diện ở đây
+    SpringApplication.run(ServerApp.class, args);
+    System.out.println("=== SERVER ĐÃ SẴN SÀNG (Port 8080) ===");
+  }
 }

@@ -11,7 +11,7 @@ import lombok.*;
 @Entity
 @Table(name = "vehicles")
 public class Vehicle extends Item {
-    private String vinCode;
-    private Integer manufactureYear;
-    private String fuelType;
+  private String vinCode;
+  private Integer manufactureYear;
+  private String fuelType;
 }

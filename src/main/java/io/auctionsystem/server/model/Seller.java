@@ -1,4 +1,5 @@
 package io.auctionsystem.server.model;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,5 +11,5 @@ import lombok.*;
 @Entity
 @Table(name = "sellers")
 public class Seller extends Bidder {
-    private String storeName;
+  private String storeName;
 }

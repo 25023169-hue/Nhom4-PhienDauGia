@@ -11,30 +11,30 @@ import javafx.stage.Stage;
 
 public class ClientApp extends Application {
 
-    private static final double DEFAULT_WIDTH = 1280;
-    private static final double DEFAULT_HEIGHT = 800;
+  private static final double DEFAULT_WIDTH = 1280;
+  private static final double DEFAULT_HEIGHT = 800;
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        // 1. Chỉ cần nạp file fxml
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/fxml/user/login.fxml"));
+  @Override
+  public void start(Stage primaryStage) throws Exception {
+    // 1. Chỉ cần nạp file fxml
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/fxml/user/login.fxml"));
 
-        // KHÔNG CẦN loader.setControllerFactory(...) nữa.
-        // JavaFX sẽ tự động tìm và khởi tạo LoginController của nó.
+    // KHÔNG CẦN loader.setControllerFactory(...) nữa.
+    // JavaFX sẽ tự động tìm và khởi tạo LoginController của nó.
 
-        Parent root = loader.load();
-        primaryStage.setTitle("Auction System");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.setWidth(DEFAULT_WIDTH);
-        primaryStage.setHeight(DEFAULT_HEIGHT);
-        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
-        primaryStage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - DEFAULT_WIDTH) / 2);
-        primaryStage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - DEFAULT_HEIGHT) / 2);
-        primaryStage.show();
-        SceneManager.getInstance().setStage(primaryStage);
-    }
+    Parent root = loader.load();
+    primaryStage.setTitle("Auction System");
+    primaryStage.setScene(new Scene(root));
+    primaryStage.setWidth(DEFAULT_WIDTH);
+    primaryStage.setHeight(DEFAULT_HEIGHT);
+    Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+    primaryStage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - DEFAULT_WIDTH) / 2);
+    primaryStage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - DEFAULT_HEIGHT) / 2);
+    primaryStage.show();
+    SceneManager.getInstance().setStage(primaryStage);
+  }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+  public static void main(String[] args) {
+    launch(args);
+  }
 }

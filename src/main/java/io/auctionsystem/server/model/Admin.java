@@ -11,5 +11,5 @@ import lombok.*;
 @Entity
 @Table(name = "admins")
 public class Admin extends User {
-    private String employeeCode;
+  private String employeeCode;
 }

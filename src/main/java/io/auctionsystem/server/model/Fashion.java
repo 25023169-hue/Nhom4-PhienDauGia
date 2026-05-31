@@ -12,8 +12,8 @@ import lombok.*;
 @Entity
 @Table(name = "fashion_items")
 public class Fashion extends Item {
-    private String brand;
-    private String size;
-    private String material;
-    private String gender; // Nam, Nữ, Unisex
+  private String brand;
+  private String size;
+  private String material;
+  private String gender; // Nam, Nữ, Unisex
 }

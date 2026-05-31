@@ -20,17 +20,19 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(
-        name = "bid_commitments",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"auction_id", "bidder_id"})
-)
+    name = "bid_commitments",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"auction_id", "bidder_id"}))
 public class BidCommitment extends BaseEntity {
-    @Column(name = "auction_id", nullable = false)
-    private Long auctionId;
-    @Column(name = "bidder_id", nullable = false)
-    private Long bidderId;
-    @Column(nullable = false)
-    private Double amount = 0.0;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BidCommitmentStatus status = BidCommitmentStatus.ACTIVE;
+  @Column(name = "auction_id", nullable = false)
+  private Long auctionId;
+
+  @Column(name = "bidder_id", nullable = false)
+  private Long bidderId;
+
+  @Column(nullable = false)
+  private Double amount = 0.0;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private BidCommitmentStatus status = BidCommitmentStatus.ACTIVE;
 }

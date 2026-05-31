@@ -10,83 +10,83 @@ import javafx.scene.layout.VBox;
 
 public class BidderDashboardController extends BaseDashboardController {
 
-    private static BidderDashboardController instance;
+  private static BidderDashboardController instance;
 
-    @FXML private BorderPane rootPane;
-    @FXML private VBox sidebar;
+  @FXML private BorderPane rootPane;
+  @FXML private VBox sidebar;
 
-    @FXML private Button btnHome;
-    @FXML private Button btnProductList;
-    @FXML private Button btnWallet;
+  @FXML private Button btnHome;
+  @FXML private Button btnProductList;
+  @FXML private Button btnWallet;
 
-    public BidderDashboardController() {
-        instance = this;
+  public BidderDashboardController() {
+    instance = this;
+  }
+
+  public static BidderDashboardController getInstance() {
+    return instance;
+  }
+
+  @FXML
+  public void initialize() {
+    SettingsController.isSellerChannel = false;
+    // CHỈNH SỬA: Lấy trực tiếp firstname vì đã bắt buộc có từ lúc đăng ký
+    String display = AuctionManager.getInstance().getFirstname();
+    lblWelcome.setText("Xin chào, " + (display != null ? display : "") + "!");
+    if (rootPane != null && sidebar != null) {
+      sidebar.prefWidthProperty().bind(rootPane.widthProperty().multiply(0.22));
     }
 
-    public static BidderDashboardController getInstance() {
-        return instance;
-    }
+    onHomeButtonClicked();
+  }
 
-    @FXML
-    public void initialize() {
-        SettingsController.isSellerChannel = false;
-        // CHỈNH SỬA: Lấy trực tiếp firstname vì đã bắt buộc có từ lúc đăng ký
-        String display = AuctionManager.getInstance().getFirstname();
-        lblWelcome.setText("Xin chào, " + (display != null ? display : "") + "!");
-        if (rootPane != null && sidebar != null) {
-            sidebar.prefWidthProperty().bind(rootPane.widthProperty().multiply(0.22));
-        }
+  @Override
+  @FXML
+  public void onHomeButtonClicked() {
+    super.onHomeButtonClicked();
+    setActiveMenu(btnHome, btnProductList, btnWallet);
+  }
 
-        onHomeButtonClicked();
-    }
+  @Override
+  @FXML
+  public void onWalletButtonClicked() {
+    super.onWalletButtonClicked();
+    setActiveMenu(btnWallet, btnHome, btnProductList);
+  }
 
-    @Override
-    @FXML
-    public void onHomeButtonClicked() {
-        super.onHomeButtonClicked();
-        setActiveMenu(btnHome, btnProductList, btnWallet);
-    }
+  @FXML
+  public void onProductListButtonClicked() {
+    loadSubView("/client/fxml/user/bidder/product_list_view.fxml");
+    setActiveMenu(btnProductList, btnHome, btnWallet);
+  }
 
-    @Override
-    @FXML
-    public void onWalletButtonClicked() {
-        super.onWalletButtonClicked();
-        setActiveMenu(btnWallet, btnHome, btnProductList);
-    }
+  @FXML
+  public void onLiveBidsClicked() {
+    loadSubView("/client/fxml/user/bidder/live_bids_view.fxml");
+  }
 
-    @FXML
-    public void onProductListButtonClicked() {
-        loadSubView("/client/fxml/user/bidder/product_list_view.fxml");
-        setActiveMenu(btnProductList, btnHome, btnWallet);
-    }
+  @FXML
+  public void onPurchaseHistoryClicked() {
+    loadSubView("/client/fxml/user/bidder/purchase_history_view.fxml");
+  }
 
-    @FXML
-    public void onLiveBidsClicked() {
-        loadSubView("/client/fxml/user/bidder/live_bids_view.fxml");
-    }
+  @FXML
+  public void onInventoryClicked() {
+    loadSubView("/client/fxml/user/bidder/inventory_view.fxml");
+  }
 
-    @FXML
-    public void onPurchaseHistoryClicked() {
-        loadSubView("/client/fxml/user/bidder/purchase_history_view.fxml");
+  @FXML
+  public void onSellerChannelButtonClicked() {
+    if (AuctionManager.getInstance().getRole() == Role.SELLER) {
+      SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
+    } else {
+      SceneManager.getInstance().switchScene("/client/fxml/user/bidder/seller_registration.fxml");
     }
+  }
 
-    @FXML
-    public void onInventoryClicked() {
-        loadSubView("/client/fxml/user/bidder/inventory_view.fxml");
-    }
-
-    @FXML
-    public void onSellerChannelButtonClicked() {
-        if (AuctionManager.getInstance().getRole() == Role.SELLER) {
-            SceneManager.getInstance().switchScene("/client/fxml/user/seller/seller_dashboard.fxml");
-        } else {
-            SceneManager.getInstance().switchScene("/client/fxml/user/bidder/seller_registration.fxml");
-        }
-    }
-
-    @FXML
-    public void onOpenSettings() {
-        SettingsController.isSellerChannel = false;
-        SceneManager.getInstance().switchScene("/client/fxml/settings/settings.fxml");
-    }
+  @FXML
+  public void onOpenSettings() {
+    SettingsController.isSellerChannel = false;
+    SceneManager.getInstance().switchScene("/client/fxml/settings/settings.fxml");
+  }
 }

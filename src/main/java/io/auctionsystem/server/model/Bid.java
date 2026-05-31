@@ -1,8 +1,8 @@
 package io.auctionsystem.server.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "bids")
 public class Bid extends BaseEntity {
-    private Long bidderId;
-    private Long auctionId;
-    private Double amount;
-    private LocalDateTime bidTime;
+  private Long bidderId;
+  private Long auctionId;
+  private Double amount;
+  private LocalDateTime bidTime;
 }

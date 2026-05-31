@@ -2,8 +2,8 @@ package io.auctionsystem.server.model;
 
 import io.auctionsystem.common.enums.AuctionState;
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,13 +13,12 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "auctions")
 public class Auction extends BaseEntity {
-    private Long itemId;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private Long winnerId;
-    private Double finalPrice;
+  private Long itemId;
+  private LocalDateTime startTime;
+  private LocalDateTime endTime;
+  private Long winnerId;
+  private Double finalPrice;
 
-    @Enumerated(EnumType.STRING)
-    private AuctionState status;
+  @Enumerated(EnumType.STRING)
+  private AuctionState status;
 }
-
