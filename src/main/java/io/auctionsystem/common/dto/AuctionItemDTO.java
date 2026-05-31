@@ -23,4 +23,7 @@ public class AuctionItemDTO implements Serializable {
     private Double currentPrice;
     private String endTime;
     private String status;
+
+    // THÊM: Để AuctionController có thể gán imageUrl từ SellerProductListing
+    private String imageUrl;
 }

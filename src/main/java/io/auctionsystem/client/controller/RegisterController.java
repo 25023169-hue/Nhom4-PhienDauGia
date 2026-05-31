@@ -6,6 +6,7 @@ import io.auctionsystem.common.request.RegisterRequest;
 import io.auctionsystem.common.enums.Role;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -17,9 +18,10 @@ import java.net.http.HttpResponse;
 
 public class RegisterController {
 
+    // --- GIỮ NGUYÊN TOÀN BỘ KHAI BÁO CỦA NHÓM (Tuyệt đối không xóa) ---
     @FXML public Label messageLabel;
-    @FXML private TextField txtfirstname; // Khớp fx:id="txtfirstname"
-    @FXML private TextField txtlastname;  // Khớp fx:id="txtlastname"
+    @FXML private TextField txtfirstname;
+    @FXML private TextField txtlastname;
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
     @FXML private Label lblStatus;
@@ -29,9 +31,10 @@ public class RegisterController {
 
     @FXML
     private void onRegisterButtonClicked() {
-        // Kiểm tra an toàn để tránh NullPointerException
-        if (txtfirstname == null || txtlastname == null) {
-            System.out.println("Lỗi: UI chưa được load đúng ID!");
+        // 1. Thêm: Báo lỗi TRỰC TIẾP lên màn hình nếu đồng đội vô tình xóa ID bên FXML
+        if (txtfirstname == null || txtlastname == null || txtUsername == null || txtPassword == null) {
+            System.err.println("Lỗi: UI chưa được load đúng ID!");
+            showError("Lỗi giao diện: Chưa load đúng ID form!");
             return;
         }
 
@@ -42,10 +45,17 @@ public class RegisterController {
 
         if (firstname.isEmpty() || lastname.isEmpty() || username.isEmpty() || password.isEmpty()) {
             showError("Vui lòng điền đủ thông tin!");
+            // 2. Thêm: Tận dụng messageLabel của nhóm để nhấn mạnh lỗi ở khu vực mật khẩu
+            if (messageLabel != null) {
+                messageLabel.setText("Thiếu thông tin đăng ký!");
+                messageLabel.setStyle("-fx-text-fill: red;");
+            }
             return;
         }
 
-        // Truyền đủ 5 tham số theo đúng RegisterRequest DTO
+        // Xóa thông báo lỗi cũ nếu lần nhập này đã hợp lệ
+        if (messageLabel != null) messageLabel.setText("");
+
         RegisterRequest requestDto = new RegisterRequest(username, password, firstname, lastname, Role.BIDDER);
 
         new Thread(() -> {
@@ -61,6 +71,12 @@ public class RegisterController {
 
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200 || response.statusCode() == 201) {
+                        // 3. THÊM: Hiện bảng thông báo thành công để người dùng biết chắc chắn
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setHeaderText(null);
+                        alert.setContentText("Chúc mừng! Bạn đã đăng ký tài khoản thành công.");
+                        alert.showAndWait();
+
                         SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
                     } else {
                         showError("Lỗi: " + response.body());
@@ -80,25 +96,31 @@ public class RegisterController {
 
     private void showError(String message) {
         Platform.runLater(() -> {
-            lblStatus.setText(message);
-            lblStatus.setVisible(true);
-            lblStatus.setManaged(true);
+            // 4. Thêm: Check null an toàn cho lblStatus
+            if (lblStatus != null) {
+                lblStatus.setText(message);
+                lblStatus.setVisible(true);
+                lblStatus.setManaged(true);
+            }
         });
     }
+
     @FXML
     public void initialize() {
-        // Lắng nghe phím Enter trên ô Username
-        txtUsername.setOnKeyPressed(event -> {
-            if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
-                onRegisterButtonClicked();
-            }
-        });
-
-        // Lắng nghe phím Enter trên ô Password
-        txtPassword.setOnKeyPressed(event -> {
-            if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
-                onRegisterButtonClicked();
-            }
-        });
+        // 5. Thêm: Đảm bảo các listener chỉ chạy khi các ô Text đã được load
+        if (txtUsername != null) {
+            txtUsername.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    onRegisterButtonClicked();
+                }
+            });
+        }
+        if (txtPassword != null) {
+            txtPassword.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    onRegisterButtonClicked();
+                }
+            });
+        }
     }
 }

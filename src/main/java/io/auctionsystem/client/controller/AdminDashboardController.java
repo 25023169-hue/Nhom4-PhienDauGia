@@ -121,4 +121,29 @@ public class AdminDashboardController {
     public void onLogout() {
         SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
     }
+    @FXML
+    public void onLogoutClicked() {
+        SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
+    }
+    @FXML
+    public void onDashboardClicked() {
+        // Vì người dùng đang ở sẵn trang Dashboard rồi nên chúng ta chỉ cần in ra log
+        // hoặc có thể gọi lại hàm refreshTable() để làm mới dữ liệu nếu muốn.
+        System.out.println("Đang ở trang Dashboard!");
+    }
+    @FXML
+    public void onManageUsersClicked() {
+        System.out.println("Đang mở trang Quản lý người dùng!");
+        // Gọi hàm refreshTable() nếu bạn muốn nút này nạp lại dữ liệu bảng
+        // refreshTable();
+    }
+    @FXML
+    public void onApproveAuctionsClicked() {
+        System.out.println("Đang mở trang Duyệt phiên đấu giá!");
+        // Thêm logic chuyển trang hoặc nạp dữ liệu ở đây sau
+    }
+    @FXML
+    public void onSettingsClicked() {
+        System.out.println("Đang mở trang Cài đặt hệ thống!");
+    }
 }

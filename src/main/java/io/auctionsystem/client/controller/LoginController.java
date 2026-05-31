@@ -155,4 +155,24 @@ public class LoginController {
             }
         });
     }
+
+    // =========================================================
+    // BỔ SUNG: CÁC HÀM DỰ PHÒNG CHỐNG CRASH CHO NÚT FXML MỚI
+    // =========================================================
+    @FXML
+    public void onForgotPasswordClicked() {
+        System.out.println("Tính năng Quên mật khẩu đang được phát triển!");
+    }
+
+    @FXML
+    public void onExitClicked() {
+        Platform.exit();
+        System.exit(0);
+    }
+
+    @FXML
+    public void onCloseClicked() {
+        Platform.exit();
+        System.exit(0);
+    }
 }

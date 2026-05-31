@@ -11,6 +11,7 @@ import io.auctionsystem.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -33,37 +34,61 @@ public class DataInitializer implements CommandLineRunner {
     private SellerProductListingRepository sellerProductListingRepository;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
+
+        // =========================================================
+        // BƯỚC 1: Tạo Admin mặc định nếu chưa có
+        // =========================================================
         if (!userRepository.existsByUsername("admin")) {
             Admin admin = new Admin();
             admin.setUsername("admin");
             admin.setPassword("admin123");
             admin.setFirstname("Quản");
             admin.setLastname("Trị");
-
-            // Set Employee Code như bạn muốn
             admin.setEmployeeCode("ADMIN-001");
-
             userRepository.save(admin);
             System.out.println(">>> HỆ THỐNG: Đã tạo tài khoản Admin mặc định (admin / admin123)");
         }
 
-        // LỖI ĐÃ SỬA: Trước đây deleteAll() được gọi KHÔNG CÓ ĐIỀU KIỆN mỗi lần server khởi động
-        // → xóa sạch toàn bộ dữ liệu thật (bid, auction, item) mỗi lần restart.
-        // Sửa: Chỉ nạp dữ liệu mẫu khi database đang TRỐNG (item chưa có dòng nào).
-        // Điều này giữ an toàn dữ liệu khi server restart trong môi trường thực tế.
-        if (itemRepository.count() > 0) {
-            System.out.println(">>> DATABASE ĐÃ CÓ DỮ LIỆU, BỎ QUA KHỞI TẠO MẪU.");
-            return;
+        // =========================================================
+        // BƯỚC 2: Luôn đảm bảo có Seller mẫu
+        // =========================================================
+        User sampleSeller = findOrCreateSampleSeller();
+
+        // =========================================================
+        // BƯỚC 3: Kiểm tra items cũ có hợp lệ không
+        // Nếu có items nhưng tất cả đều không có seller → xóa sạch để nạp lại
+        // =========================================================
+        long totalItems = itemRepository.count();
+        if (totalItems > 0) {
+            long itemsWithSeller = itemRepository.findAll().stream()
+                    .filter(item -> item.getSeller() != null)
+                    .count();
+
+            if (itemsWithSeller == 0) {
+                // Toàn bộ items cũ bị lỗi (không có seller) → xóa sạch để nạp lại
+                System.out.println(">>> PHÁT HIỆN " + totalItems + " items cũ bị lỗi (không có seller). Đang xóa để nạp lại...");
+                sellerProductListingRepository.deleteAll();
+                auctionRepository.deleteAll();
+                bidRepository.deleteAll();
+                itemRepository.deleteAll();
+                System.out.println(">>> Đã xóa sạch dữ liệu lỗi. Tiến hành nạp lại...");
+            } else {
+                System.out.println(">>> DATABASE ĐÃ CÓ " + itemsWithSeller + " SẢN PHẨM HỢP LỆ, BỎ QUA NẠP MẪU.");
+                return;
+            }
         }
 
-        System.out.println(">>> DATABASE ĐANG TRỐNG, BẮT ĐẦU NẠP DỮ LIỆU MẪU...");
-
-        User sampleSeller = findExistingSeller();
+        // =========================================================
+        // BƯỚC 4: Nạp dữ liệu mẫu
+        // =========================================================
         if (sampleSeller == null) {
-            System.err.println(">>> KHONG CO SELLER MAU, BO QUA NAP SAN PHAM MAU DE SERVER KHOI DONG BINH THUONG.");
+            System.err.println(">>> KHONG CO SELLER MAU, BO QUA NAP SAN PHAM MAU.");
             return;
         }
+
+        System.out.println(">>> BẮT ĐẦU NẠP DỮ LIỆU MẪU...");
 
         // ==========================================
         // 1. ĐỒ ĐIỆN TỬ (ELECTRONICS)
@@ -183,6 +208,36 @@ public class DataInitializer implements CommandLineRunner {
                 .orElse(null);
     }
 
+    private User findOrCreateSampleSeller() {
+        User existing = findExistingSeller();
+        if (existing != null) {
+            System.out.println(">>> Đã có Seller trong hệ thống, dùng Seller ID: " + existing.getId());
+            return existing;
+        }
+
+        if (userRepository.existsByUsername("seller_sample")) {
+            System.out.println(">>> Username 'seller_sample' đã tồn tại, thử upgrade lên Seller...");
+            userRepository.findByUsername("seller_sample").ifPresent(u ->
+                    userRepository.upgradeToSellerNative(u.getId(), "Cửa hàng Mẫu")
+            );
+            return findExistingSeller();
+        }
+
+        System.out.println(">>> Không có Seller, đang tạo tài khoản Seller mẫu (seller_sample / seller123)...");
+        Bidder bidder = new Bidder();
+        bidder.setUsername("seller_sample");
+        bidder.setPassword("seller123");
+        bidder.setFirstname("Seller");
+        bidder.setLastname("Mẫu");
+        bidder.setBalance(0.0);
+        bidder.setHeldBalance(0.0);
+        bidder.setActive(true);
+        userRepository.save(bidder);
+        userRepository.upgradeToSellerNative(bidder.getId(), "Cửa hàng Mẫu");
+        System.out.println(">>> Đã tạo Seller mẫu ID: " + bidder.getId());
+        return userRepository.findById(bidder.getId()).orElse(null);
+    }
+
     private <T extends Item> T saveSampleItem(T item, User seller) {
         item.setSeller(seller);
         return itemRepository.save(item);
@@ -204,7 +259,6 @@ public class DataInitializer implements CommandLineRunner {
             listing.setEndTime(auction.getEndTime());
             listing.setStatus(status);
             listing.setItemType(resolveItemType(item));
-
             Double startingPrice = item.getStartingPrice();
             if (startingPrice != null && startingPrice > 0) {
                 listing.setBuyNowPrice(startingPrice * 1.2);

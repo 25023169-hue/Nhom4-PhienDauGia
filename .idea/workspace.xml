@@ -6,11 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="logic đấu giá">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerAddProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerAddProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/request/SellerProductRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/request/SellerProductRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/Electronics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/Electronics.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/SellerProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/SellerProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/add_auction_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/add_auction_view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/AdminDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/AdminDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/dto/AuctionItemDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/dto/AuctionItemDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/config/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/config/DataInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/controller/AuctionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/controller/AuctionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/repository/ItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/repository/ItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,28 +144,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ClientLauncher.executor": "Run",
-    "Application.ClientLauncher2.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.ServerApp.executor": "Run",
-    "git-widget-placeholder": "demo",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Problems",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "ml.llm.AcpAgentsConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ClientLauncher.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ClientLauncher2.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.ServerApp.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;demo&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.AcpAgentsConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\IdeaProjects\Nhom4-PhienDauGia\src\main\resources\client\fxml\user\bidder" />

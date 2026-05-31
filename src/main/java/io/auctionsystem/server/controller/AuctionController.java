@@ -6,6 +6,7 @@ import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.ItemRepository;
+import io.auctionsystem.server.repository.SellerProductListingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +28,12 @@ public class AuctionController {
     @Autowired
     private ItemRepository itemRepository;
 
+    // THÊM: Để lấy imageUrl cho mỗi sản phẩm
+    @Autowired
+    private SellerProductListingRepository listingRepository;
+
     @GetMapping("/running")
     public ResponseEntity<List<AuctionItemDTO>> getRunningAuctions() {
-        // Chỉ lấy các phiên đấu giá đang trong trạng thái RUNNING
         List<Auction> runningAuctions = auctionRepository.findByStatus(AuctionState.RUNNING);
         List<AuctionItemDTO> dtoList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -44,6 +48,11 @@ public class AuctionController {
                 dto.setCurrentPrice(item.getCurrentPrice());
                 dto.setEndTime(auction.getEndTime() != null ? auction.getEndTime().format(formatter) : "");
                 dto.setStatus(auction.getStatus().name());
+
+                // THÊM: Lấy imageUrl từ SellerProductListing nếu có
+                listingRepository.findByItemId(auction.getItemId())
+                        .ifPresent(listing -> dto.setImageUrl(listing.getImageUrl()));
+
                 dtoList.add(dto);
             }
         }

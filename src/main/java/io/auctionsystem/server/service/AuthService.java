@@ -40,6 +40,15 @@ public class AuthService {
         newUser.setFirstname(request.getFirstname());
         newUser.setLastname(request.getLastname());
 
+        // THÊM: Set giá trị mặc định cho các trường NOT NULL trong bảng bidders
+        // để tránh lỗi MySQL "doesn't have a default value" khi đăng ký
+        if (newUser instanceof Bidder bidder) {
+            bidder.setBankName("");
+            bidder.setAccountName("");
+            bidder.setBankAccount("");
+            bidder.setAddress("");
+        }
+
         userRepository.save(newUser);
         return "Đăng ký thành công";
     }
