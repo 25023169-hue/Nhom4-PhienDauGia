@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="18.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.auctionsystem.client.controller.SellerRevenueStatisticsController">
+    <padding><Insets bottom="30.0" left="30.0" right="30.0" top="30.0" /></padding>
+    <children>
+        <HBox alignment="CENTER_LEFT">
+            <children>
+                <VBox spacing="4.0">
+                    <children>
+                        <Label text="Thống kê doanh thu"><font><Font name="System Bold" size="24.0" /></font></Label>
+                        <Label text="Theo dõi doanh thu từ các phiên đấu giá đã thanh toán." textFill="#6b7c85" />
+                    </children>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+            </children>
+        </HBox>
+
+        <Label fx:id="lblRevenueError" managed="false" textFill="#e74c3c" visible="false" />
+
+        <GridPane hgap="14.0" vgap="14.0">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="25.0" />
+                <ColumnConstraints percentWidth="25.0" />
+                <ColumnConstraints percentWidth="25.0" />
+                <ColumnConstraints percentWidth="25.0" />
+            </columnConstraints>
+            <children>
+                <VBox spacing="6.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 16;" GridPane.columnIndex="0">
+                    <children>
+                        <Label text="Tổng doanh thu" textFill="#7f8c8d" />
+                        <Label fx:id="lblTotalRevenue" text="0 ₫" textFill="#1abc9c"><font><Font name="System Bold" size="20.0" /></font></Label>
+                    </children>
+                </VBox>
+                <VBox spacing="6.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1">
+                    <children>
+                        <Label text="Tháng này" textFill="#7f8c8d" />
+                        <Label fx:id="lblMonthRevenue" text="0 ₫" textFill="#3498db"><font><Font name="System Bold" size="20.0" /></font></Label>
+                    </children>
+                </VBox>
+                <VBox spacing="6.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 16;" GridPane.columnIndex="2">
+                    <children>
+                        <Label text="Đơn đã bán" textFill="#7f8c8d" />
+                        <Label fx:id="lblSoldOrders" text="0" textFill="#8e44ad"><font><Font name="System Bold" size="20.0" /></font></Label>
+                    </children>
+                </VBox>
+                <VBox spacing="6.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 16;" GridPane.columnIndex="3">
+                    <children>
+                        <Label text="Giá trị TB" textFill="#7f8c8d" />
+                        <Label fx:id="lblAverageOrderValue" text="0 ₫" textFill="#e67e22"><font><Font name="System Bold" size="20.0" /></font></Label>
+                    </children>
+                </VBox>
+            </children>
+        </GridPane>
+
+        <BarChart fx:id="chartRevenue" prefHeight="280.0" title="Doanh thu 6 tháng gần nhất">
+            <xAxis><CategoryAxis label="Tháng" /></xAxis>
+            <yAxis><NumberAxis label="Doanh thu" /></yAxis>
+        </BarChart>
+
+        <VBox spacing="10.0">
+            <children>
+                <Label text="Giao dịch bán hàng gần đây"><font><Font name="System Bold" size="18.0" /></font></Label>
+                <TableView fx:id="tableRecentSales" prefHeight="230.0" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colSaleTime" prefWidth="150.0" text="Thời gian" />
+                        <TableColumn fx:id="colSaleAmount" prefWidth="150.0" text="Doanh thu" />
+                        <TableColumn fx:id="colSaleBalance" prefWidth="150.0" text="Số dư sau" />
+                        <TableColumn fx:id="colSaleNote" prefWidth="360.0" text="Ghi chú" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</VBox>

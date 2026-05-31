@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,6 +82,24 @@ class SellerProductServiceTest {
         assertEquals(100000.0, auction.getFinalPrice());
         assertEquals(AuctionState.OPEN, auction.getStatus());
         verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    }
+
+    @Test
+    void testSaveProductAndPrepareAuction_StartTimeInPast_ThrowsException() {
+        SellerProductRequest request = new SellerProductRequest();
+        request.setSellerId(10L);
+        request.setName("Tranh đấu giá");
+        request.setStartingPrice(100000.0);
+        request.setItemType(ItemType.ART);
+        request.setStartTime(LocalDateTime.now().minusMinutes(1));
+        request.setEndTime(LocalDateTime.now().plusHours(1));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> sellerProductService.saveProductAndPrepareAuction(request)
+        );
+
+        assertEquals("Thời gian bắt đầu không được ở quá khứ", exception.getMessage());
     }
 
     @Test
