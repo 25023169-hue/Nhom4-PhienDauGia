@@ -124,6 +124,11 @@ public class LoginController {
         SceneManager.getInstance().switchScene("/client/fxml/user/register.fxml");
     }
 
+    public void setUsername(String username) {
+        txtUsername.setText(username);
+        txtPassword.requestFocus();
+    }
+
     // ================= HÀM HỖ TRỢ HIỂN THỊ LỖI =================
     private void showError(Label label) {
         label.setVisible(true);

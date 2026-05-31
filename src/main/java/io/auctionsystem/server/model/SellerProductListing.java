@@ -28,10 +28,8 @@ public class SellerProductListing extends BaseEntity {
     private String imageUrl;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
-
     @Enumerated(EnumType.STRING)
     private AuctionState status;
 }

@@ -21,7 +21,9 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -124,6 +126,20 @@ public class SellerAddProductController {
             sendCreateRequest(request);
         } catch (IllegalArgumentException e) {
             showAlert(Alert.AlertType.ERROR, e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onChooseImageClicked() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chọn hình ảnh sản phẩm");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Tệp hình ảnh", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(txtImageUrl.getScene().getWindow());
+        if (selectedFile != null) {
+            txtImageUrl.setText(selectedFile.toURI().toString());
         }
     }
 

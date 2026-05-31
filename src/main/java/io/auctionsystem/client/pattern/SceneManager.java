@@ -5,6 +5,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class SceneManager {
     private static SceneManager instance;
@@ -22,9 +23,14 @@ public class SceneManager {
     }
 
     public void switchScene(String fxmlPath) {
+        switchScene(fxmlPath, controller -> {});
+    }
+
+    public void switchScene(String fxmlPath, Consumer<Object> configureController) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+            configureController.accept(loader.getController());
 
             // Lấy Scene hiện tại của cửa sổ
             Scene currentScene = stage.getScene();

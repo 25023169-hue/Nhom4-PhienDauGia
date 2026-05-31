@@ -61,7 +61,11 @@ public class RegisterController {
 
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200 || response.statusCode() == 201) {
-                        SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
+                        SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml", controller -> {
+                            if (controller instanceof LoginController loginController) {
+                                loginController.setUsername(username);
+                            }
+                        });
                     } else {
                         showError("Lỗi: " + response.body());
                     }
