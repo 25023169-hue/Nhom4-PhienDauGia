@@ -14,11 +14,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -45,12 +45,14 @@ public class SellerProductListController {
     @FXML private ComboBox<String> cbStatus;
     @FXML private Label lblCount;
     @FXML private Label lblOpenCount;
+    @FXML private Label lblRunningCount;
     @FXML private Label lblFinishedCount;
+    @FXML private Label lblPaidCount;
+    @FXML private Label lblCancelledCount;
     @FXML private TableView<SellerProductDTO> tableProducts;
     @FXML private TableColumn<SellerProductDTO, String> colItemName;
     @FXML private TableColumn<SellerProductDTO, Double> colStartingPrice;
     @FXML private TableColumn<SellerProductDTO, String> colStatus;
-    @FXML private TableColumn<SellerProductDTO, Void> colAction;
 
     private final ObservableList<SellerProductDTO> products = FXCollections.observableArrayList();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -84,7 +86,7 @@ public class SellerProductListController {
         });
 
         configureStatusFilter();
-        configureActionColumn();
+        configureProductSelection();
         configureSearch();
 
         tableProducts.setItems(products);
@@ -117,23 +119,18 @@ public class SellerProductListController {
         cbStatus.setOnAction(event -> loadProducts());
     }
 
-    private void configureActionColumn() {
-        colAction.setCellFactory(column -> new TableCell<>() {
-            private final Button detailButton = new Button("Xem");
-
-            {
-                detailButton.setStyle("-fx-background-color: #2c7be5; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;");
-                detailButton.setOnAction(event -> {
-                    SellerProductDTO product = getTableView().getItems().get(getIndex());
-                    showProductDetail(product);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : detailButton);
-            }
+    private void configureProductSelection() {
+        tableProducts.setRowFactory(table -> {
+            TableRow<SellerProductDTO> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty()) {
+                    SellerDashboardController controller = SellerDashboardController.getInstance();
+                    if (controller != null) {
+                        controller.onProductClicked(row.getItem());
+                    }
+                }
+            });
+            return row;
         });
     }
 
@@ -193,30 +190,29 @@ public class SellerProductListController {
         showAlert(Alert.AlertType.ERROR, extractMessage(response.body()));
     }
 
-    private void showProductDetail(SellerProductDTO product) {
-        String detail = "Tên sản phẩm: " + nullToEmpty(product.getItemName()) + "\n"
-                + "Mã sản phẩm: " + product.getItemId() + "\n"
-                + "Loại: " + nullToEmpty(product.getItemType()) + "\n"
-                + "Giá khởi điểm: " + currencyFormat.format(product.getStartingPrice()) + "\n"
-                + "Giá đã bán: " + (product.getSoldPrice() == null ? "Chưa bán" : currencyFormat.format(product.getSoldPrice())) + "\n"
-                + "Giá mua đứt: " + (product.getBuyNowPrice() == null ? "Không có" : currencyFormat.format(product.getBuyNowPrice())) + "\n"
-                + "Trạng thái: " + formatStatus(product.getStatus()) + "\n"
-                + "Bắt đầu: " + nullToEmpty(product.getStartTime()) + "\n"
-                + "Kết thúc: " + nullToEmpty(product.getEndTime());
-        showAlert(Alert.AlertType.INFORMATION, detail);
-    }
-
     private void updateSummary(List<SellerProductDTO> loadedProducts) {
         long openCount = loadedProducts.stream()
                 .filter(product -> product.getStatus() == AuctionState.OPEN)
                 .count();
+        long runningCount = loadedProducts.stream()
+                .filter(product -> product.getStatus() == AuctionState.RUNNING)
+                .count();
         long finishedCount = loadedProducts.stream()
                 .filter(product -> product.getStatus() == AuctionState.FINISHED)
+                .count();
+        long paidCount = loadedProducts.stream()
+                .filter(product -> product.getStatus() == AuctionState.PAID)
+                .count();
+        long cancelledCount = loadedProducts.stream()
+                .filter(product -> product.getStatus() == AuctionState.CANCELLED)
                 .count();
 
         lblCount.setText("(" + loadedProducts.size() + " items)");
         lblOpenCount.setText("OPEN: " + openCount);
+        lblRunningCount.setText("RUNNING: " + runningCount);
         lblFinishedCount.setText("FINISHED: " + finishedCount);
+        lblPaidCount.setText("PAID: " + paidCount);
+        lblCancelledCount.setText("CANCELLED: " + cancelledCount);
     }
 
     private String extractMessage(String body) {
@@ -232,10 +228,6 @@ public class SellerProductListController {
 
     private String formatStatus(AuctionState status) {
         return status == null ? "UNKNOWN" : status.name();
-    }
-
-    private String nullToEmpty(Object value) {
-        return value == null ? "" : value.toString();
     }
 
     private void showPendingCreatedProducts() {

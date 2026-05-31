@@ -80,13 +80,16 @@ public class AuctionSettlementService {
         List<BidCommitment> commitments = bidCommitmentRepository
                 .findByAuctionIdAndStatusOrderByBidderIdAsc(auction.getId(), BidCommitmentStatus.ACTIVE);
 
+        AuctionState finalStatus = auction.getWinnerId() == null
+                ? AuctionState.CANCELLED
+                : AuctionState.FINISHED;
         Map<Long, User> lockedUsers = lockSettlementUsers(item, auction.getWinnerId(), commitments);
         settleBidderCommitments(auction, item, commitments, lockedUsers);
-        auction.setStatus(AuctionState.FINISHED);
+        auction.setStatus(finalStatus);
         auctionRepository.save(auction);
 
         listingRepository.findByItemId(item.getId()).ifPresent(listing -> {
-            listing.setStatus(AuctionState.FINISHED);
+            listing.setStatus(finalStatus);
             listingRepository.save(listing);
         });
 

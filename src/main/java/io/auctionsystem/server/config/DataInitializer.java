@@ -38,8 +38,8 @@ public class DataInitializer implements CommandLineRunner {
             Admin admin = new Admin();
             admin.setUsername("admin");
             admin.setPassword("admin123");
-            admin.setFirstname("Quản");
-            admin.setLastname("Trị");
+            admin.setFirstname("Trị");
+            admin.setLastname("Quản");
 
             // Set Employee Code như bạn muốn
             admin.setEmployeeCode("ADMIN-001");

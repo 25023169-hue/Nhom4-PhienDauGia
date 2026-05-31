@@ -65,12 +65,12 @@
                                 <TextField fx:id="txtBuyNowPrice" promptText="Không bắt buộc" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                                 <Label text="Hình ảnh" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                <HBox spacing="8.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4">
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4">
                                     <children>
-                                        <TextField fx:id="txtImageUrl" editable="false" promptText="Chưa chọn tệp hình ảnh" HBox.hgrow="ALWAYS" />
-                                        <Button mnemonicParsing="false" onAction="#onChooseImageClicked" text="Chọn tệp" />
+                                        <Button fx:id="btnImageFile" mnemonicParsing="false" onAction="#onImageFileActionClicked" text="Chọn tệp" />
+                                        <Label fx:id="lblImageFileName" managed="false" style="-fx-text-fill: #475569;" visible="false" />
                                     </children>
-                                </HBox>
+                                </VBox>
 
                                 <Label text="Ngày bắt đầu" GridPane.columnIndex="0" GridPane.rowIndex="5" />
                                 <DatePicker fx:id="dpStartDate" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="5" />

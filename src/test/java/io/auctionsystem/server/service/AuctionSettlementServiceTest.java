@@ -7,6 +7,7 @@ import io.auctionsystem.server.model.BidCommitment;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.model.Seller;
+import io.auctionsystem.server.model.SellerProductListing;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.BidCommitmentRepository;
 import io.auctionsystem.server.repository.ItemRepository;
@@ -134,7 +135,38 @@ class AuctionSettlementServiceTest {
 
         assertTrue(settlementService.closeBuyNowAuction(1L));
 
-        assertEquals(AuctionState.FINISHED, auction.getStatus());
+        assertEquals(AuctionState.CANCELLED, auction.getStatus());
+        verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
+        verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    }
+
+    @Test
+    void testCloseExpiredAuction_WithoutWinner_CancelsAuctionAndListing() {
+        LocalDateTime now = LocalDateTime.now();
+
+        Auction auction = new Auction();
+        auction.setId(1L);
+        auction.setItemId(2L);
+        auction.setStatus(AuctionState.RUNNING);
+        auction.setEndTime(now.minusSeconds(1));
+
+        Item item = new Item() {};
+        item.setId(2L);
+
+        SellerProductListing listing = new SellerProductListing();
+        listing.setStatus(AuctionState.RUNNING);
+
+        when(auctionRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(auction));
+        when(itemRepository.findById(2L)).thenReturn(Optional.of(item));
+        when(bidCommitmentRepository.findByAuctionIdAndStatusOrderByBidderIdAsc(
+                1L, BidCommitmentStatus.ACTIVE
+        )).thenReturn(List.of());
+        when(listingRepository.findByItemId(2L)).thenReturn(Optional.of(listing));
+
+        assertTrue(settlementService.closeExpiredAuction(1L, now));
+
+        assertEquals(AuctionState.CANCELLED, auction.getStatus());
+        assertEquals(AuctionState.CANCELLED, listing.getStatus());
         verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
         verify(realtimePublisher).publishAuctionListChangedAfterCommit();
     }

@@ -2,6 +2,7 @@ package io.auctionsystem.client.controller;
 
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.dto.SellerProductDTO;
 import io.auctionsystem.common.response.AuthResponse;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -55,6 +56,12 @@ public class SellerDashboardController extends BaseDashboardController {
     @FXML
     public void onManageAuctionsClicked() {
         loadSubView("/client/fxml/user/seller/manage_auctions_view.fxml");
+        setActiveMenu(btnProducts, btnRevenue, btnWallet, btnNotifications);
+    }
+
+    public void onProductClicked(SellerProductDTO product) {
+        SellerProductDetailController.setProduct(product);
+        loadSubView("/client/fxml/user/seller/product_detail_view.fxml");
         setActiveMenu(btnProducts, btnRevenue, btnWallet, btnNotifications);
     }
 

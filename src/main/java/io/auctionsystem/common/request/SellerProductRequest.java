@@ -19,7 +19,6 @@ public class SellerProductRequest implements Serializable {
     private String description;
     private Double startingPrice;
     private Double buyNowPrice;
-    private String imageUrl;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private ItemType itemType;

@@ -18,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -47,7 +48,8 @@ public class SellerAddProductController {
     @FXML private TextArea txtDescription;
     @FXML private TextField txtStartingPrice;
     @FXML private TextField txtBuyNowPrice;
-    @FXML private TextField txtImageUrl;
+    @FXML private Button btnImageFile;
+    @FXML private Label lblImageFileName;
     @FXML private ComboBox<ItemType> cbItemType;
     @FXML private DatePicker dpStartDate;
     @FXML private TextField txtStartTime;
@@ -82,6 +84,7 @@ public class SellerAddProductController {
 
     @FXML private Button btnStartAuction;
 
+    private File selectedImageFile;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -101,6 +104,7 @@ public class SellerAddProductController {
         dpStartDate.valueProperty().addListener((observable, oldValue, newValue) -> updateSuggestedEndTime());
         txtStartTime.textProperty().addListener((observable, oldValue, newValue) -> updateSuggestedEndTime());
         restoreDraft();
+        updateImageFileControls();
         showFieldsForType(cbItemType.getValue());
     }
 
@@ -130,17 +134,32 @@ public class SellerAddProductController {
     }
 
     @FXML
-    public void onChooseImageClicked() {
+    public void onImageFileActionClicked() {
+        if (selectedImageFile != null) {
+            selectedImageFile = null;
+            updateImageFileControls();
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Chọn hình ảnh sản phẩm");
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Tệp hình ảnh", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp")
         );
 
-        File selectedFile = fileChooser.showOpenDialog(txtImageUrl.getScene().getWindow());
+        File selectedFile = fileChooser.showOpenDialog(btnImageFile.getScene().getWindow());
         if (selectedFile != null) {
-            txtImageUrl.setText(selectedFile.toURI().toString());
+            selectedImageFile = selectedFile;
+            updateImageFileControls();
         }
+    }
+
+    private void updateImageFileControls() {
+        boolean hasSelectedFile = selectedImageFile != null;
+        btnImageFile.setText(hasSelectedFile ? "Xóa tệp" : "Chọn tệp");
+        lblImageFileName.setText(hasSelectedFile ? selectedImageFile.getName() : "");
+        lblImageFileName.setVisible(hasSelectedFile);
+        lblImageFileName.setManaged(hasSelectedFile);
     }
 
     private SellerProductRequest buildRequest() {
@@ -150,7 +169,6 @@ public class SellerAddProductController {
         request.setDescription(optionalText(txtDescription));
         request.setStartingPrice(parseRequiredPositiveDouble(txtStartingPrice, "Giá khởi điểm"));
         request.setBuyNowPrice(parseOptionalPositiveDouble(txtBuyNowPrice, "Giá mua đứt"));
-        request.setImageUrl(optionalText(txtImageUrl));
         request.setItemType(cbItemType.getValue());
         request.setStartTime(parseDateTime(dpStartDate, txtStartTime, "Thời gian bắt đầu"));
         request.setEndTime(parseDateTime(dpEndDate, txtEndTime, "Thời gian kết thúc"));
@@ -263,7 +281,7 @@ public class SellerAddProductController {
         draft.description = txtDescription.getText();
         draft.startingPrice = txtStartingPrice.getText();
         draft.buyNowPrice = txtBuyNowPrice.getText();
-        draft.imageUrl = txtImageUrl.getText();
+        draft.imageFile = selectedImageFile;
         draft.itemType = cbItemType.getValue();
         draft.startDate = dpStartDate.getValue();
         draft.startTime = txtStartTime.getText();
@@ -298,7 +316,7 @@ public class SellerAddProductController {
         txtDescription.setText(draft.description);
         txtStartingPrice.setText(draft.startingPrice);
         txtBuyNowPrice.setText(draft.buyNowPrice);
-        txtImageUrl.setText(draft.imageUrl);
+        selectedImageFile = draft.imageFile;
         cbItemType.setValue(draft.itemType);
         dpStartDate.setValue(draft.startDate);
         txtStartTime.setText(draft.startTime);
@@ -471,7 +489,7 @@ public class SellerAddProductController {
         private String description;
         private String startingPrice;
         private String buyNowPrice;
-        private String imageUrl;
+        private File imageFile;
         private ItemType itemType;
         private LocalDate startDate;
         private String startTime;

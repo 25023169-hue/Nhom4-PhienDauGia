@@ -5,10 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.SceneManager;
 import io.auctionsystem.common.response.AuthResponse;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
@@ -20,31 +19,27 @@ import java.util.List;
 
 public class AdminDashboardController {
     // 1. Khai báo các thành phần FXML (Phải khớp fx:id trong file fxml)
-    @FXML private TableView<AuthResponse> userTable;
-    @FXML private TableColumn<AuthResponse, Long> colId;
+    @FXML private TabPane tabPane;
+    @FXML private Label statUsers;
+    @FXML private TableView<AuthResponse> usersTable;
+    @FXML private TableColumn<AuthResponse, Long> colUserId;
     @FXML private TableColumn<AuthResponse, String> colUsername;
-    @FXML private TableColumn<AuthResponse, String> colFullName;
+    @FXML private TableColumn<AuthResponse, String> colFullname;
     @FXML private TableColumn<AuthResponse, String> colRole;
     @FXML private TableColumn<AuthResponse, Void> colAction; // Cột chứa nút bấm
-    @FXML private BarChart<String, Number> auctionChart;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     @FXML
     public void initialize() {
-        // --- PHẦN 1: SETUP BIỂU ĐỒ ---
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Số phiên đấu giá 2026");
-        series.getData().add(new XYChart.Data<>("Tháng 1", 25));
-        series.getData().add(new XYChart.Data<>("Tháng 2", 40));
-        series.getData().add(new XYChart.Data<>("Tháng 3", 65));
-        auctionChart.getData().add(series);
-
-        // --- PHẦN 2: SETUP BẢNG DỮ LIỆU ---
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        // --- PHẦN 1: SETUP BẢNG DỮ LIỆU ---
+        colUserId.setCellValueFactory(new PropertyValueFactory<>("userId"));
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
-        colFullName.setCellValueFactory(new PropertyValueFactory<>("firstname"));
+        colFullname.setCellValueFactory(cellData -> {
+            AuthResponse user = cellData.getValue();
+            return new SimpleStringProperty(joinName(user.getLastname(), user.getFirstname()));
+        });
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
 
         // Tạo nút bấm "Khóa/Mở" trong cột Thao tác
@@ -69,7 +64,7 @@ public class AdminDashboardController {
             }
         });
 
-        // --- PHẦN 3: LOAD DỮ LIỆU THẬT TỪ SERVER ---
+        // --- PHẦN 2: LOAD DỮ LIỆU THẬT TỪ SERVER ---
         refreshTable();
     }
 
@@ -88,7 +83,8 @@ public class AdminDashboardController {
                             new TypeReference<List<AuthResponse>>() {});
 
                     Platform.runLater(() -> {
-                        userTable.setItems(FXCollections.observableArrayList(users));
+                        usersTable.setItems(FXCollections.observableArrayList(users));
+                        statUsers.setText(String.valueOf(users.size()));
                     });
                 }
             } catch (Exception e) {
@@ -118,7 +114,36 @@ public class AdminDashboardController {
     }
 
     @FXML
-    public void onLogout() {
+    public void onLogoutClicked() {
         SceneManager.getInstance().switchScene("/client/fxml/user/login.fxml");
+    }
+
+    @FXML
+    public void onDashboardClicked() {
+        tabPane.getSelectionModel().select(0);
+    }
+
+    @FXML
+    public void onManageUsersClicked() {
+        tabPane.getSelectionModel().select(1);
+    }
+
+    @FXML
+    public void onApproveAuctionsClicked() {
+        tabPane.getSelectionModel().select(2);
+    }
+
+    @FXML
+    public void onSettingsClicked() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText("Cài đặt dành cho Admin chưa được triển khai.");
+        alert.showAndWait();
+    }
+
+    private String joinName(String lastname, String firstname) {
+        String fullName = ((lastname == null ? "" : lastname) + " "
+                + (firstname == null ? "" : firstname)).trim();
+        return fullName.isEmpty() ? "-" : fullName;
     }
 }

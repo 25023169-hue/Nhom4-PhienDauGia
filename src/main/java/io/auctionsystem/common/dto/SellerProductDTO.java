@@ -24,7 +24,6 @@ public class SellerProductDTO implements Serializable {
     private Double currentPrice;
     private Double soldPrice;
     private Double buyNowPrice;
-    private String imageUrl;
     private String startTime;
     private String endTime;
     private AuctionState status;

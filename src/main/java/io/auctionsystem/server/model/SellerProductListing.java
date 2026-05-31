@@ -25,7 +25,6 @@ public class SellerProductListing extends BaseEntity {
     private Long itemId;
     private Long sellerId;
     private Double buyNowPrice;
-    private String imageUrl;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     @Enumerated(EnumType.STRING)

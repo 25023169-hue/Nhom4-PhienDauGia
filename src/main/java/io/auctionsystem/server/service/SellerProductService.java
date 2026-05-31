@@ -88,7 +88,6 @@ public class SellerProductService {
         listing.setItemId(savedItem.getId());
         listing.setSellerId(seller.getId());
         listing.setBuyNowPrice(request.getBuyNowPrice());
-        listing.setImageUrl(blankToNull(request.getImageUrl()));
         listing.setStartTime(request.getStartTime());
         listing.setEndTime(request.getEndTime());
         listing.setItemType(request.getItemType());
@@ -227,7 +226,6 @@ public class SellerProductService {
         dto.setCurrentPrice(item.getCurrentPrice());
         dto.setSoldPrice(findSoldPrice(item.getId(), listing.getStatus()));
         dto.setBuyNowPrice(listing.getBuyNowPrice());
-        dto.setImageUrl(listing.getImageUrl());
         dto.setStartTime(listing.getStartTime() == null ? "" : listing.getStartTime().format(DISPLAY_FORMATTER));
         dto.setEndTime(listing.getEndTime() == null ? "" : listing.getEndTime().format(DISPLAY_FORMATTER));
         dto.setStatus(listing.getStatus());
