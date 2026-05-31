@@ -14,7 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -39,26 +39,24 @@ public class SellerProductListController {
 
     private static final List<SellerProductDTO> pendingCreatedProducts = new ArrayList<>();
 
-    private static final String ALL_STATUS = "Tất cả trạng thái";
-
     @FXML private TextField txtSearch;
-    @FXML private ComboBox<String> cbStatus;
     @FXML private Label lblCount;
-    @FXML private Label lblOpenCount;
-    @FXML private Label lblRunningCount;
-    @FXML private Label lblFinishedCount;
-    @FXML private Label lblPaidCount;
-    @FXML private Label lblCancelledCount;
+    @FXML private Button btnOpenStatus;
+    @FXML private Button btnRunningStatus;
+    @FXML private Button btnFinishedStatus;
+    @FXML private Button btnCancelledStatus;
     @FXML private TableView<SellerProductDTO> tableProducts;
     @FXML private TableColumn<SellerProductDTO, String> colItemName;
     @FXML private TableColumn<SellerProductDTO, Double> colStartingPrice;
     @FXML private TableColumn<SellerProductDTO, String> colStatus;
 
     private final ObservableList<SellerProductDTO> products = FXCollections.observableArrayList();
+    private final List<SellerProductDTO> currentProducts = new ArrayList<>();
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
     private final PauseTransition searchDelay = new PauseTransition(Duration.millis(350));
+    private AuctionState selectedStatus;
 
     public static void rememberCreatedProduct(SellerProductDTO product) {
         if (product == null) {
@@ -85,7 +83,7 @@ public class SellerProductListController {
             }
         });
 
-        configureStatusFilter();
+        configureStatusButtons();
         configureProductSelection();
         configureSearch();
 
@@ -110,13 +108,17 @@ public class SellerProductListController {
         });
     }
 
-    private void configureStatusFilter() {
-        cbStatus.getItems().setAll(ALL_STATUS);
-        for (AuctionState state : AuctionState.values()) {
-            cbStatus.getItems().add(state.name());
-        }
-        cbStatus.getSelectionModel().select(ALL_STATUS);
-        cbStatus.setOnAction(event -> loadProducts());
+    private void configureStatusButtons() {
+        btnOpenStatus.setOnAction(event -> toggleStatusFilter(AuctionState.OPEN));
+        btnRunningStatus.setOnAction(event -> toggleStatusFilter(AuctionState.RUNNING));
+        btnFinishedStatus.setOnAction(event -> toggleStatusFilter(AuctionState.FINISHED));
+        btnCancelledStatus.setOnAction(event -> toggleStatusFilter(AuctionState.CANCELLED));
+        updateStatusButtonStyles();
+    }
+
+    private void toggleStatusFilter(AuctionState status) {
+        selectedStatus = status == selectedStatus ? null : status;
+        applyVisibleProducts();
     }
 
     private void configureProductSelection() {
@@ -166,10 +168,6 @@ public class SellerProductListController {
             url.append("&keyword=").append(URLEncoder.encode(keyword.trim(), StandardCharsets.UTF_8));
         }
 
-        String status = cbStatus.getValue();
-        if (status != null && !ALL_STATUS.equals(status)) {
-            url.append("&status=").append(URLEncoder.encode(status, StandardCharsets.UTF_8));
-        }
         return url.toString();
     }
 
@@ -200,19 +198,15 @@ public class SellerProductListController {
         long finishedCount = loadedProducts.stream()
                 .filter(product -> product.getStatus() == AuctionState.FINISHED)
                 .count();
-        long paidCount = loadedProducts.stream()
-                .filter(product -> product.getStatus() == AuctionState.PAID)
-                .count();
         long cancelledCount = loadedProducts.stream()
                 .filter(product -> product.getStatus() == AuctionState.CANCELLED)
                 .count();
 
-        lblCount.setText("(" + loadedProducts.size() + " items)");
-        lblOpenCount.setText("OPEN: " + openCount);
-        lblRunningCount.setText("RUNNING: " + runningCount);
-        lblFinishedCount.setText("FINISHED: " + finishedCount);
-        lblPaidCount.setText("PAID: " + paidCount);
-        lblCancelledCount.setText("CANCELLED: " + cancelledCount);
+        lblCount.setText("(" + products.size() + " items)");
+        btnOpenStatus.setText("OPEN: " + openCount);
+        btnRunningStatus.setText("RUNNING: " + runningCount);
+        btnFinishedStatus.setText("FINISHED: " + finishedCount);
+        btnCancelledStatus.setText("CANCELLED: " + cancelledCount);
     }
 
     private String extractMessage(String body) {
@@ -232,10 +226,11 @@ public class SellerProductListController {
 
     private void showPendingCreatedProducts() {
         List<SellerProductDTO> pendingProducts = pendingSnapshot();
-        pendingProducts.removeIf(product -> !matchesCurrentFilters(product));
+        pendingProducts.removeIf(product -> !matchesSearch(product));
         if (!pendingProducts.isEmpty()) {
-            products.setAll(pendingProducts);
-            updateSummary(products);
+            currentProducts.clear();
+            currentProducts.addAll(pendingProducts);
+            applyVisibleProducts();
         }
     }
 
@@ -247,15 +242,16 @@ public class SellerProductListController {
                     loadedProducts.stream().anyMatch(loaded -> sameProduct(loaded, pending)));
             for (int i = pendingCreatedProducts.size() - 1; i >= 0; i--) {
                 SellerProductDTO pending = pendingCreatedProducts.get(i);
-                if (matchesCurrentFilters(pending)
+                if (matchesSearch(pending)
                         && mergedProducts.stream().noneMatch(loaded -> sameProduct(loaded, pending))) {
                     mergedProducts.add(0, pending);
                 }
             }
         }
 
-        products.setAll(mergedProducts);
-        updateSummary(mergedProducts);
+        currentProducts.clear();
+        currentProducts.addAll(mergedProducts);
+        applyVisibleProducts();
     }
 
     private List<SellerProductDTO> pendingSnapshot() {
@@ -264,13 +260,7 @@ public class SellerProductListController {
         }
     }
 
-    private boolean matchesCurrentFilters(SellerProductDTO product) {
-        String status = cbStatus.getValue();
-        if (status != null && !ALL_STATUS.equals(status)
-                && (product.getStatus() == null || !status.equals(product.getStatus().name()))) {
-            return false;
-        }
-
+    private boolean matchesSearch(SellerProductDTO product) {
         String keyword = txtSearch.getText();
         if (keyword == null || keyword.trim().isEmpty()) {
             return true;
@@ -284,6 +274,34 @@ public class SellerProductListController {
         return itemName.contains(normalizedKeyword)
                 || itemId.contains(normalizedKeyword)
                 || listingId.contains(normalizedKeyword);
+    }
+
+    private void applyVisibleProducts() {
+        products.setAll(currentProducts.stream()
+                .filter(product -> selectedStatus == null || product.getStatus() == selectedStatus)
+                .toList());
+        updateSummary(currentProducts);
+        updateStatusButtonStyles();
+    }
+
+    private void updateStatusButtonStyles() {
+        styleStatusButton(btnOpenStatus, AuctionState.OPEN, "#2563eb");
+        styleStatusButton(btnRunningStatus, AuctionState.RUNNING, "#f59e0b");
+        styleStatusButton(btnFinishedStatus, AuctionState.FINISHED, "#10b981");
+        styleStatusButton(btnCancelledStatus, AuctionState.CANCELLED, "#ef4444");
+    }
+
+    private void styleStatusButton(Button button, AuctionState status, String color) {
+        boolean selected = selectedStatus == status;
+        button.setStyle("-fx-background-color: " + (selected ? color : "white") + ";"
+                + "-fx-text-fill: " + (selected ? "white" : color) + ";"
+                + "-fx-font-weight: bold;"
+                + "-fx-cursor: hand;"
+                + "-fx-background-radius: 8;"
+                + "-fx-border-color: " + color + ";"
+                + "-fx-border-width: " + (selected ? "2" : "1") + ";"
+                + "-fx-border-radius: 8;"
+                + "-fx-padding: 10 14;");
     }
 
     private static boolean sameProduct(SellerProductDTO first, SellerProductDTO second) {

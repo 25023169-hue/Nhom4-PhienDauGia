@@ -65,9 +65,9 @@ public class ProductListController {
             }
         });
 
-        // 3. Xử lý sự kiện nháy đúp chuột (Double-click) để vào phòng đấu giá (Code thêm mới)
+        // 3. Chọn sản phẩm bằng một lần nhấn để vào phòng đấu giá
         tableItems.setOnMouseClicked((MouseEvent event) -> {
-            if (event.getClickCount() == 2) {
+            if (event.getClickCount() == 1) {
                 AuctionItemDTO selected = tableItems.getSelectionModel().getSelectedItem();
                 if (selected != null) {
                     // Truyền dữ liệu sang màn hình LiveBids
