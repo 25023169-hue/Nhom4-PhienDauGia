@@ -374,7 +374,7 @@ public class LiveBidsController {
                         if (countdownTimeline != null) {
                             countdownTimeline.stop();
                         }
-                        loadParticipatingAuctions();
+                        returnToProductList();
                     });
                 }
             }
@@ -404,6 +404,14 @@ public class LiveBidsController {
         if (listChangedSubscription != null) {
             listChangedSubscription.unsubscribe();
             listChangedSubscription = null;
+        }
+    }
+
+    private void returnToProductList() {
+        currentAuctionId = null;
+        BidderDashboardController dashboard = BidderDashboardController.getInstance();
+        if (dashboard != null) {
+            dashboard.onProductListButtonClicked();
         }
     }
 

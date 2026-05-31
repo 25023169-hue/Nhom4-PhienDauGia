@@ -4,10 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="sửa ui">
+    <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="sửa trạng thái sản phẩm">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/ProductListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/ProductListController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/client/fxml/user/bidder/purchase_history_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/fxml/user/bidder/purchase_history_view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/java/io/auctionsystem/client/controller/DashboardController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/java/io/auctionsystem/client/controller/LoginController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/java/io/auctionsystem/common/dto/AuthResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/java/io/auctionsystem/server/service/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/resources/client/fxml/admin_dashboard.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/resources/client/fxml/dashboard.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auctionsystem/src/main/resources/client/fxml/login.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/BankSettingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/BankSettingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/LiveBidsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/LiveBidsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerAddProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerAddProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerProductDetailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerProductDetailController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerProductListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerProductListController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/dto/SellerProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/common/dto/SellerProductDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/controller/AuctionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/controller/AuctionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/controller/SellerProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/controller/SellerProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/Electronics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/Electronics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/SellerProductListing.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/model/SellerProductListing.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/repository/TransactionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/repository/TransactionRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/AuctionSettlementService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/AuctionSettlementService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/SellerProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/SellerProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/TransactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/server/service/TransactionService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/add_auction_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/add_auction_view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/product_detail_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/product_detail_view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/seller_dashboard.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/fxml/user/seller/seller_dashboard.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionSettlementServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionSettlementServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/SellerProductServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/SellerProductServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -395,7 +423,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780247377435</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="sửa trạng thái sản phẩm">
+      <option name="closed" value="true" />
+      <created>1780248161182</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1780248161182</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -421,7 +457,8 @@
     <MESSAGE value="workspace.xml" />
     <MESSAGE value="xóa autobid, sửa ui" />
     <MESSAGE value="sửa ui" />
-    <option name="LAST_COMMIT_MESSAGE" value="sửa ui" />
+    <MESSAGE value="sửa trạng thái sản phẩm" />
+    <option name="LAST_COMMIT_MESSAGE" value="sửa trạng thái sản phẩm" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -26,7 +26,7 @@
                 <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
                         <Button mnemonicParsing="false" onAction="#onBackClicked" style="-fx-background-color: white; -fx-text-fill: #334155; -fx-border-color: #d7dee8; -fx-border-radius: 5; -fx-cursor: hand;" text="Quay lại" />
-                        <Label text="Thêm sản phẩm">
+                        <Label fx:id="lblFormTitle" text="Thêm sản phẩm">
                             <font>
                                 <Font name="System Bold" size="26.0" />
                             </font>

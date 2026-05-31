@@ -56,7 +56,7 @@ public class AuctionSettlementService {
             return false;
         }
 
-        settleAuction(auction);
+        settleAuction(auction, false);
         return true;
     }
 
@@ -69,22 +69,36 @@ public class AuctionSettlementService {
             return false;
         }
 
-        settleAuction(auction);
+        settleAuction(auction, false);
         return true;
     }
 
-    private void settleAuction(Auction auction) {
+    @Transactional
+    public boolean cancelAuction(Long auctionId) {
+        Auction auction = auctionRepository.findByIdForUpdate(auctionId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
+
+        if (auction.getStatus() != AuctionState.OPEN && auction.getStatus() != AuctionState.RUNNING) {
+            return false;
+        }
+
+        settleAuction(auction, true);
+        return true;
+    }
+
+    private void settleAuction(Auction auction, boolean cancelled) {
         Item item = itemRepository.findById(auction.getItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm đấu giá"));
 
         List<BidCommitment> commitments = bidCommitmentRepository
                 .findByAuctionIdAndStatusOrderByBidderIdAsc(auction.getId(), BidCommitmentStatus.ACTIVE);
 
-        AuctionState finalStatus = auction.getWinnerId() == null
+        Long winnerId = cancelled ? null : auction.getWinnerId();
+        AuctionState finalStatus = winnerId == null
                 ? AuctionState.CANCELLED
                 : AuctionState.FINISHED;
-        Map<Long, User> lockedUsers = lockSettlementUsers(item, auction.getWinnerId(), commitments);
-        settleBidderCommitments(auction, item, commitments, lockedUsers);
+        Map<Long, User> lockedUsers = lockSettlementUsers(item, winnerId, commitments);
+        settleBidderCommitments(auction, item, commitments, lockedUsers, winnerId);
         auction.setStatus(finalStatus);
         auctionRepository.save(auction);
 
@@ -115,9 +129,9 @@ public class AuctionSettlementService {
             Auction auction,
             Item item,
             List<BidCommitment> commitments,
-            Map<Long, User> lockedUsers
+            Map<Long, User> lockedUsers,
+            Long winnerId
     ) {
-        Long winnerId = auction.getWinnerId();
         if (winnerId == null) {
             commitments.forEach(commitment -> releaseCommitment(commitment, lockedUsers));
             return;
@@ -176,7 +190,7 @@ public class AuctionSettlementService {
                 finalPrice,
                 0.0,
                 seller.getAvailableBalance(),
-                "Thu nhập bán hàng",
+                "Thu nhập",
                 "Bán sản phẩm: " + item.getName()
         );
 

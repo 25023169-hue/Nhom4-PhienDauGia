@@ -88,7 +88,10 @@ public class TransactionService {
 
     public RevenueStatsDTO getSellerRevenueStats(Long sellerId) {
         List<Transaction> sales = transactionRepository
-                .findByUserIdAndTypeOrderByTransactionTimeDesc(sellerId, "Thu nhập bán hàng");
+                .findByUserIdAndTypeInOrderByTransactionTimeDesc(
+                        sellerId,
+                        List.of("Thu nhập", "Thu nhập bán hàng")
+                );
 
         double totalRevenue = sales.stream()
                 .mapToDouble(tx -> tx.getMoneyIn() == null ? 0.0 : tx.getMoneyIn())

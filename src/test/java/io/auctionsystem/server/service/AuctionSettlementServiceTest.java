@@ -109,7 +109,7 @@ class AuctionSettlementServiceTest {
         );
         verify(transactionService).saveTransaction(
                 eq(20L), eq(500000.0), eq(0.0), eq(600000.0),
-                eq("Thu nhập bán hàng"), any()
+                eq("Thu nhập"), any()
         );
         verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
         verify(realtimePublisher).publishAuctionListChangedAfterCommit();
@@ -167,6 +167,42 @@ class AuctionSettlementServiceTest {
 
         assertEquals(AuctionState.CANCELLED, auction.getStatus());
         assertEquals(AuctionState.CANCELLED, listing.getStatus());
+        verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
+        verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    }
+
+    @Test
+    void testCancelAuction_RunningAuction_ReleasesHeldBalance() {
+        Auction auction = new Auction();
+        auction.setId(1L);
+        auction.setItemId(2L);
+        auction.setWinnerId(10L);
+        auction.setStatus(AuctionState.RUNNING);
+
+        Item item = new Item() {};
+        item.setId(2L);
+
+        Bidder bidder = new Bidder();
+        bidder.setId(10L);
+        bidder.setBalance(1000000.0);
+        bidder.setHeldBalance(500000.0);
+
+        BidCommitment commitment = commitment(1L, 10L, 500000.0);
+
+        when(auctionRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(auction));
+        when(itemRepository.findById(2L)).thenReturn(Optional.of(item));
+        when(bidCommitmentRepository.findByAuctionIdAndStatusOrderByBidderIdAsc(
+                1L, BidCommitmentStatus.ACTIVE
+        )).thenReturn(List.of(commitment));
+        when(userRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(bidder));
+        when(listingRepository.findByItemId(2L)).thenReturn(Optional.empty());
+
+        assertTrue(settlementService.cancelAuction(1L));
+
+        assertEquals(AuctionState.CANCELLED, auction.getStatus());
+        assertEquals(1000000.0, bidder.getBalance());
+        assertEquals(0.0, bidder.getHeldBalance());
+        assertEquals(BidCommitmentStatus.RELEASED, commitment.getStatus());
         verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
         verify(realtimePublisher).publishAuctionListChangedAfterCommit();
     }

@@ -44,6 +44,10 @@ public class RegisterController {
             showError("Vui lòng điền đủ thông tin!");
             return;
         }
+        if (!username.matches("^[a-zA-Z0-9]+$")) {
+            showError("Tên đăng nhập chỉ được dùng chữ cái không dấu và số!");
+            return;
+        }
 
         // Truyền đủ 5 tham số theo đúng RegisterRequest DTO
         RegisterRequest requestDto = new RegisterRequest(username, password, firstname, lastname, Role.BIDDER);

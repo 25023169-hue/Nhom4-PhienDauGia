@@ -22,9 +22,8 @@ public class AuthService {
     public String register(RegisterRequest request) {
         String username = request.getUsername();
 
-        // Chỉ kiểm tra ký tự đặc biệt và khoảng trắng bằng regex
-        if (!username.matches("^[a-zA-Z0-9]+$")) {
-            throw new IllegalArgumentException("Tên đăng nhập chỉ được chứa chữ cái và số, không có khoảng trắng hoặc ký tự đặc biệt!");
+        if (username == null || !username.matches("^[a-zA-Z0-9]+$")) {
+            throw new IllegalArgumentException("Tên đăng nhập chỉ được dùng chữ cái không dấu và số!");
         }
 
         if (userRepository.existsByUsername(username)) {
@@ -45,6 +44,10 @@ public class AuthService {
     }
 
     public AuthResponse login(String username, String password) {
+        if (username == null || !username.matches("^[a-zA-Z0-9]+$")) {
+            throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
+        }
+
         // Tìm User, nếu không có thì ném lỗi
         User user = userRepository.findByUsername(username).orElse(null);
 

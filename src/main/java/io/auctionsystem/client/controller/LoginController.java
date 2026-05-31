@@ -48,6 +48,11 @@ public class LoginController {
             showError(lblPassError);
             hasError = true;
         }
+        if (!username.isEmpty() && !username.matches("^[a-zA-Z0-9]+$")) {
+            lblGeneralError.setText("Tài khoản hoặc mật khẩu không chính xác!");
+            showError(lblGeneralError);
+            hasError = true;
+        }
 
         if (hasError) return;
 

@@ -48,6 +48,20 @@ public class AuctionController {
         return ResponseEntity.ok(dtoList);
     }
 
+    @GetMapping("/running/seller/{sellerId}")
+    public ResponseEntity<List<AuctionItemDTO>> getSellerRunningAuctions(@PathVariable Long sellerId) {
+        List<AuctionItemDTO> dtoList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        for (Auction auction : auctionRepository.findByStatus(AuctionState.RUNNING)) {
+            itemRepository.findById(auction.getItemId())
+                    .filter(item -> item.getSeller() != null && sellerId.equals(item.getSeller().getId()))
+                    .map(item -> toDTO(auction, item, formatter))
+                    .ifPresent(dtoList::add);
+        }
+        return ResponseEntity.ok(dtoList);
+    }
+
     @GetMapping("/participating/{bidderId}")
     public ResponseEntity<List<AuctionItemDTO>> getParticipatingAuctions(@PathVariable Long bidderId) {
         List<AuctionItemDTO> dtoList = new ArrayList<>();

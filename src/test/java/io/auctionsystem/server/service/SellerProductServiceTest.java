@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,7 @@ class SellerProductServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private SellerProductListingRepository listingRepository;
     @Mock private AuctionRealtimePublisher realtimePublisher;
+    @Mock private AuctionSettlementService settlementService;
 
     @BeforeEach
     void setUp() {
@@ -184,5 +186,102 @@ class SellerProductServiceTest {
 
         assertEquals(1, products.size());
         assertEquals(150000.0, products.getFirst().getSoldPrice());
+    }
+
+    @Test
+    void testUpdateOpenProduct_UpdatesItemAuctionAndListing() {
+        Seller seller = new Seller();
+        seller.setId(10L);
+
+        Electronics item = new Electronics();
+        item.setId(20L);
+        item.setSeller(seller);
+        item.setName("Tên cũ");
+
+        Auction auction = new Auction();
+        auction.setItemId(20L);
+        auction.setStatus(AuctionState.OPEN);
+
+        SellerProductListing listing = new SellerProductListing();
+        listing.setItemId(20L);
+        listing.setSellerId(10L);
+        listing.setItemType(ItemType.ELECTRONICS);
+        listing.setStatus(AuctionState.OPEN);
+
+        LocalDateTime startTime = LocalDateTime.now().plusHours(1);
+        SellerProductRequest request = validRequest(10L, ItemType.ELECTRONICS, startTime);
+        request.setName("Tên mới");
+        request.setStartingPrice(250000.0);
+        request.setBrand("Brand");
+
+        when(itemRepository.findById(20L)).thenReturn(Optional.of(item));
+        when(auctionRepository.findTopByItemIdOrderByIdDesc(20L)).thenReturn(Optional.of(auction));
+        when(listingRepository.findByItemId(20L)).thenReturn(Optional.of(listing));
+        when(listingRepository.save(listing)).thenReturn(listing);
+
+        var result = sellerProductService.updateOpenProduct(20L, request);
+
+        assertEquals("Tên mới", item.getName());
+        assertEquals(250000.0, item.getStartingPrice());
+        assertEquals(250000.0, auction.getFinalPrice());
+        assertEquals("Brand", result.getBrand());
+        verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    }
+
+    @Test
+    void testHideProduct_RunningAuction_CancelsAuctionAndHidesListing() {
+        Seller seller = new Seller();
+        seller.setId(10L);
+
+        Electronics item = new Electronics();
+        item.setId(20L);
+        item.setSeller(seller);
+
+        Auction auction = new Auction();
+        auction.setId(30L);
+        auction.setItemId(20L);
+        auction.setStatus(AuctionState.RUNNING);
+
+        SellerProductListing listing = new SellerProductListing();
+        listing.setItemId(20L);
+        listing.setSellerId(10L);
+        listing.setStatus(AuctionState.RUNNING);
+
+        when(itemRepository.findById(20L)).thenReturn(Optional.of(item));
+        when(auctionRepository.findTopByItemIdOrderByIdDesc(20L)).thenReturn(Optional.of(auction));
+        when(listingRepository.findByItemId(20L)).thenReturn(Optional.of(listing));
+
+        sellerProductService.hideProduct(20L, 10L);
+
+        assertTrue(listing.isHidden());
+        verify(settlementService).cancelAuction(30L);
+        verify(listingRepository).save(listing);
+        verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    }
+
+    @Test
+    void testGetSellerProducts_DoesNotShowHiddenListing() {
+        SellerProductListing listing = new SellerProductListing();
+        listing.setItemId(20L);
+        listing.setSellerId(10L);
+        listing.setHidden(true);
+
+        when(listingRepository.findBySellerIdOrderByIdDesc(10L)).thenReturn(List.of(listing));
+        when(itemRepository.findBySellerId(10L)).thenReturn(List.of());
+
+        var products = sellerProductService.getSellerProducts(10L, null, null);
+
+        assertTrue(products.isEmpty());
+    }
+
+    private SellerProductRequest validRequest(Long sellerId, ItemType itemType, LocalDateTime startTime) {
+        SellerProductRequest request = new SellerProductRequest();
+        request.setSellerId(sellerId);
+        request.setName("Sản phẩm");
+        request.setStartingPrice(100000.0);
+        request.setItemType(itemType);
+        request.setStartTime(startTime);
+        request.setEndTime(startTime.plusHours(1));
+        return request;
     }
 }

@@ -69,6 +69,12 @@ public class SellerProductListController {
         }
     }
 
+    public static void forgetProduct(SellerProductDTO product) {
+        synchronized (pendingCreatedProducts) {
+            pendingCreatedProducts.removeIf(pending -> sameProduct(pending, product));
+        }
+    }
+
     @FXML
     public void initialize() {
         colItemName.setCellValueFactory(new PropertyValueFactory<>("itemName"));

@@ -15,6 +15,7 @@ public class SellerDashboardController extends BaseDashboardController {
     @FXML private Label lblSellerName;
     @FXML private Label lblSellerRole;
     @FXML private Button btnProducts;
+    @FXML private Button btnOrders;
     @FXML private Button btnRevenue;
     @FXML private Button btnWallet;
     @FXML private Button btnNotifications;
@@ -49,40 +50,53 @@ public class SellerDashboardController extends BaseDashboardController {
 
     @FXML
     public void onAddAuctionClicked() {
+        SellerAddProductController.startCreating();
         loadSubView("/client/fxml/user/seller/add_auction_view.fxml");
-        setActiveMenu(btnProducts, btnRevenue, btnWallet, btnNotifications);
+        setActiveMenu(btnProducts, btnOrders, btnRevenue, btnWallet, btnNotifications);
+    }
+
+    public void onEditProductClicked(SellerProductDTO product) {
+        SellerAddProductController.startEditing(product);
+        loadSubView("/client/fxml/user/seller/add_auction_view.fxml");
+        setActiveMenu(btnProducts, btnOrders, btnRevenue, btnWallet, btnNotifications);
     }
 
     @FXML
     public void onManageAuctionsClicked() {
         loadSubView("/client/fxml/user/seller/manage_auctions_view.fxml");
-        setActiveMenu(btnProducts, btnRevenue, btnWallet, btnNotifications);
+        setActiveMenu(btnProducts, btnOrders, btnRevenue, btnWallet, btnNotifications);
     }
 
     public void onProductClicked(SellerProductDTO product) {
         SellerProductDetailController.setProduct(product);
         loadSubView("/client/fxml/user/seller/product_detail_view.fxml");
-        setActiveMenu(btnProducts, btnRevenue, btnWallet, btnNotifications);
+        setActiveMenu(btnProducts, btnOrders, btnRevenue, btnWallet, btnNotifications);
+    }
+
+    @FXML
+    public void onManageOrdersClicked() {
+        loadSubView("/client/fxml/user/seller/order_management_view.fxml");
+        setActiveMenu(btnOrders, btnProducts, btnRevenue, btnWallet, btnNotifications);
     }
 
     @FXML
     public void onRevenueStatisticsClicked() {
         loadSubView("/client/fxml/user/seller/revenue_statistics_view.fxml");
-        setActiveMenu(btnRevenue, btnProducts, btnWallet, btnNotifications);
+        setActiveMenu(btnRevenue, btnProducts, btnOrders, btnWallet, btnNotifications);
     }
 
     @Override
     @FXML
     public void onWalletButtonClicked() {
         super.onWalletButtonClicked();
-        setActiveMenu(btnWallet, btnProducts, btnRevenue, btnNotifications);
+        setActiveMenu(btnWallet, btnProducts, btnOrders, btnRevenue, btnNotifications);
     }
 
     @Override
     @FXML
     public void onNotificationsClicked() {
         super.onNotificationsClicked();
-        setActiveMenu(btnNotifications, btnProducts, btnRevenue, btnWallet);
+        setActiveMenu(btnNotifications, btnProducts, btnOrders, btnRevenue, btnWallet);
     }
 
     @FXML

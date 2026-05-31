@@ -31,4 +31,5 @@ public class SellerProductListing extends BaseEntity {
     private ItemType itemType;
     @Enumerated(EnumType.STRING)
     private AuctionState status;
+    private boolean hidden;
 }

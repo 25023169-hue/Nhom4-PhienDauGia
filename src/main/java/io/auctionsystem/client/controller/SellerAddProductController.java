@@ -43,7 +43,9 @@ public class SellerAddProductController {
     private static final DateTimeFormatter DISPLAY_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final long SUGGESTED_AUCTION_DURATION_MINUTES = 5;
     private static ProductDraft savedDraft;
+    private static SellerProductDTO editingProduct;
 
+    @FXML private Label lblFormTitle;
     @FXML private TextField txtName;
     @FXML private TextArea txtDescription;
     @FXML private TextField txtStartingPrice;
@@ -90,6 +92,14 @@ public class SellerAddProductController {
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+    public static void startCreating() {
+        editingProduct = null;
+    }
+
+    public static void startEditing(SellerProductDTO product) {
+        editingProduct = product;
+    }
+
     @FXML
     public void initialize() {
         cbItemType.setItems(FXCollections.observableArrayList(ItemType.values()));
@@ -103,14 +113,23 @@ public class SellerAddProductController {
         cbItemType.valueProperty().addListener((observable, oldValue, newValue) -> showFieldsForType(newValue));
         dpStartDate.valueProperty().addListener((observable, oldValue, newValue) -> updateSuggestedEndTime());
         txtStartTime.textProperty().addListener((observable, oldValue, newValue) -> updateSuggestedEndTime());
-        restoreDraft();
+        if (isEditing()) {
+            restoreEditingProduct();
+            lblFormTitle.setText("Chỉnh sửa sản phẩm");
+            btnStartAuction.setText("Lưu thay đổi");
+        } else {
+            restoreDraft();
+        }
         updateImageFileControls();
         showFieldsForType(cbItemType.getValue());
     }
 
     @FXML
     public void onBackClicked() {
-        saveDraft();
+        if (!isEditing()) {
+            saveDraft();
+        }
+        editingProduct = null;
         navigateBack();
     }
 
@@ -127,7 +146,7 @@ public class SellerAddProductController {
     public void onStartAuctionClicked() {
         try {
             SellerProductRequest request = buildRequest();
-            sendCreateRequest(request);
+            sendSaveRequest(request);
         } catch (IllegalArgumentException e) {
             showAlert(Alert.AlertType.ERROR, e.getMessage());
         }
@@ -224,20 +243,29 @@ public class SellerAddProductController {
         }
     }
 
-    private void sendCreateRequest(SellerProductRequest requestDto) {
+    private void sendSaveRequest(SellerProductRequest requestDto) {
         btnStartAuction.setDisable(true);
 
         new Thread(() -> {
             try {
                 String jsonBody = objectMapper.writeValueAsString(requestDto);
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(Constants.BASE_URL + "/seller/products"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                        .build();
+                HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                        .header("Content-Type", "application/json");
+                HttpRequest request;
+                if (isEditing()) {
+                    request = requestBuilder
+                            .uri(URI.create(Constants.BASE_URL + "/seller/products/" + editingProduct.getItemId()))
+                            .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                            .build();
+                } else {
+                    request = requestBuilder
+                            .uri(URI.create(Constants.BASE_URL + "/seller/products"))
+                            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                            .build();
+                }
 
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                Platform.runLater(() -> handleCreateResponse(response));
+                Platform.runLater(() -> handleSaveResponse(response));
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     btnStartAuction.setDisable(false);
@@ -247,12 +275,13 @@ public class SellerAddProductController {
         }).start();
     }
 
-    private void handleCreateResponse(HttpResponse<String> response) {
+    private void handleSaveResponse(HttpResponse<String> response) {
         btnStartAuction.setDisable(false);
         String message = extractMessage(response.body());
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             savedDraft = null;
             SellerProductListController.rememberCreatedProduct(extractCreatedProduct(response.body()));
+            editingProduct = null;
             showAlert(Alert.AlertType.INFORMATION, message);
             navigateBack();
             return;
@@ -338,6 +367,54 @@ public class SellerAddProductController {
         txtJewelryMaterial.setText(draft.jewelryMaterial);
         txtWeight.setText(draft.weight);
         txtGemstone.setText(draft.gemstone);
+    }
+
+    private void restoreEditingProduct() {
+        SellerProductDTO product = editingProduct;
+        if (product == null) {
+            return;
+        }
+
+        txtName.setText(product.getItemName());
+        txtDescription.setText(product.getDescription());
+        txtStartingPrice.setText(formatNumber(product.getStartingPrice()));
+        txtBuyNowPrice.setText(formatNumber(product.getBuyNowPrice()));
+        cbItemType.setValue(product.getItemType());
+        setDateTime(dpStartDate, txtStartTime, product.getStartTime());
+        setDateTime(dpEndDate, txtEndTime, product.getEndTime());
+        txtArtistName.setText(product.getArtistName());
+        txtMedium.setText(product.getMedium());
+        txtDimensions.setText(product.getDimensions());
+        txtCreationYear.setText(formatNumber(product.getCreationYear()));
+        txtElectronicsBrand.setText(product.getBrand());
+        txtElectronicsModel.setText(product.getModel());
+        txtCondition.setText(product.getCondition());
+        txtManufactureYear.setText(formatNumber(product.getManufactureYear()));
+        txtFuelType.setText(product.getFuelType());
+        txtFashionBrand.setText(product.getBrand());
+        txtFashionSize.setText(product.getSize());
+        txtFashionMaterial.setText(product.getMaterial());
+        txtFashionGender.setText(product.getGender());
+        txtJewelryMaterial.setText(product.getMaterial());
+        txtWeight.setText(formatNumber(product.getWeight()));
+        txtGemstone.setText(product.getGemstone());
+    }
+
+    private void setDateTime(DatePicker datePicker, TextField timeField, String value) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        LocalDateTime dateTime = LocalDateTime.parse(value, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        datePicker.setValue(dateTime.toLocalDate());
+        timeField.setText(dateTime.toLocalTime().format(DISPLAY_TIME_FORMATTER));
+    }
+
+    private String formatNumber(Number value) {
+        return value == null ? "" : value.toString();
+    }
+
+    private boolean isEditing() {
+        return editingProduct != null;
     }
 
     private void updateSuggestedEndTime() {

@@ -2,6 +2,7 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.SceneManager;
 import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.common.response.AuthResponse;
 import javafx.application.Platform;
@@ -162,6 +163,7 @@ public class BankSettingController {
                         user.setBankAccount(bankaccount);
                         savedBankName = bank;
                         showAlert("Đã lưu thông tin ngân hàng thành công.");
+                        navigateToWallet();
                     }
                 });
             } catch (Exception e) {
@@ -175,6 +177,20 @@ public class BankSettingController {
         cbBankName.setValue(bankName);
         cbBankName.getEditor().setText(bankName);
         updatingBankEditor = false;
+    }
+
+    private void navigateToWallet() {
+        String dashboardPath = SettingsController.isSellerChannel
+                ? "/client/fxml/user/seller/seller_dashboard.fxml"
+                : "/client/fxml/user/bidder/bidder_dashboard.fxml";
+
+        SceneManager.getInstance().switchScene(dashboardPath, controller -> {
+            if (controller instanceof SellerDashboardController sellerDashboard) {
+                sellerDashboard.onWalletButtonClicked();
+            } else if (controller instanceof BidderDashboardController bidderDashboard) {
+                bidderDashboard.onWalletButtonClicked();
+            }
+        });
     }
 
     private void showAlert(String msg) {

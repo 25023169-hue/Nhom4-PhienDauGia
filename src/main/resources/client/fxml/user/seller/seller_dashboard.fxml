@@ -96,7 +96,7 @@
                                 <Insets left="18.0" right="12.0" />
                             </padding>
                         </Button>
-                        <Button disable="true" maxWidth="Infinity" mnemonicParsing="false" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #8d99ab; -fx-alignment: CENTER_LEFT;" text="▤  Quản lý Đơn hàng">
+                        <Button fx:id="btnOrders" maxWidth="Infinity" mnemonicParsing="false" onAction="#onManageOrdersClicked" prefHeight="40.0" style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="▤  Quản lý Đơn hàng">
                             <font>
                                 <Font size="14.0" />
                             </font>

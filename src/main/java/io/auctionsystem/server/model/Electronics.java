@@ -13,6 +13,6 @@ import lombok.*;
 public class Electronics extends Item {
     private String brand;
     private String model;
-    @Column(name = "item_condition")
+    @Column(name = "item_condition") //condition là 1 từ khóa của mysql
     private String condition;
 }

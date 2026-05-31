@@ -51,6 +51,9 @@ public class SellerProductService {
     @Autowired
     private AuctionRealtimePublisher realtimePublisher;
 
+    @Autowired
+    private AuctionSettlementService settlementService;
+
     @Transactional
     public SellerProductDTO saveProductAndPrepareAuction(SellerProductRequest request) {
         validateRequest(request);
@@ -98,6 +101,65 @@ public class SellerProductService {
         return toDTO(savedListing, savedItem);
     }
 
+    @Transactional
+    public SellerProductDTO updateOpenProduct(Long itemId, SellerProductRequest request) {
+        validateRequest(request);
+
+        Item item = getOwnedItem(itemId, request.getSellerId());
+        Auction auction = getLatestAuction(itemId);
+        if (auction.getStatus() != AuctionState.OPEN) {
+            throw new IllegalArgumentException("Chỉ có thể chỉnh sửa sản phẩm ở trạng thái OPEN");
+        }
+
+        ItemType currentType = resolveItemType(item);
+        if (request.getItemType() != currentType) {
+            throw new IllegalArgumentException("Không thể đổi loại sản phẩm sau khi đã tạo");
+        }
+
+        item.setName(request.getName().trim());
+        item.setDescription(blankToNull(request.getDescription()));
+        item.setStartingPrice(request.getStartingPrice());
+        item.setCurrentPrice(request.getStartingPrice());
+        fillItemSpecificFields(item, request);
+        itemRepository.save(item);
+
+        auction.setStartTime(request.getStartTime());
+        auction.setEndTime(request.getEndTime());
+        auction.setFinalPrice(request.getStartingPrice());
+        auctionRepository.save(auction);
+
+        SellerProductListing listing = listingRepository.findByItemId(itemId)
+                .orElseGet(() -> listingFor(item, auction, request.getSellerId()));
+        if (listing.isHidden()) {
+            throw new IllegalArgumentException("Sản phẩm đã bị xóa khỏi danh sách quản lý");
+        }
+        listing.setBuyNowPrice(request.getBuyNowPrice());
+        listing.setStartTime(request.getStartTime());
+        listing.setEndTime(request.getEndTime());
+        listing.setItemType(request.getItemType());
+        listing.setStatus(AuctionState.OPEN);
+
+        SellerProductListing savedListing = listingRepository.save(listing);
+        realtimePublisher.publishAuctionListChangedAfterCommit();
+        return toDTO(savedListing, item);
+    }
+
+    @Transactional
+    public void hideProduct(Long itemId, Long sellerId) {
+        Item item = getOwnedItem(itemId, sellerId);
+        Auction auction = getLatestAuction(itemId);
+
+        if (auction.getStatus() == AuctionState.OPEN || auction.getStatus() == AuctionState.RUNNING) {
+            settlementService.cancelAuction(auction.getId());
+        }
+
+        SellerProductListing listing = listingRepository.findByItemId(itemId)
+                .orElseGet(() -> listingFor(item, auction, sellerId));
+        listing.setHidden(true);
+        listingRepository.save(listing);
+        realtimePublisher.publishAuctionListChangedAfterCommit();
+    }
+
     public List<SellerProductDTO> getSellerProducts(Long sellerId, String keyword, AuctionState status) {
         if (sellerId == null) {
             throw new IllegalArgumentException("Seller hiện tại không tồn tại");
@@ -111,6 +173,9 @@ public class SellerProductService {
         Set<Long> listedItemIds = new HashSet<>();
         for (SellerProductListing listing : listings) {
             listedItemIds.add(listing.getItemId());
+            if (listing.isHidden()) {
+                continue;
+            }
             itemRepository.findById(listing.getItemId())
                     .map(item -> toDTO(listing, item))
                     .filter(dto -> matchesKeyword(dto, keyword))
@@ -229,7 +294,8 @@ public class SellerProductService {
         dto.setStartTime(listing.getStartTime() == null ? "" : listing.getStartTime().format(DISPLAY_FORMATTER));
         dto.setEndTime(listing.getEndTime() == null ? "" : listing.getEndTime().format(DISPLAY_FORMATTER));
         dto.setStatus(listing.getStatus());
-        dto.setEditable(listing.getStatus() != AuctionState.RUNNING && listing.getStatus() != AuctionState.FINISHED);
+        dto.setEditable(listing.getStatus() == AuctionState.OPEN);
+        fillItemSpecificFields(dto, item);
         return dto;
     }
 
@@ -246,8 +312,64 @@ public class SellerProductService {
         dto.setStartTime(auction.getStartTime() == null ? "" : auction.getStartTime().format(DISPLAY_FORMATTER));
         dto.setEndTime(auction.getEndTime() == null ? "" : auction.getEndTime().format(DISPLAY_FORMATTER));
         dto.setStatus(auction.getStatus());
-        dto.setEditable(auction.getStatus() != AuctionState.RUNNING && auction.getStatus() != AuctionState.FINISHED);
+        dto.setEditable(auction.getStatus() == AuctionState.OPEN);
+        fillItemSpecificFields(dto, item);
         return dto;
+    }
+
+    private void fillItemSpecificFields(SellerProductDTO dto, Item item) {
+        if (item instanceof Art art) {
+            dto.setArtistName(art.getArtistName());
+            dto.setMedium(art.getMedium());
+            dto.setDimensions(art.getDimensions());
+            dto.setCreationYear(art.getCreationYear());
+        } else if (item instanceof Electronics electronics) {
+            dto.setBrand(electronics.getBrand());
+            dto.setModel(electronics.getModel());
+            dto.setCondition(electronics.getCondition());
+        } else if (item instanceof Vehicle vehicle) {
+            dto.setVinCode(vehicle.getVinCode());
+            dto.setManufactureYear(vehicle.getManufactureYear());
+            dto.setFuelType(vehicle.getFuelType());
+        } else if (item instanceof Fashion fashion) {
+            dto.setBrand(fashion.getBrand());
+            dto.setSize(fashion.getSize());
+            dto.setMaterial(fashion.getMaterial());
+            dto.setGender(fashion.getGender());
+        } else if (item instanceof Jewelry jewelry) {
+            dto.setMaterial(jewelry.getMaterial());
+            dto.setWeight(jewelry.getWeight());
+            dto.setGemstone(jewelry.getGemstone());
+        }
+    }
+
+    private Item getOwnedItem(Long itemId, Long sellerId) {
+        if (itemId == null || sellerId == null) {
+            throw new IllegalArgumentException("Sản phẩm hoặc seller không hợp lệ");
+        }
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+        if (item.getSeller() == null || !sellerId.equals(item.getSeller().getId())) {
+            throw new IllegalArgumentException("Seller không có quyền thao tác sản phẩm này");
+        }
+        return item;
+    }
+
+    private Auction getLatestAuction(Long itemId) {
+        return auctionRepository.findTopByItemIdOrderByIdDesc(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá của sản phẩm"));
+    }
+
+    private SellerProductListing listingFor(Item item, Auction auction, Long sellerId) {
+        SellerProductListing listing = new SellerProductListing();
+        listing.setItemId(item.getId());
+        listing.setSellerId(sellerId);
+        listing.setStartTime(auction.getStartTime());
+        listing.setEndTime(auction.getEndTime());
+        listing.setItemType(resolveItemType(item));
+        listing.setStatus(auction.getStatus());
+        return listing;
     }
 
     private Double findSoldPrice(Long itemId, AuctionState listingStatus) {
