@@ -3,12 +3,10 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.BidCommitmentStatus;
 import io.auctionsystem.server.model.Auction;
-import io.auctionsystem.server.model.AutoBid;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Electronics;
 import io.auctionsystem.server.model.Seller;
 import io.auctionsystem.server.repository.AuctionRepository;
-import io.auctionsystem.server.repository.AutoBidRepository;
 import io.auctionsystem.server.repository.BidCommitmentRepository;
 import io.auctionsystem.server.repository.ItemRepository;
 import io.auctionsystem.server.repository.UserRepository;
@@ -35,7 +33,6 @@ class UserServiceTest {
 
     @Mock private UserRepository userRepository;
     @Mock private BidCommitmentRepository bidCommitmentRepository;
-    @Mock private AutoBidRepository autoBidRepository;
     @Mock private ItemRepository itemRepository;
     @Mock private AuctionRepository auctionRepository;
 
@@ -45,7 +42,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testDeleteAccount_AnonymizesUserAndDisablesAutoBid() {
+    void testDeleteAccount_AnonymizesUser() {
         Bidder user = bidderWithZeroBalance();
         user.setUsername("bidder");
         user.setPassword("secret");
@@ -56,14 +53,9 @@ class UserServiceTest {
         user.setBankAccount("123");
         user.setAddress("Address");
 
-        AutoBid autoBid = new AutoBid();
-        autoBid.setBidderId(1L);
-        autoBid.setActive(true);
-
         when(userRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(user));
         when(bidCommitmentRepository.existsByBidderIdAndStatus(1L, BidCommitmentStatus.ACTIVE)).thenReturn(false);
         when(itemRepository.findBySellerId(1L)).thenReturn(List.of());
-        when(autoBidRepository.findByBidderIdAndActiveTrue(1L)).thenReturn(List.of(autoBid));
 
         userService.deleteAccount(1L);
 
@@ -73,8 +65,6 @@ class UserServiceTest {
         assertNull(user.getAccountName());
         assertNull(user.getBankAccount());
         assertNull(user.getAddress());
-        assertFalse(autoBid.isActive());
-        verify(autoBidRepository).save(autoBid);
         verify(userRepository).save(user);
     }
 

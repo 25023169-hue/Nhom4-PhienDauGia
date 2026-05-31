@@ -5,13 +5,11 @@ import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.BidCommitmentStatus;
 import io.auctionsystem.server.model.Auction;
-import io.auctionsystem.server.model.AutoBid;
 import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
 import io.auctionsystem.server.repository.AuctionRepository;
-import io.auctionsystem.server.repository.AutoBidRepository;
 import io.auctionsystem.server.repository.BidCommitmentRepository;
 import io.auctionsystem.server.repository.ItemRepository;
 import io.auctionsystem.server.repository.UserRepository;
@@ -31,9 +29,6 @@ public class UserService {
 
     @Autowired
     private BidCommitmentRepository bidCommitmentRepository;
-
-    @Autowired
-    private AutoBidRepository autoBidRepository;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -98,11 +93,6 @@ public class UserService {
         }
         if (hasOpenSellerAuction(userId)) {
             throw new IllegalArgumentException("Không thể xóa tài khoản khi còn phiên bán đang mở hoặc đang chờ bắt đầu");
-        }
-
-        for (AutoBid autoBid : autoBidRepository.findByBidderIdAndActiveTrue(userId)) {
-            autoBid.setActive(false);
-            autoBidRepository.save(autoBid);
         }
 
         anonymize(user);

@@ -28,9 +28,7 @@ import java.text.NumberFormat;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import javafx.util.Duration;
 
 public class LiveBidsController {
@@ -41,9 +39,6 @@ public class LiveBidsController {
     @FXML private Label lblTimeRemaining;
     @FXML private TextField txtBidAmount;
     @FXML private LineChart<String, Number> priceChart;
-
-    @FXML private TextField txtAutoMaxPrice;
-    @FXML private TextField txtAutoIncrement;
 
     public static Long selectedAuctionId = null;
     public static String selectedAuctionName = "";
@@ -97,40 +92,6 @@ public class LiveBidsController {
                 stopRealtimeUpdates();
             }
         });
-    }
-
-    @FXML
-    public void onEnableAutoBidClicked() {
-        try {
-            double maxPrice = Double.parseDouble(txtAutoMaxPrice.getText().trim());
-            double increment = Double.parseDouble(txtAutoIncrement.getText().trim());
-            Long bidderId = AuctionManager.getInstance().getId();
-
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("auctionId", currentAuctionId);
-            payload.put("bidderId", bidderId);
-            payload.put("maxAmount", maxPrice);
-            payload.put("incrementAmount", increment);
-
-            new Thread(() -> {
-                try {
-                    String jsonBody = objectMapper.writeValueAsString(payload);
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8080/api/autobids/register"))
-                            .header("Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                            .build();
-
-                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    Platform.runLater(() -> showAlert(response.body()));
-                } catch (Exception e) {
-                    Platform.runLater(() -> showAlert("Lỗi kết nối Server khi bật Auto-Bid!"));
-                }
-            }).start();
-
-        } catch (NumberFormatException e) {
-            showAlert("Vui lòng nhập số tiền hợp lệ vào khung Auto-Bid!");
-        }
     }
 
     @FXML
