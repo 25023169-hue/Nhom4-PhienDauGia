@@ -77,6 +77,9 @@
                                 <TableColumn fx:id="colFullname" text="Họ tên" prefWidth="200" />
                                 <TableColumn fx:id="colRole" text="Role" prefWidth="120" />
                             </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
                         </TableView>
                     </children>
                 </VBox>
@@ -91,6 +94,9 @@
                                 <TableColumn fx:id="colEndTime" text="Kết thúc" prefWidth="145" />
                                 <TableColumn fx:id="colAuctionAction" text="Hành động" prefWidth="90" />
                             </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
                         </TableView>
                     </children>
                 </VBox>

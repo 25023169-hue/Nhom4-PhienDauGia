@@ -45,6 +45,7 @@ public class SellerProductListController {
   @FXML private Button btnFinishedStatus;
   @FXML private Button btnCancelledStatus;
   @FXML private TableView<SellerProductDTO> tableProducts;
+  @FXML private TableColumn<SellerProductDTO, Long> colItemId;
   @FXML private TableColumn<SellerProductDTO, String> colItemName;
   @FXML private TableColumn<SellerProductDTO, Double> colStartingPrice;
   @FXML private TableColumn<SellerProductDTO, String> colStatus;
@@ -77,6 +78,7 @@ public class SellerProductListController {
 
   @FXML
   public void initialize() {
+    colItemId.setCellValueFactory(new PropertyValueFactory<>("itemId"));
     colItemName.setCellValueFactory(new PropertyValueFactory<>("itemName"));
     colStartingPrice.setCellValueFactory(new PropertyValueFactory<>("startingPrice"));
     colStatus.setCellValueFactory(

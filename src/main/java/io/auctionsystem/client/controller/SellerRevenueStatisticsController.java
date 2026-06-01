@@ -36,6 +36,7 @@ public class SellerRevenueStatisticsController {
   @FXML private Label lblRevenueError;
   @FXML private BarChart<String, Number> chartRevenue;
   @FXML private TableView<TransactionModel> tableRecentSales;
+  @FXML private TableColumn<TransactionModel, Long> colSaleId;
   @FXML private TableColumn<TransactionModel, String> colSaleTime;
   @FXML private TableColumn<TransactionModel, String> colSaleAmount;
   @FXML private TableColumn<TransactionModel, String> colSaleBalance;
@@ -51,6 +52,7 @@ public class SellerRevenueStatisticsController {
 
   @FXML
   public void initialize() {
+    colSaleId.setCellValueFactory(new PropertyValueFactory<>("id"));
     colSaleTime.setCellValueFactory(new PropertyValueFactory<>("time"));
     colSaleAmount.setCellValueFactory(new PropertyValueFactory<>("moneyIn"));
     colSaleBalance.setCellValueFactory(new PropertyValueFactory<>("lastBalance"));
@@ -138,6 +140,7 @@ public class SellerRevenueStatisticsController {
       String note = sale.path("note").asText("");
       recentSales.add(
           new TransactionModel(
+              sale.path("id").asLong(),
               time,
               time.format(DISPLAY_TIME_FORMAT),
               "+ " + formatCurrency(moneyIn),

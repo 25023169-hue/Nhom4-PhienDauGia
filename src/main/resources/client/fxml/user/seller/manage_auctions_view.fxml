@@ -59,6 +59,7 @@
 
         <TableView fx:id="tableProducts" prefHeight="430.0" style="-fx-background-color: white; -fx-border-color: #f0c66d; -fx-border-width: 5 0 0 0;" VBox.vgrow="ALWAYS">
             <columns>
+                <TableColumn fx:id="colItemId" prefWidth="80.0" text="ID" />
                 <TableColumn fx:id="colItemName" prefWidth="340.0" text="Tên Sản Phẩm" />
                 <TableColumn fx:id="colStartingPrice" prefWidth="180.0" text="Giá Khởi Điểm" />
                 <TableColumn fx:id="colStatus" prefWidth="150.0" text="Trạng Thái" />

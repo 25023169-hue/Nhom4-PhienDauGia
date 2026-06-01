@@ -22,6 +22,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class InventoryController {
   @FXML private TableView<AuctionItemDTO> tableInventory;
+  @FXML private TableColumn<AuctionItemDTO, Long> colId;
   @FXML private TableColumn<AuctionItemDTO, String> colName;
   @FXML private TableColumn<AuctionItemDTO, Double> colFinalPrice;
   @FXML private TableColumn<AuctionItemDTO, String> colStatus;
@@ -34,6 +35,7 @@ public class InventoryController {
 
   @FXML
   public void initialize() {
+    colId.setCellValueFactory(new PropertyValueFactory<>("id"));
     colName.setCellValueFactory(new PropertyValueFactory<>("name"));
     colFinalPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
     colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));

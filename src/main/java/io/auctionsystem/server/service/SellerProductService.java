@@ -191,7 +191,11 @@ public class SellerProductService {
     Auction auction = getLatestAuction(itemId);
 
     if (auction.getStatus() == AuctionState.OPEN || auction.getStatus() == AuctionState.RUNNING) {
-      settlementService.cancelAuction(auction.getId());
+      if (!settlementService.cancelAuction(auction.getId())) {
+        throw new IllegalArgumentException("Phiên đấu giá không còn ở trạng thái có thể xóa");
+      }
+    } else if (auction.getStatus() != AuctionState.CANCELLED) {
+      throw new IllegalArgumentException("Chỉ có thể xóa sản phẩm có phiên OPEN hoặc RUNNING");
     }
 
     SellerProductListing listing =

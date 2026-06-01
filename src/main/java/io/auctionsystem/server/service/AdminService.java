@@ -25,9 +25,9 @@ public class AdminService {
 
   @Autowired private AuctionSettlementService settlementService;
 
-  // 1. Hàm lấy toàn bộ danh sách User (Phải trùng tên với bên Controller gọi)
+  // Chỉ hiển thị tài khoản khách hàng trong bảng quản lý, không đưa admin vào danh sách.
   public List<User> findAllUsers() {
-    return userRepository.findAll();
+    return userRepository.findAllClients();
   }
 
   // 2. Hàm Khóa/Mở khóa tài khoản

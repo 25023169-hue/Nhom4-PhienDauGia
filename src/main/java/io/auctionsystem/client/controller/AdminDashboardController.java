@@ -261,10 +261,10 @@ public class AdminDashboardController {
   }
 
   private String displayStatus(String status) {
-    if ("OPEN".equals(status)) return "Đã lên lịch (OPEN)";
-    if ("RUNNING".equals(status)) return "Đang chạy (RUNNING)";
-    if ("FINISHED".equals(status)) return "Đã kết thúc (FINISHED)";
-    if ("CANCELLED".equals(status)) return "Đã hủy (CANCELLED)";
+    if ("OPEN".equals(status)) return "OPEN";
+    if ("RUNNING".equals(status)) return "RUNNING";
+    if ("FINISHED".equals(status)) return "FINISHED";
+    if ("CANCELLED".equals(status)) return "CANCELLED";
     return status;
   }
 

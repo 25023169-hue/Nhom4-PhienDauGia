@@ -75,6 +75,7 @@
                 <Label text="Giao dịch bán hàng gần đây"><font><Font name="System Bold" size="18.0" /></font></Label>
                 <TableView fx:id="tableRecentSales" prefHeight="230.0" VBox.vgrow="ALWAYS">
                     <columns>
+                        <TableColumn fx:id="colSaleId" prefWidth="70.0" text="ID" />
                         <TableColumn fx:id="colSaleTime" prefWidth="150.0" text="Thời gian" />
                         <TableColumn fx:id="colSaleAmount" prefWidth="150.0" text="Doanh thu" />
                         <TableColumn fx:id="colSaleBalance" prefWidth="150.0" text="Số dư sau" />

@@ -46,6 +46,7 @@ public class LiveBidsController {
   @FXML private VBox rootPane;
   @FXML private Label lblEmptyState;
   @FXML private TableView<AuctionItemDTO> tableParticipating;
+  @FXML private TableColumn<AuctionItemDTO, Long> colId;
   @FXML private TableColumn<AuctionItemDTO, String> colProductName;
   @FXML private TableColumn<AuctionItemDTO, Double> colCurrentPrice;
   @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
@@ -103,6 +104,7 @@ public class LiveBidsController {
   }
 
   private void configureParticipatingTable() {
+    colId.setCellValueFactory(new PropertyValueFactory<>("id"));
     colProductName.setCellValueFactory(new PropertyValueFactory<>("name"));
     colCurrentPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
     colEndTime.setCellValueFactory(new PropertyValueFactory<>("endTime"));

@@ -46,6 +46,7 @@ public class WalletController {
   @FXML private Button btnFilterOut;
 
   @FXML private TableView<TransactionModel> tableWalletHistory;
+  @FXML private TableColumn<TransactionModel, Long> colTransactionId;
   @FXML private TableColumn<TransactionModel, String> colTransactionTime;
   @FXML private TableColumn<TransactionModel, String> colTransactionType;
   @FXML private TableColumn<TransactionModel, String> colMoneyIn;
@@ -67,6 +68,7 @@ public class WalletController {
 
   @FXML
   public void initialize() {
+    colTransactionId.setCellValueFactory(new PropertyValueFactory<>("id"));
     colTransactionTime.setCellValueFactory(new PropertyValueFactory<>("time"));
     colTransactionType.setCellValueFactory(new PropertyValueFactory<>("type"));
     colMoneyIn.setCellValueFactory(new PropertyValueFactory<>("moneyIn"));
@@ -129,6 +131,7 @@ public class WalletController {
                                   new TypeReference<List<Map<String, Object>>>() {});
 
                           for (Map<String, Object> tx : transactions) {
+                            Long id = ((Number) tx.get("id")).longValue();
                             String type = (String) tx.get("type");
                             double moneyIn =
                                 ((Number) tx.getOrDefault("moneyIn", 0.0)).doubleValue();
@@ -147,6 +150,7 @@ public class WalletController {
 
                             WALLET_TRANSACTIONS.add(
                                 new TransactionModel(
+                                    id,
                                     LocalDateTime.now(),
                                     timeStr,
                                     moneyInVal,
@@ -331,6 +335,7 @@ public class WalletController {
 
       if (response.statusCode() == 200) {
         JsonNode transaction = new ObjectMapper().readTree(response.body());
+        Long transactionId = transaction.path("id").asLong();
         double newBalance = transaction.path("lastBalance").asDouble(currentBalance);
         AuctionManager.getInstance().setBalance(newBalance);
         updateDisplayedBalance(newBalance, 0.0, newBalance);
@@ -345,6 +350,7 @@ public class WalletController {
         WALLET_TRANSACTIONS.add(
             0,
             new TransactionModel(
+                transactionId,
                 timeNow,
                 timeNow.format(TIME_FORMAT),
                 moneyInVal,

@@ -64,6 +64,7 @@ public class UserController {
 
       for (Transaction tx : list) {
         Map<String, Object> map = new HashMap<>();
+        map.put("id", tx.getId());
         map.put("type", tx.getType());
         map.put("moneyIn", tx.getMoneyIn());
         map.put("moneyOut", tx.getMoneyOut());

@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class TransactionModel {
+  private final Long id;
   private final LocalDateTime rawTime;
   private final String time;
   private final String moneyIn;

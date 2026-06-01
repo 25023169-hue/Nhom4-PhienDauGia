@@ -74,6 +74,7 @@
 
         <TableView fx:id="tableWalletHistory" prefHeight="260.0" VBox.vgrow="ALWAYS">
             <columns>
+                <TableColumn fx:id="colTransactionId" prefWidth="70.0" text="ID" />
                 <TableColumn fx:id="colTransactionTime" prefWidth="160.0" text="Thời gian" />
                 <TableColumn fx:id="colMoneyIn" prefWidth="130.0" text="Tiền vào (+)" />
                 <TableColumn fx:id="colMoneyOut" prefWidth="130.0" text="Tiền ra (-)" />

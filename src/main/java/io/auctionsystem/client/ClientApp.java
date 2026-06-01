@@ -24,7 +24,8 @@ public class ClientApp extends Application {
 
     Parent root = loader.load();
     primaryStage.setTitle("Auction System");
-    primaryStage.setScene(new Scene(root));
+    Scene scene = new Scene(root);
+    primaryStage.setScene(scene);
     primaryStage.setWidth(DEFAULT_WIDTH);
     primaryStage.setHeight(DEFAULT_HEIGHT);
     Rectangle2D screenBounds = Screen.getPrimary().getBounds();

@@ -26,6 +26,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class PurchaseHistoryController {
   @FXML private TableView<BidDTO> tableHistory;
+  @FXML private TableColumn<BidDTO, Long> colId;
   @FXML private TableColumn<BidDTO, Long> colAuctionId;
   @FXML private TableColumn<BidDTO, Double> colAmount;
 
@@ -44,6 +45,7 @@ public class PurchaseHistoryController {
   public void initialize() {
     objectMapper.registerModule(new JavaTimeModule());
 
+    colId.setCellValueFactory(new PropertyValueFactory<>("id"));
     colAuctionId.setCellValueFactory(new PropertyValueFactory<>("auctionId"));
     colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
     colTime.setCellValueFactory(new PropertyValueFactory<>("bidTime"));

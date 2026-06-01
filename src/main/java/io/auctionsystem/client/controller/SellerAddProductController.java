@@ -10,7 +10,6 @@ import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.SellerProductDTO;
 import io.auctionsystem.common.enums.ItemType;
 import io.auctionsystem.common.request.SellerProductRequest;
-import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -34,7 +33,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 
 public class SellerAddProductController {
 
@@ -50,8 +48,6 @@ public class SellerAddProductController {
   @FXML private TextArea txtDescription;
   @FXML private TextField txtStartingPrice;
   @FXML private TextField txtBuyNowPrice;
-  @FXML private Button btnImageFile;
-  @FXML private Label lblImageFileName;
   @FXML private ComboBox<ItemType> cbItemType;
   @FXML private DatePicker dpStartDate;
   @FXML private TextField txtStartTime;
@@ -86,7 +82,6 @@ public class SellerAddProductController {
 
   @FXML private Button btnStartAuction;
 
-  private File selectedImageFile;
   private final HttpClient httpClient = HttpClient.newHttpClient();
   private final ObjectMapper objectMapper =
       new ObjectMapper()
@@ -127,7 +122,6 @@ public class SellerAddProductController {
     } else {
       restoreDraft();
     }
-    updateImageFileControls();
     showFieldsForType(cbItemType.getValue());
   }
 
@@ -157,37 +151,6 @@ public class SellerAddProductController {
     } catch (IllegalArgumentException e) {
       showAlert(Alert.AlertType.ERROR, e.getMessage());
     }
-  }
-
-  @FXML
-  public void onImageFileActionClicked() {
-    if (selectedImageFile != null) {
-      selectedImageFile = null;
-      updateImageFileControls();
-      return;
-    }
-
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Chọn hình ảnh sản phẩm");
-    fileChooser
-        .getExtensionFilters()
-        .add(
-            new FileChooser.ExtensionFilter(
-                "Tệp hình ảnh", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp"));
-
-    File selectedFile = fileChooser.showOpenDialog(btnImageFile.getScene().getWindow());
-    if (selectedFile != null) {
-      selectedImageFile = selectedFile;
-      updateImageFileControls();
-    }
-  }
-
-  private void updateImageFileControls() {
-    boolean hasSelectedFile = selectedImageFile != null;
-    btnImageFile.setText(hasSelectedFile ? "Xóa tệp" : "Chọn tệp");
-    lblImageFileName.setText(hasSelectedFile ? selectedImageFile.getName() : "");
-    lblImageFileName.setVisible(hasSelectedFile);
-    lblImageFileName.setManaged(hasSelectedFile);
   }
 
   private SellerProductRequest buildRequest() {
@@ -331,7 +294,6 @@ public class SellerAddProductController {
     draft.description = txtDescription.getText();
     draft.startingPrice = txtStartingPrice.getText();
     draft.buyNowPrice = txtBuyNowPrice.getText();
-    draft.imageFile = selectedImageFile;
     draft.itemType = cbItemType.getValue();
     draft.startDate = dpStartDate.getValue();
     draft.startTime = txtStartTime.getText();
@@ -366,7 +328,6 @@ public class SellerAddProductController {
     txtDescription.setText(draft.description);
     txtStartingPrice.setText(draft.startingPrice);
     txtBuyNowPrice.setText(draft.buyNowPrice);
-    selectedImageFile = draft.imageFile;
     cbItemType.setValue(draft.itemType);
     dpStartDate.setValue(draft.startDate);
     txtStartTime.setText(draft.startTime);
@@ -591,7 +552,6 @@ public class SellerAddProductController {
     private String description;
     private String startingPrice;
     private String buyNowPrice;
-    private File imageFile;
     private ItemType itemType;
     private LocalDate startDate;
     private String startTime;
