@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.ClientHttp;
@@ -8,7 +9,6 @@ import common.Constants;
 import common.dto.AuctionItemDTO;
 import common.response.AuthResponse;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -48,7 +48,6 @@ public class AdminDashboardController {
   @FXML private TableColumn<AuctionItemDTO, Void> colAuctionAction;
 
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void initialize() {
@@ -125,7 +124,7 @@ public class AdminDashboardController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 if (response.statusCode() == 200) {
                   List<AuthResponse> users =
@@ -154,7 +153,7 @@ public class AdminDashboardController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 if (response.statusCode() == 200) {
                   List<AuctionItemDTO> auctions =
@@ -197,7 +196,7 @@ public class AdminDashboardController {
                         .DELETE()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -213,7 +212,7 @@ public class AdminDashboardController {
                         showAlert(
                             Alert.AlertType.ERROR,
                             "Không thể xóa phiên",
-                            "Không thể kết nối đến máy chủ!"));
+                            ServerConnectionException.MESSAGE));
               }
             })
         .start();

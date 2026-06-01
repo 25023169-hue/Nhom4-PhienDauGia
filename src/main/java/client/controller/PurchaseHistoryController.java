@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
@@ -7,7 +8,6 @@ import client.pattern.ClientHttp;
 import common.Constants;
 import common.dto.BidDTO;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
@@ -34,7 +34,7 @@ public class PurchaseHistoryController {
   @FXML private TableColumn<BidDTO, LocalDateTime> colTime;
 
   private final ObservableList<BidDTO> historyList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   private final NumberFormat currencyFormat =
@@ -96,7 +96,7 @@ public class PurchaseHistoryController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -114,7 +114,7 @@ public class PurchaseHistoryController {
               } catch (Exception e) {
                 Platform.runLater(
                     () -> {
-                      Alert alert = new Alert(Alert.AlertType.ERROR, "Lỗi kết nối máy chủ");
+                      Alert alert = new Alert(Alert.AlertType.ERROR, ServerConnectionException.MESSAGE);
                       alert.show();
                     });
               }

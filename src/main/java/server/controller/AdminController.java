@@ -19,9 +19,7 @@ public class AdminController {
 
   private final AdminService adminService;
 
-  // =========================
   // 1. Lấy danh sách user (DTO SAFE)
-  // =========================
   @GetMapping("/users")
   public ResponseEntity<List<AuthResponse>> getAllUsers() {
 

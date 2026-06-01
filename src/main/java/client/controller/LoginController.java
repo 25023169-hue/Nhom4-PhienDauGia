@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
@@ -9,7 +10,6 @@ import common.enums.Role;
 import common.request.LoginRequest;
 import common.response.AuthResponse;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import javafx.application.Platform;
@@ -29,7 +29,6 @@ public class LoginController {
   @FXML private Label lblGeneralError;
 
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void onLoginButtonClicked() {
@@ -72,7 +71,7 @@ public class LoginController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -90,9 +89,7 @@ public class LoginController {
 
                           System.out.println("Đăng nhập thành công: " + authResp.getFirstname());
 
-                          // =========================================================
                           // CẬP NHẬT: Thêm nhánh rẻ cho Role.ADMIN
-                          // =========================================================
                           if (authResp.getRole() == Role.ADMIN) {
                             SceneManager.getInstance()
                                 .switchScene("/client/admin_dashboard.fxml");
@@ -103,8 +100,6 @@ public class LoginController {
                             SceneManager.getInstance()
                                 .switchScene("/client/user/bidder/bidder_dashboard.fxml");
                           }
-                          // =========================================================
-
                         } catch (Exception e) {
                           System.err.println(">>> Lỗi parse JSON: " + e.getMessage());
                           lblGeneralError.setText("Lỗi xử lý phản hồi từ server.");
@@ -119,7 +114,7 @@ public class LoginController {
               } catch (Exception e) {
                 Platform.runLater(
                     () -> {
-                      lblGeneralError.setText("Không thể kết nối đến máy chủ!");
+                      lblGeneralError.setText(ServerConnectionException.MESSAGE);
                       showError(lblGeneralError);
                     });
               }
@@ -150,8 +145,6 @@ public class LoginController {
       lbl.setManaged(false);
     }
   }
-
-  // =========================================================
 
   @FXML
   public void initialize() {

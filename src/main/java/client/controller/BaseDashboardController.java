@@ -45,9 +45,7 @@ public abstract class BaseDashboardController {
     }
   }
 
-  // ==========================================
   // CÁC SỰ KIỆN DÙNG CHUNG CHO CẢ 2 BÊN
-  // ==========================================
   @FXML
   public void onHomeButtonClicked() {
     // Code này giả định bạn sẽ tách phần giao diện chính giữa thành home_view.fxml

@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +11,7 @@ import common.dto.SellerProductDTO;
 import common.enums.AuctionState;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
+
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +54,7 @@ public class SellerProductListController {
 
   private final ObservableList<SellerProductDTO> products = FXCollections.observableArrayList();
   private final List<SellerProductDTO> currentProducts = new ArrayList<>();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
@@ -167,14 +168,14 @@ public class SellerProductListController {
                     HttpRequest.newBuilder().uri(URI.create(buildListUrl(sellerId))).GET().build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 Platform.runLater(() -> handleLoadResponse(response));
               } catch (Exception e) {
                 Platform.runLater(
                     () ->
                         showAlert(
                             Alert.AlertType.ERROR,
-                            "Không thể kết nối đến server khi tải sản phẩm Seller."));
+                            ServerConnectionException.MESSAGE));
               }
             })
         .start();

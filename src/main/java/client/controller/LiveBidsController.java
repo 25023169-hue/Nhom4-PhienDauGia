@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,6 @@ import common.dto.AuctionPriceUpdateDTO;
 import common.request.BidRequest;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
@@ -66,7 +66,7 @@ public class LiveBidsController {
 
   private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
   private final ObservableList<AuctionItemDTO> participatingAuctions =
@@ -182,7 +182,7 @@ public class LiveBidsController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 if (response.statusCode() == 200) {
                   List<AuctionItemDTO> auctions =
                       objectMapper.readValue(
@@ -261,7 +261,7 @@ public class LiveBidsController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 Platform.runLater(
                     () -> {
                       if (response.statusCode() == 200) {
@@ -272,7 +272,7 @@ public class LiveBidsController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(() -> showAlert("Không thể kết nối đến máy chủ!"));
+                Platform.runLater(() -> showAlert(ServerConnectionException.MESSAGE));
               }
             })
         .start();
@@ -293,7 +293,7 @@ public class LiveBidsController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 if (response.statusCode() == 200) {
                   JsonNode bids = objectMapper.readTree(response.body());
                   Platform.runLater(

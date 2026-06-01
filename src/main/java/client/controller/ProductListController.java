@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.ClientHttp;
@@ -9,7 +10,6 @@ import common.dto.AuctionItemDTO;
 import common.dto.AuctionPriceUpdateDTO;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
@@ -39,7 +39,7 @@ public class ProductListController {
 
   // --- PHẦN KHAI BÁO THÊM MỚI ---
   private final ObservableList<AuctionItemDTO> auctionList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
@@ -117,7 +117,7 @@ public class ProductListController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -135,7 +135,7 @@ public class ProductListController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(() -> showAlert("Lỗi kết nối đến máy chủ khi tải sản phẩm!"));
+                Platform.runLater(() -> showAlert(ServerConnectionException.MESSAGE));
               }
             })
         .start();

@@ -1,5 +1,6 @@
 package client.pattern;
 
+import client.ServerConnectionException;
 import common.Constants;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -41,9 +42,9 @@ public class WebSocketClientManager {
       System.out.println(">>> Client đã kết nối WebSocket thành công!");
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      System.err.println(">>> Kết nối WebSocket bị gián đoạn: " + e.getMessage());
+      System.err.println(new ServerConnectionException(e).getMessage());
     } catch (ExecutionException e) {
-      System.err.println(">>> Lỗi kết nối WebSocket từ Client: " + e.getMessage());
+      System.err.println(new ServerConnectionException(e).getMessage());
     }
   }
 

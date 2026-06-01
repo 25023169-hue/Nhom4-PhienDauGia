@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
@@ -7,7 +8,6 @@ import common.Constants;
 import common.request.AddressRequest;
 import common.response.AuthResponse;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import javafx.application.Platform;
@@ -19,7 +19,6 @@ public class AddressSettingController {
   @FXML private TextArea txtAddress;
 
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void initialize() {
@@ -65,7 +64,7 @@ public class AddressSettingController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 Platform.runLater(
                     () -> {
                       if (response.statusCode() == 200) {
@@ -74,7 +73,7 @@ public class AddressSettingController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(() -> showAlert("Lỗi kết nối Server."));
+                Platform.runLater(() -> showAlert(ServerConnectionException.MESSAGE));
               }
             })
         .start();

@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
@@ -7,7 +8,6 @@ import client.pattern.SceneManager;
 import common.Constants;
 import common.response.AuthResponse;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ public class ProfileSettingController {
 
   // --- PHẦN THÊM MỚI ---
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void initialize() {
@@ -69,7 +68,7 @@ public class ProfileSettingController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -82,7 +81,7 @@ public class ProfileSettingController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(() -> showAlert("Lỗi kết nối Server!"));
+                Platform.runLater(() -> showAlert(ServerConnectionException.MESSAGE));
               }
             })
         .start();
@@ -111,13 +110,13 @@ public class ProfileSettingController {
                           .build();
 
                   HttpResponse<String> response =
-                      httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                      ClientHttp.send(request);
                   Platform.runLater(() -> handleDeleteResponse(response));
                 } catch (Exception e) {
                   Platform.runLater(
                       () -> {
                         btnDeleteAccount.setDisable(false);
-                        showAlert("Không thể kết nối đến Server để xóa tài khoản!");
+                        showAlert(ServerConnectionException.MESSAGE);
                       });
                 }
               })

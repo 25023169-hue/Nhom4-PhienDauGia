@@ -56,9 +56,7 @@ public class DataInitializer implements CommandLineRunner {
       return;
     }
 
-    // ==========================================
     // 1. ĐỒ ĐIỆN TỬ (ELECTRONICS)
-    // ==========================================
     Electronics macbook = new Electronics();
     macbook.setName("Siêu phẩm MacBook Pro M3 Max");
     macbook.setDescription("Cấu hình khủng, code Java bao mượt không giật lag.");
@@ -77,9 +75,7 @@ public class DataInitializer implements CommandLineRunner {
     iphone = saveSampleItem(iphone, sampleSeller);
     createAuction(iphone, 1, AuctionState.RUNNING);
 
-    // ==========================================
     // 2. NGHỆ THUẬT (ART)
-    // ==========================================
     Art painting = new Art();
     painting.setName("Tranh sơn dầu: Đêm Đầy Sao (Bản sao)");
     painting.setDescription("Bản chép tay cực kỳ tinh xảo từ kiệt tác của Van Gogh.");
@@ -91,9 +87,7 @@ public class DataInitializer implements CommandLineRunner {
     painting = saveSampleItem(painting, sampleSeller);
     createAuction(painting, 5, AuctionState.RUNNING);
 
-    // ==========================================
     // 3. PHƯƠNG TIỆN (VEHICLE)
-    // ==========================================
     Vehicle oto = new Vehicle();
     oto.setName("VinFast VF 8 Plus");
     oto.setDescription("Xe điện thông minh, màu xanh dương, mới chạy 5000km.");
@@ -114,9 +108,7 @@ public class DataInitializer implements CommandLineRunner {
     xemay = saveSampleItem(xemay, sampleSeller);
     createAuction(xemay, 3, AuctionState.RUNNING);
 
-    // ==========================================
     // 4. THỜI TRANG (FASHION)
-    // ==========================================
     Fashion aoDai = new Fashion();
     aoDai.setName("Áo dài lụa tơ tằm đính đá");
     aoDai.setDescription("Thiết kế thủ công độc bản cho bộ sưu tập Tết.");
@@ -140,9 +132,7 @@ public class DataInitializer implements CommandLineRunner {
     tuiXach = saveSampleItem(tuiXach, sampleSeller);
     createAuction(tuiXach, 10, AuctionState.RUNNING);
 
-    // ==========================================
     // 5. TRANG SỨC (JEWELRY)
-    // ==========================================
     Jewelry nhanKC = new Jewelry();
     nhanKC.setName("Nhẫn đính hôn Kim Cương 2 Carat");
     nhanKC.setDescription("Nước D, độ tinh khiết VVS1, có giấy kiểm định GIA.");

@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +12,6 @@ import common.dto.AuctionItemDTO;
 import common.dto.AuctionPriceUpdateDTO;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
@@ -59,7 +59,7 @@ public class SellerOrderManagementController {
   private final ObservableList<AuctionItemDTO> runningOrders = FXCollections.observableArrayList();
   private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
 
@@ -146,7 +146,7 @@ public class SellerOrderManagementController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 if (response.statusCode() == 200) {
                   List<AuctionItemDTO> orders =
                       objectMapper.readValue(
@@ -224,7 +224,7 @@ public class SellerOrderManagementController {
                         .DELETE()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -244,7 +244,7 @@ public class SellerOrderManagementController {
                         showAlert(
                             Alert.AlertType.ERROR,
                             "Không thể xóa phiên",
-                            "Không thể kết nối đến máy chủ!"));
+                            ServerConnectionException.MESSAGE));
               }
             })
         .start();
@@ -273,7 +273,7 @@ public class SellerOrderManagementController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 if (response.statusCode() == 200) {
                   JsonNode bids = objectMapper.readTree(response.body());
                   Platform.runLater(

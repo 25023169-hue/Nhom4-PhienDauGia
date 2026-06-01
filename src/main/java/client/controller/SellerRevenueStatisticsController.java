@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +9,6 @@ import client.pattern.ClientHttp;
 import client.TransactionViewModel;
 import common.Constants;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
@@ -49,7 +49,7 @@ public class SellerRevenueStatisticsController {
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
   private final ObservableList<TransactionViewModel> recentSales =
       FXCollections.observableArrayList();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   @FXML
@@ -83,7 +83,7 @@ public class SellerRevenueStatisticsController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -94,7 +94,7 @@ public class SellerRevenueStatisticsController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(() -> showError("Lỗi kết nối máy chủ: " + e.getMessage()));
+                Platform.runLater(() -> showError(ServerConnectionException.MESSAGE));
               }
             })
         .start();

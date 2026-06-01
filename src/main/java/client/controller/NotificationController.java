@@ -7,7 +7,6 @@ import client.pattern.ClientHttp;
 import common.Constants;
 import common.dto.NotificationDTO;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.format.DateTimeFormatter;
@@ -29,7 +28,7 @@ public class NotificationController {
   private static final DateTimeFormatter DISPLAY_FORMATTER =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
   private final ObservableList<NotificationDTO> notiList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   @FXML
@@ -54,7 +53,7 @@ public class NotificationController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -102,7 +101,7 @@ public class NotificationController {
                         .PUT(HttpRequest.BodyPublishers.noBody())
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 if (response.statusCode() >= 200 && response.statusCode() < 300) {
                   Platform.runLater(
                       () -> {

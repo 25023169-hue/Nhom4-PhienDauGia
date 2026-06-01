@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.ClientHttp;
 import client.pattern.SceneManager;
@@ -7,7 +8,6 @@ import common.Constants;
 import common.enums.Role;
 import common.request.RegisterRequest;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import javafx.application.Platform;
@@ -26,7 +26,6 @@ public class RegisterController {
   @FXML private Label lblStatus;
 
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   private void onRegisterButtonClicked() {
@@ -66,7 +65,7 @@ public class RegisterController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -85,7 +84,7 @@ public class RegisterController {
                     });
               } catch (Exception e) {
                 e.printStackTrace();
-                showError("Không thể kết nối Server!");
+                showError(ServerConnectionException.MESSAGE);
               }
             })
         .start();

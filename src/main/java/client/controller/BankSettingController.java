@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
@@ -8,7 +9,6 @@ import common.Constants;
 import common.request.BankRequest;
 import common.response.AuthResponse;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -28,7 +28,7 @@ public class BankSettingController {
   @FXML private TextField txtAccountName, txtBankAccount;
 
   private final ObjectMapper objectMapper = ClientHttp.mapper();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private String savedBankName = "";
   private boolean updatingBankEditor = false;
 
@@ -186,7 +186,7 @@ public class BankSettingController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 Platform.runLater(
                     () -> {
                       if (response.statusCode() == 200) {
@@ -199,7 +199,7 @@ public class BankSettingController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(() -> showAlert("Lỗi kết nối tới Server."));
+                Platform.runLater(() -> showAlert(ServerConnectionException.MESSAGE));
               }
             })
         .start();

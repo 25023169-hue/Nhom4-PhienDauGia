@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
 import client.pattern.SceneManager;
@@ -7,7 +8,7 @@ import common.Constants;
 import common.response.AuthResponse;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
+
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +27,7 @@ public class SellerRegistrationController {
   @FXML private TextField txtStoreName;
   @FXML private Label lblError;
 
-  private final HttpClient httpClient = ClientHttp.client();
+
 
   @FXML
   public void initialize() {
@@ -98,7 +99,7 @@ public class SellerRegistrationController {
                         .build();
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
@@ -131,8 +132,7 @@ public class SellerRegistrationController {
                       }
                     });
               } catch (Exception e) {
-                Platform.runLater(
-                    () -> showError("Không thể kết nối đến máy chủ: " + e.getMessage()));
+                Platform.runLater(() -> showError(ServerConnectionException.MESSAGE));
               }
             })
         .start();

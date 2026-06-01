@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +11,7 @@ import client.TransactionViewModel;
 import common.Constants;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
+
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +66,7 @@ public class WalletController {
   private static final DateTimeFormatter TIME_FORMAT =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
   private static final String SETTINGS_BANK_TAB = "BANK";
-  private static final HttpClient HTTP_CLIENT = ClientHttp.client();
+
   private static final ObjectMapper OBJECT_MAPPER = ClientHttp.mapper();
 
   private int flowFilterState = 0;
@@ -118,7 +119,7 @@ public class WalletController {
                     HttpRequest.newBuilder().uri(URI.create(urlString)).GET().build();
 
                 HttpResponse<String> response =
-                    HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 // Cập nhật UI phải chạy trên JavaFX Thread
                 Platform.runLater(
@@ -333,7 +334,7 @@ public class WalletController {
                         .POST(HttpRequest.BodyPublishers.noBody())
                         .build();
                 HttpResponse<String> response =
-                    HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 JsonNode transaction =
                     response.statusCode() == 200 ? OBJECT_MAPPER.readTree(response.body()) : null;
                 Platform.runLater(
@@ -344,7 +345,7 @@ public class WalletController {
                 Platform.runLater(
                     () -> {
                       txtAmount.setDisable(false);
-                      showWalletError("Lỗi kết nối mạng: " + e.getMessage(), false);
+                      showWalletError(ServerConnectionException.MESSAGE, false);
                     });
               }
             })
@@ -413,7 +414,7 @@ public class WalletController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 if (response.statusCode() == 200) {
                   JsonNode summary = OBJECT_MAPPER.readTree(response.body());

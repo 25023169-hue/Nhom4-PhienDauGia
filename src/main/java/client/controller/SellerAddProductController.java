@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.ServerConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
@@ -10,7 +11,6 @@ import common.dto.SellerProductDTO;
 import common.enums.ItemType;
 import common.request.SellerProductRequest;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
@@ -81,7 +81,7 @@ public class SellerAddProductController {
 
   @FXML private Button btnStartAuction;
 
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   public static void startCreating() {
@@ -241,14 +241,14 @@ public class SellerAddProductController {
                 }
 
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
                 Platform.runLater(() -> handleSaveResponse(response));
               } catch (Exception e) {
                 Platform.runLater(
                     () -> {
                       btnStartAuction.setDisable(false);
                       showAlert(
-                          Alert.AlertType.ERROR, "Không thể kết nối đến server khi lưu sản phẩm.");
+                          Alert.AlertType.ERROR, ServerConnectionException.MESSAGE);
                     });
               }
             })

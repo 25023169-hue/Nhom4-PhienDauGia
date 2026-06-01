@@ -7,7 +7,6 @@ import client.pattern.ClientHttp;
 import common.Constants;
 import common.dto.AuctionItemDTO;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.NumberFormat;
@@ -30,7 +29,7 @@ public class InventoryController {
   @FXML private TableColumn<AuctionItemDTO, String> colStatus;
 
   private final ObservableList<AuctionItemDTO> wonItemList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = ClientHttp.client();
+
   private final ObjectMapper objectMapper = ClientHttp.mapper();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
@@ -70,7 +69,7 @@ public class InventoryController {
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    ClientHttp.send(request);
 
                 Platform.runLater(
                     () -> {
