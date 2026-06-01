@@ -12,7 +12,7 @@ import javafx.scene.layout.StackPane;
 public class SettingsController {
 
   @FXML private StackPane contentArea;
-  @FXML private Button btnProfile, btnBank, btnAddress, btnPassword;
+  @FXML private Button btnProfile, btnBank, btnAddress;
 
   public static boolean isSellerChannel = false;
 
@@ -39,10 +39,6 @@ public class SettingsController {
     loadTab("/client/fxml/settings/address_setting.fxml", btnAddress);
   }
 
-  public void showPassword() {
-    loadTab("/client/fxml/settings/password_setting.fxml", btnPassword);
-  }
-
   private void loadTab(String fxmlPath, Button activeBtn) {
     try {
       contentArea.getChildren().clear();
@@ -61,8 +57,6 @@ public class SettingsController {
     btnProfile.setStyle(normalStyle);
     btnBank.setStyle(normalStyle);
     btnAddress.setStyle(normalStyle);
-    btnPassword.setStyle(normalStyle);
-
     activeBtn.setStyle(
         "-fx-background-color: #e9ecef; -fx-font-weight: bold; -fx-text-fill: #e74c3c;");
   }

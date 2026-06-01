@@ -2,6 +2,8 @@ package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.dto.AuctionItemDTO;
 import io.auctionsystem.common.enums.AuctionState;
+import io.auctionsystem.server.exception.InvalidOperationException;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.model.User;
@@ -82,13 +84,13 @@ public class AdminService {
     Auction auction =
         auctionRepository
             .findById(auctionId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá."));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá."));
 
     if (auction.getStatus() != AuctionState.OPEN && auction.getStatus() != AuctionState.RUNNING) {
-      throw new IllegalArgumentException("Chỉ có thể xóa phiên OPEN hoặc RUNNING.");
+      throw new InvalidOperationException("Chỉ có thể xóa phiên OPEN hoặc RUNNING.");
     }
     if (!settlementService.cancelAuction(auctionId)) {
-      throw new IllegalArgumentException("Phiên đấu giá không còn ở trạng thái có thể xóa.");
+      throw new InvalidOperationException("Phiên đấu giá không còn ở trạng thái có thể xóa.");
     }
   }
 

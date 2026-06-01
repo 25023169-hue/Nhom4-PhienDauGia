@@ -40,6 +40,7 @@ class AuctionSettlementServiceTest {
   @Mock private SellerProductListingRepository listingRepository;
   @Mock private TransactionService transactionService;
   @Mock private AuctionRealtimePublisher realtimePublisher;
+  @Mock private AuctionNotificationService auctionNotificationService;
 
   @BeforeEach
   void setUp() {

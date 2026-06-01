@@ -2,6 +2,7 @@ package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.BidCommitmentStatus;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.BidCommitment;
 import io.auctionsystem.server.model.Item;
@@ -38,12 +39,14 @@ public class AuctionSettlementService {
 
   private final AuctionRealtimePublisher realtimePublisher;
 
+  private final AuctionNotificationService auctionNotificationService;
+
   @Transactional
   public boolean closeExpiredAuction(Long auctionId, LocalDateTime closedAt) {
     Auction auction =
         auctionRepository
             .findByIdForUpdate(auctionId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá"));
 
     if ((auction.getStatus() != AuctionState.OPEN && auction.getStatus() != AuctionState.RUNNING)
         || auction.getEndTime() == null
@@ -52,6 +55,7 @@ public class AuctionSettlementService {
     }
 
     settleAuction(auction, false);
+    auctionNotificationService.notifyExpiredAuctionAfterCommit(auctionId);
     return true;
   }
 
@@ -60,13 +64,14 @@ public class AuctionSettlementService {
     Auction auction =
         auctionRepository
             .findByIdForUpdate(auctionId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá"));
 
     if (auction.getStatus() != AuctionState.RUNNING) {
       return false;
     }
 
     settleAuction(auction, false);
+    auctionNotificationService.notifyFinishedAuctionAfterCommit(auctionId);
     return true;
   }
 
@@ -75,13 +80,14 @@ public class AuctionSettlementService {
     Auction auction =
         auctionRepository
             .findByIdForUpdate(auctionId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá"));
 
     if (auction.getStatus() != AuctionState.OPEN && auction.getStatus() != AuctionState.RUNNING) {
       return false;
     }
 
     settleAuction(auction, true);
+    auctionNotificationService.notifyCancelledAuctionAfterCommit(auctionId);
     return true;
   }
 
@@ -89,7 +95,7 @@ public class AuctionSettlementService {
     Item item =
         itemRepository
             .findById(auction.getItemId())
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm đấu giá"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm đấu giá"));
 
     List<BidCommitment> commitments =
         bidCommitmentRepository.findByAuctionIdAndStatusOrderByBidderIdAsc(

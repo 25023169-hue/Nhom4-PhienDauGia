@@ -6,6 +6,9 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.common.request.RegisterRequest;
 import io.auctionsystem.common.response.AuthResponse;
+import io.auctionsystem.server.exception.AccountException;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
+import io.auctionsystem.server.exception.ValidationException;
 import io.auctionsystem.server.model.Admin;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
@@ -24,11 +27,11 @@ public class AuthService {
     String username = request.getUsername();
 
     if (username == null || !username.matches("^[a-zA-Z0-9]+$")) {
-      throw new IllegalArgumentException("Tên đăng nhập chỉ được dùng chữ cái không dấu và số!");
+      throw new ValidationException("Tên đăng nhập chỉ được dùng chữ cái không dấu và số!");
     }
 
     if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
+      throw new AccountException("Tên đăng nhập đã tồn tại!");
     }
 
     // LỖI ĐÃ SỬA: Không thể gọi .equalsIgnoreCase() trên kiểu enum Role.
@@ -46,14 +49,14 @@ public class AuthService {
 
   public AuthResponse login(String username, String password) {
     if (username == null || !username.matches("^[a-zA-Z0-9]+$")) {
-      throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
+      throw new AccountException("Tài khoản hoặc mật khẩu không chính xác!");
     }
 
     // Tìm User, nếu không có thì ném lỗi
     User user = userRepository.findByUsername(username).orElse(null);
 
     if (user == null || !user.isActive() || !user.getPassword().equals(password)) {
-      throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
+      throw new AccountException("Tài khoản hoặc mật khẩu không chính xác!");
     }
 
     AuthResponse response = new AuthResponse();
@@ -96,12 +99,12 @@ public class AuthService {
     User user =
         userRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
     if (!user.isActive()) {
-      throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
     }
     if (userRepository.isUserSeller(id) > 0) {
-      throw new IllegalArgumentException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
+      throw new AccountException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
     }
 
     try {

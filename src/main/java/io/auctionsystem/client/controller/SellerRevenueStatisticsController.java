@@ -3,9 +3,9 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.auctionsystem.client.model.TransactionModel;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.client.viewmodel.TransactionViewModel;
 import io.auctionsystem.common.Constants;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -36,18 +36,19 @@ public class SellerRevenueStatisticsController {
   @FXML private Label lblAverageOrderValue;
   @FXML private Label lblRevenueError;
   @FXML private BarChart<String, Number> chartRevenue;
-  @FXML private TableView<TransactionModel> tableRecentSales;
-  @FXML private TableColumn<TransactionModel, Long> colSaleId;
-  @FXML private TableColumn<TransactionModel, String> colSaleTime;
-  @FXML private TableColumn<TransactionModel, String> colSaleAmount;
-  @FXML private TableColumn<TransactionModel, String> colSaleBalance;
-  @FXML private TableColumn<TransactionModel, String> colSaleNote;
+  @FXML private TableView<TransactionViewModel> tableRecentSales;
+  @FXML private TableColumn<TransactionViewModel, Long> colSaleId;
+  @FXML private TableColumn<TransactionViewModel, String> colSaleTime;
+  @FXML private TableColumn<TransactionViewModel, String> colSaleAmount;
+  @FXML private TableColumn<TransactionViewModel, String> colSaleBalance;
+  @FXML private TableColumn<TransactionViewModel, String> colSaleNote;
 
   private static final NumberFormat VND_FORMAT =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
   private static final DateTimeFormatter DISPLAY_TIME_FORMAT =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-  private final ObservableList<TransactionModel> recentSales = FXCollections.observableArrayList();
+  private final ObservableList<TransactionViewModel> recentSales =
+      FXCollections.observableArrayList();
   private final HttpClient httpClient = ClientHttp.client();
   private final ObjectMapper objectMapper = ClientHttp.mapper();
 
@@ -140,7 +141,7 @@ public class SellerRevenueStatisticsController {
       double balance = sale.path("lastBalance").asDouble(0.0);
       String note = sale.path("note").asText("");
       recentSales.add(
-          new TransactionModel(
+          new TransactionViewModel(
               sale.path("id").asLong(),
               time,
               time.format(DISPLAY_TIME_FORMAT),

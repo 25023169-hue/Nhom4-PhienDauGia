@@ -5,6 +5,10 @@ import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.ItemType;
 import io.auctionsystem.common.request.ItemRequest;
 import io.auctionsystem.common.request.SellerProductRequest;
+import io.auctionsystem.server.exception.AccountException;
+import io.auctionsystem.server.exception.InvalidOperationException;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
+import io.auctionsystem.server.exception.ValidationException;
 import io.auctionsystem.server.model.Art;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Electronics;
@@ -61,13 +65,13 @@ public class SellerProductService {
     User seller =
         userRepository
             .findById(request.getSellerId())
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy seller hiện tại"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy seller hiện tại"));
     if (!seller.isActive()) {
-      throw new IllegalArgumentException("Tài khoản seller đã bị vô hiệu hóa");
+      throw new AccountException("Tài khoản seller đã bị vô hiệu hóa");
     }
 
     if (userRepository.isUserSeller(request.getSellerId()) <= 0) {
-      throw new IllegalArgumentException("Tài khoản hiện tại chưa có quyền Seller");
+      throw new AccountException("Tài khoản hiện tại chưa có quyền Seller");
     }
 
     Item item = ItemFactory.createItem(toItemRequest(request));
@@ -111,12 +115,12 @@ public class SellerProductService {
     Item item = getOwnedItem(itemId, request.getSellerId());
     Auction auction = getLatestAuction(itemId);
     if (auction.getStatus() != AuctionState.OPEN) {
-      throw new IllegalArgumentException("Chỉ có thể chỉnh sửa sản phẩm ở trạng thái OPEN");
+      throw new InvalidOperationException("Chỉ có thể chỉnh sửa sản phẩm ở trạng thái OPEN");
     }
 
     ItemType currentType = ItemTypeResolver.resolve(item);
     if (request.getItemType() != currentType) {
-      throw new IllegalArgumentException("Không thể đổi loại sản phẩm sau khi đã tạo");
+      throw new InvalidOperationException("Không thể đổi loại sản phẩm sau khi đã tạo");
     }
 
     item.setName(request.getName().trim());
@@ -136,7 +140,7 @@ public class SellerProductService {
             .findByItemId(itemId)
             .orElseGet(() -> listingFor(item, auction, request.getSellerId()));
     if (listing.isHidden()) {
-      throw new IllegalArgumentException("Sản phẩm đã bị xóa khỏi danh sách quản lý");
+      throw new InvalidOperationException("Sản phẩm đã bị xóa khỏi danh sách quản lý");
     }
     listing.setBuyNowPrice(request.getBuyNowPrice());
     listing.setStartTime(request.getStartTime());
@@ -157,14 +161,14 @@ public class SellerProductService {
         auctionRepository
             .findByIdForUpdate(latestAuction.getId())
             .orElseThrow(
-                () -> new IllegalArgumentException("Không tìm thấy phiên đấu giá của sản phẩm"));
+                () -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá của sản phẩm"));
     if (auction.getStatus() != AuctionState.OPEN) {
-      throw new IllegalArgumentException("Chỉ có thể bắt đầu sản phẩm ở trạng thái OPEN");
+      throw new InvalidOperationException("Chỉ có thể bắt đầu sản phẩm ở trạng thái OPEN");
     }
     if (auction.getStartTime() == null
         || auction.getEndTime() == null
         || !auction.getEndTime().isAfter(auction.getStartTime())) {
-      throw new IllegalArgumentException("Thời lượng phiên đấu giá không hợp lệ");
+      throw new ValidationException("Thời lượng phiên đấu giá không hợp lệ");
     }
 
     LocalDateTime startTime = LocalDateTime.now();
@@ -178,7 +182,7 @@ public class SellerProductService {
     SellerProductListing listing =
         listingRepository.findByItemId(itemId).orElseGet(() -> listingFor(item, auction, sellerId));
     if (listing.isHidden()) {
-      throw new IllegalArgumentException("Sản phẩm đã bị xóa khỏi danh sách quản lý");
+      throw new InvalidOperationException("Sản phẩm đã bị xóa khỏi danh sách quản lý");
     }
     listing.setStartTime(startTime);
     listing.setEndTime(endTime);
@@ -197,10 +201,10 @@ public class SellerProductService {
 
     if (auction.getStatus() == AuctionState.OPEN || auction.getStatus() == AuctionState.RUNNING) {
       if (!settlementService.cancelAuction(auction.getId())) {
-        throw new IllegalArgumentException("Phiên đấu giá không còn ở trạng thái có thể xóa");
+        throw new InvalidOperationException("Phiên đấu giá không còn ở trạng thái có thể xóa");
       }
     } else if (auction.getStatus() != AuctionState.CANCELLED) {
-      throw new IllegalArgumentException("Chỉ có thể xóa sản phẩm có phiên OPEN hoặc RUNNING");
+      throw new InvalidOperationException("Chỉ có thể xóa sản phẩm có phiên OPEN hoặc RUNNING");
     }
 
     SellerProductListing listing =
@@ -213,7 +217,7 @@ public class SellerProductService {
   public List<SellerProductDTO> getSellerProducts(
       Long sellerId, String keyword, AuctionState status) {
     if (sellerId == null) {
-      throw new IllegalArgumentException("Seller hiện tại không tồn tại");
+      throw new ResourceNotFoundException("Seller hiện tại không tồn tại");
     }
 
     List<SellerProductListing> allListings =
@@ -282,38 +286,38 @@ public class SellerProductService {
 
   private void validateRequest(SellerProductRequest request) {
     if (request == null) {
-      throw new IllegalArgumentException("Dữ liệu sản phẩm không hợp lệ");
+      throw new ValidationException("Dữ liệu sản phẩm không hợp lệ");
     }
     if (request.getSellerId() == null) {
-      throw new IllegalArgumentException("Seller hiện tại không tồn tại");
+      throw new ResourceNotFoundException("Seller hiện tại không tồn tại");
     }
     if (request.getName() == null || request.getName().trim().isEmpty()) {
-      throw new IllegalArgumentException("Tên sản phẩm không được để trống");
+      throw new ValidationException("Tên sản phẩm không được để trống");
     }
     if (request.getStartingPrice() == null || request.getStartingPrice() <= 0) {
-      throw new IllegalArgumentException("Giá khởi điểm phải lớn hơn 0");
+      throw new ValidationException("Giá khởi điểm phải lớn hơn 0");
     }
     if (request.getStartTime() == null) {
-      throw new IllegalArgumentException("Thời gian bắt đầu không được để trống");
+      throw new ValidationException("Thời gian bắt đầu không được để trống");
     }
     if (request.getStartTime().isBefore(LocalDateTime.now())) {
-      throw new IllegalArgumentException("Thời gian bắt đầu không được ở quá khứ");
+      throw new ValidationException("Thời gian bắt đầu không được ở quá khứ");
     }
     if (request.getEndTime() == null) {
-      throw new IllegalArgumentException("Thời gian kết thúc không được để trống");
+      throw new ValidationException("Thời gian kết thúc không được để trống");
     }
     if (!request.getEndTime().isAfter(request.getStartTime())) {
-      throw new IllegalArgumentException("Thời gian kết thúc phải sau thời gian bắt đầu");
+      throw new ValidationException("Thời gian kết thúc phải sau thời gian bắt đầu");
     }
     if (!request.getEndTime().isAfter(LocalDateTime.now())) {
-      throw new IllegalArgumentException("Thời gian kết thúc phải ở tương lai");
+      throw new ValidationException("Thời gian kết thúc phải ở tương lai");
     }
     if (request.getItemType() == null) {
-      throw new IllegalArgumentException("Loại sản phẩm không được để trống");
+      throw new ValidationException("Loại sản phẩm không được để trống");
     }
     if (request.getBuyNowPrice() != null
         && request.getBuyNowPrice() <= request.getStartingPrice()) {
-      throw new IllegalArgumentException("Giá mua đứt phải lớn hơn giá khởi điểm");
+      throw new ValidationException("Giá mua đứt phải lớn hơn giá khởi điểm");
     }
   }
 
@@ -437,15 +441,15 @@ public class SellerProductService {
 
   private Item getOwnedItem(Long itemId, Long sellerId) {
     if (itemId == null || sellerId == null) {
-      throw new IllegalArgumentException("Sản phẩm hoặc seller không hợp lệ");
+      throw new ValidationException("Sản phẩm hoặc seller không hợp lệ");
     }
 
     Item item =
         itemRepository
             .findById(itemId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm"));
     if (item.getSeller() == null || !sellerId.equals(item.getSeller().getId())) {
-      throw new IllegalArgumentException("Seller không có quyền thao tác sản phẩm này");
+      throw new InvalidOperationException("Seller không có quyền thao tác sản phẩm này");
     }
     return item;
   }
@@ -454,7 +458,7 @@ public class SellerProductService {
     return auctionRepository
         .findTopByItemIdOrderByIdDesc(itemId)
         .orElseThrow(
-            () -> new IllegalArgumentException("Không tìm thấy phiên đấu giá của sản phẩm"));
+            () -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá của sản phẩm"));
   }
 
   private SellerProductListing listingFor(Item item, Auction auction, Long sellerId) {

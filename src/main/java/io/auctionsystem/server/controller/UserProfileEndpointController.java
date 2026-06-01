@@ -19,11 +19,4 @@ public class UserProfileEndpointController {
     userProfileLogicService.updateProfile(id, payload);
     return ResponseEntity.ok().body("Cập nhật tên thành công!");
   }
-
-  @PutMapping("/{id}/password")
-  public ResponseEntity<?> updatePassword(
-      @PathVariable("id") Long id, @RequestBody Map<String, String> payload) {
-    userProfileLogicService.updatePassword(id, payload);
-    return ResponseEntity.ok().body("Đổi mật khẩu thành công!");
-  }
 }

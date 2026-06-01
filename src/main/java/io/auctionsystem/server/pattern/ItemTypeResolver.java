@@ -1,6 +1,7 @@
 package io.auctionsystem.server.pattern;
 
 import io.auctionsystem.common.enums.ItemType;
+import io.auctionsystem.server.exception.ValidationException;
 import io.auctionsystem.server.model.Art;
 import io.auctionsystem.server.model.Electronics;
 import io.auctionsystem.server.model.Fashion;
@@ -18,6 +19,6 @@ public final class ItemTypeResolver {
     if (item instanceof Vehicle) return ItemType.VEHICLE;
     if (item instanceof Fashion) return ItemType.FASHION;
     if (item instanceof Jewelry) return ItemType.JEWELRY;
-    throw new IllegalArgumentException("Loại sản phẩm không được hỗ trợ");
+    throw new ValidationException("Loại sản phẩm không được hỗ trợ");
   }
 }

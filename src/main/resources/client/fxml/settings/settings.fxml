@@ -24,8 +24,6 @@
                 <Button fx:id="btnProfile" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showProfile" style="-fx-background-color: transparent; -fx-cursor: hand;" text="👤 Hồ sơ cá nhân" />
                 <Button fx:id="btnBank" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showBank" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🏦 Ngân hàng" />
                 <Button fx:id="btnAddress" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showAddress" style="-fx-background-color: transparent; -fx-cursor: hand;" text="📍 Địa chỉ" />
-                <Button fx:id="btnPassword" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#showPassword" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🔑 Đổi mật khẩu" />
-
                 <Region VBox.vgrow="ALWAYS" />
                 <Button onAction="#onBack" style="-fx-background-color: transparent; -fx-cursor: hand;" text="← Quay lại" />
             </children>

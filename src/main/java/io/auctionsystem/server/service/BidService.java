@@ -5,8 +5,12 @@ import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.BidCommitmentStatus;
 import io.auctionsystem.common.request.BidRequest;
 import io.auctionsystem.common.response.BidResponse;
+import io.auctionsystem.server.exception.AccountException;
 import io.auctionsystem.server.exception.AuctionClosedException;
 import io.auctionsystem.server.exception.InvalidBidException;
+import io.auctionsystem.server.exception.InvalidOperationException;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
+import io.auctionsystem.server.exception.ValidationException;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Bid;
 import io.auctionsystem.server.model.BidCommitment;
@@ -48,6 +52,8 @@ public class BidService {
 
   private final AntiSnipingService antiSnipingService;
 
+  private final AuctionNotificationService auctionNotificationService;
+
   @Transactional
   public BidResponse placeBid(BidRequest request) {
     if (request == null
@@ -55,14 +61,14 @@ public class BidService {
         || request.getBidderId() == null
         || request.getAmount() == null
         || request.getAmount() <= 0) {
-      throw new IllegalArgumentException("Thông tin đặt giá không hợp lệ");
+      throw new ValidationException("Thông tin đặt giá không hợp lệ");
     }
 
     // Khóa phiên trước để mọi bid trong cùng phiên được xử lý tuần tự.
     Auction auction =
         auctionRepository
             .findByIdForUpdate(request.getAuctionId())
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phiên đấu giá"));
 
     LocalDateTime now = LocalDateTime.now();
     if (auction.getStatus() != AuctionState.RUNNING
@@ -76,18 +82,18 @@ public class BidService {
     User bidder =
         userRepository
             .findByIdForUpdate(request.getBidderId())
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
     if (!bidder.isActive()) {
-      throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
     }
 
     Item item =
         itemRepository
             .findById(auction.getItemId())
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm đấu giá"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm đấu giá"));
 
     if (item.getSeller() != null && item.getSeller().getId().equals(bidder.getId())) {
-      throw new IllegalArgumentException("Seller không thể tự đặt giá sản phẩm của mình");
+      throw new InvalidOperationException("Seller không thể tự đặt giá sản phẩm của mình");
     }
 
     double currentHighest = item.getCurrentPrice();
@@ -148,18 +154,21 @@ public class BidService {
     }
     auctionRepository.save(auction);
 
+    BidResponse response =
+        new BidResponse(
+            true,
+            "Đặt giá thành công!",
+            auction.getId(),
+            request.getAmount(),
+            bidder.getUsername(),
+            previousWinnerId);
     realtimePublisher.publishPriceAfterCommit(request.getAuctionId(), request.getAmount());
+    auctionNotificationService.notifyBidAfterCommit(response, request.getBidderId());
     if (reachedBuyNowPrice) {
       settlementService.closeBuyNowAuction(auction.getId());
     }
 
-    return new BidResponse(
-        true,
-        "Đặt giá thành công!",
-        auction.getId(),
-        request.getAmount(),
-        bidder.getUsername(),
-        previousWinnerId);
+    return response;
   }
 
   public List<BidDTO> getBidHistoryByBidder(Long bidderId) {

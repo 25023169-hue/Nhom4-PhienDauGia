@@ -3,10 +3,10 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.auctionsystem.client.model.TransactionModel;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.client.viewmodel.TransactionViewModel;
 import io.auctionsystem.common.Constants;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -47,18 +47,18 @@ public class WalletController {
   @FXML private Button btnFilterIn;
   @FXML private Button btnFilterOut;
 
-  @FXML private TableView<TransactionModel> tableWalletHistory;
-  @FXML private TableColumn<TransactionModel, Long> colTransactionId;
-  @FXML private TableColumn<TransactionModel, String> colTransactionTime;
-  @FXML private TableColumn<TransactionModel, String> colTransactionType;
-  @FXML private TableColumn<TransactionModel, String> colMoneyIn;
-  @FXML private TableColumn<TransactionModel, String> colMoneyOut;
-  @FXML private TableColumn<TransactionModel, String> colLastBalance;
-  @FXML private TableColumn<TransactionModel, String> colTransactionNote;
+  @FXML private TableView<TransactionViewModel> tableWalletHistory;
+  @FXML private TableColumn<TransactionViewModel, Long> colTransactionId;
+  @FXML private TableColumn<TransactionViewModel, String> colTransactionTime;
+  @FXML private TableColumn<TransactionViewModel, String> colTransactionType;
+  @FXML private TableColumn<TransactionViewModel, String> colMoneyIn;
+  @FXML private TableColumn<TransactionViewModel, String> colMoneyOut;
+  @FXML private TableColumn<TransactionViewModel, String> colLastBalance;
+  @FXML private TableColumn<TransactionViewModel, String> colTransactionNote;
 
-  private static final ObservableList<TransactionModel> WALLET_TRANSACTIONS =
+  private static final ObservableList<TransactionViewModel> WALLET_TRANSACTIONS =
       FXCollections.observableArrayList();
-  private FilteredList<TransactionModel> filteredTransactions;
+  private FilteredList<TransactionViewModel> filteredTransactions;
 
   private static final NumberFormat VND_FORMAT =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
@@ -150,7 +150,7 @@ public class WalletController {
                             String strLastBalance = formatCurrency(lastBalance);
 
                             WALLET_TRANSACTIONS.add(
-                                new TransactionModel(
+                                new TransactionViewModel(
                                     id,
                                     parseTransactionTime(timeStr),
                                     timeStr,
@@ -375,7 +375,7 @@ public class WalletController {
     LocalDateTime time = LocalDateTime.now();
     WALLET_TRANSACTIONS.add(
         0,
-        new TransactionModel(
+        new TransactionViewModel(
             transactionId,
             time,
             time.format(TIME_FORMAT),

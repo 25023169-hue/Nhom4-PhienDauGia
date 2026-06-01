@@ -39,6 +39,7 @@ class BidServiceTest {
   @Mock private AuctionRealtimePublisher realtimePublisher;
   @Mock private AuctionSettlementService settlementService;
   @Mock private AntiSnipingService antiSnipingService;
+  @Mock private AuctionNotificationService auctionNotificationService;
 
   @BeforeEach
   void setUp() {

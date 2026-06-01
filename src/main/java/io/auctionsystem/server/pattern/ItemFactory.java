@@ -1,6 +1,7 @@
 package io.auctionsystem.server.pattern;
 
 import io.auctionsystem.common.request.ItemRequest;
+import io.auctionsystem.server.exception.ValidationException;
 import io.auctionsystem.server.model.Art;
 import io.auctionsystem.server.model.Electronics;
 import io.auctionsystem.server.model.Fashion;
@@ -13,7 +14,7 @@ public class ItemFactory {
   // Pattern: Factory Method để tạo đối tượng đa hình
   public static Item createItem(ItemRequest request) {
     if (request.getType() == null) {
-      throw new IllegalArgumentException("Loại sản phẩm không được để trống");
+      throw new ValidationException("Loại sản phẩm không được để trống");
     }
 
     Item item;
@@ -43,7 +44,7 @@ public class ItemFactory {
         item = jewelry;
         break;
       default:
-        throw new IllegalArgumentException("Loại sản phẩm không hỗ trợ!");
+        throw new ValidationException("Loại sản phẩm không hỗ trợ!");
     }
 
     // Đổ các thông tin chung của Item

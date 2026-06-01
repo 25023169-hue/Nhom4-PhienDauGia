@@ -3,6 +3,10 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.common.dto.ChartPointDTO;
 import io.auctionsystem.common.dto.RevenueStatsDTO;
 import io.auctionsystem.common.dto.TransactionDTO;
+import io.auctionsystem.server.exception.AccountException;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
+import io.auctionsystem.server.exception.ValidationException;
+import io.auctionsystem.server.exception.WalletException;
 import io.auctionsystem.server.model.Transaction;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.repository.TransactionRepository;
@@ -29,26 +33,26 @@ public class TransactionService {
   @Transactional
   public Transaction processTransaction(Long userId, Double amount, String type, String note) {
     if (amount == null || amount <= 0) {
-      throw new IllegalArgumentException("Số tiền giao dịch phải lớn hơn 0");
+      throw new ValidationException("Số tiền giao dịch phải lớn hơn 0");
     }
 
     User user =
         userRepository
             .findByIdForUpdate(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
     if (!user.isActive()) {
-      throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
     }
 
     if ("Nạp".equals(type)) {
       user.setBalance(user.getBalance() + amount);
     } else if ("Rút".equals(type)) {
       if (user.getAvailableBalance() < amount) {
-        throw new IllegalArgumentException("Số dư khả dụng không đủ để rút tiền");
+        throw new WalletException("Số dư khả dụng không đủ để rút tiền");
       }
       user.setBalance(user.getBalance() - amount);
     } else {
-      throw new IllegalArgumentException("Loại giao dịch không hợp lệ");
+      throw new ValidationException("Loại giao dịch không hợp lệ");
     }
     userRepository.save(user);
 

@@ -4,6 +4,9 @@ import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.BidCommitmentStatus;
 import io.auctionsystem.common.request.AddressRequest;
 import io.auctionsystem.common.request.BankRequest;
+import io.auctionsystem.server.exception.AccountException;
+import io.auctionsystem.server.exception.InvalidOperationException;
+import io.auctionsystem.server.exception.ResourceNotFoundException;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Item;
@@ -35,7 +38,7 @@ public class UserService {
   public User getUser(Long userId) {
     return userRepository
         .findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy User với ID: " + userId));
+        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy User với ID: " + userId));
   }
 
   // Cập nhật thông tin ngân hàng (Giữ nguyên vì ngân hàng vẫn ở class User dùng chung)
@@ -45,7 +48,7 @@ public class UserService {
         userRepository
             .findById(userId)
             .orElseThrow(
-                () -> new IllegalArgumentException("Không tìm thấy User với ID: " + userId));
+                () -> new ResourceNotFoundException("Không tìm thấy User với ID: " + userId));
     ensureActive(user);
 
     // 2. Kiểm tra nếu user này là một Bidder (hoặc Seller vì Seller extends Bidder)
@@ -58,7 +61,7 @@ public class UserService {
       // 3. Lưu lại và trả về đối tượng đã cập nhật
       return userRepository.save(bidder);
     } else {
-      throw new IllegalArgumentException(
+      throw new InvalidOperationException(
           "Tài khoản này không phải là Người mua hoặc Người bán để cập nhật ngân hàng!");
     }
   }
@@ -69,14 +72,14 @@ public class UserService {
         userRepository
             .findById(userId)
             .orElseThrow(
-                () -> new IllegalArgumentException("Không tìm thấy User với ID: " + userId));
+                () -> new ResourceNotFoundException("Không tìm thấy User với ID: " + userId));
     ensureActive(user);
 
     if (user instanceof Bidder bidder) {
       bidder.setAddress(request.getAddress());
       return userRepository.save(bidder);
     } else {
-      throw new IllegalArgumentException("Tài khoản không hỗ trợ cập nhật địa chỉ!");
+      throw new InvalidOperationException("Tài khoản không hỗ trợ cập nhật địa chỉ!");
     }
   }
 
@@ -85,21 +88,22 @@ public class UserService {
     User user =
         userRepository
             .findByIdForUpdate(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
     if (!user.isActive()) {
-      throw new IllegalArgumentException("Tài khoản đã được xóa trước đó");
+      throw new AccountException("Tài khoản đã được xóa trước đó");
     }
     if (Math.abs(user.getBalance()) > MONEY_EPSILON) {
-      throw new IllegalArgumentException("Vui lòng rút hết số dư trong ví trước khi xóa tài khoản");
+      throw new InvalidOperationException(
+          "Vui lòng rút hết số dư trong ví trước khi xóa tài khoản");
     }
     if (Math.abs(user.getHeldBalance()) > MONEY_EPSILON
         || bidCommitmentRepository.existsByBidderIdAndStatus(userId, BidCommitmentStatus.ACTIVE)) {
-      throw new IllegalArgumentException(
+      throw new InvalidOperationException(
           "Không thể xóa tài khoản khi còn tiền đang giữ cho phiên đấu giá");
     }
     if (hasOpenSellerAuction(userId)) {
-      throw new IllegalArgumentException(
+      throw new InvalidOperationException(
           "Không thể xóa tài khoản khi còn phiên bán đang mở hoặc đang chờ bắt đầu");
     }
 
@@ -139,7 +143,7 @@ public class UserService {
 
   private void ensureActive(User user) {
     if (!user.isActive()) {
-      throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
     }
   }
 }
