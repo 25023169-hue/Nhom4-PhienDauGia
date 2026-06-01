@@ -16,7 +16,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
   // Lấy giá trị lớn nhất
   Optional<Bid> findTopByAuctionIdOrderByAmountDesc(Long auctionId);
-
+  List<Bid> findByAuctionId(Long auctionId);
   // Đã đổi thành 'BidTime'
   List<Bid> findByBidderIdOrderByBidTimeDesc(Long bidderId);
 
