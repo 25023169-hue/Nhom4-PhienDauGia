@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - demo
+  pull_request:
+    branches:
+      - main
+      - master
+      - demo
+
+jobs:
+  build:
+    name: Test and Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Run tests
+        run: .\mvnw.cmd test
+
+      - name: Build jar
+        run: .\mvnw.cmd -DskipTests package
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: auction-system-jar
+          path: target/*.jar
