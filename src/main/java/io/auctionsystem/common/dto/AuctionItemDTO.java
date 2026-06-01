@@ -20,6 +20,7 @@ public class AuctionItemDTO implements Serializable {
 
   private String name;
   private Double currentPrice;
+  private String startTime;
   private String endTime;
   private String status;
 }

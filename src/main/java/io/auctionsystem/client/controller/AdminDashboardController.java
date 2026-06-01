@@ -3,6 +3,7 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.dto.AuctionItemDTO;
 import io.auctionsystem.common.response.AuthResponse;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,26 +14,50 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
 
 public class AdminDashboardController {
-  // 1. Khai báo các thành phần FXML (Phải khớp fx:id trong file fxml)
-  @FXML private TabPane tabPane;
+  @FXML private Pane dashboardPane;
+  @FXML private Pane usersPane;
+  @FXML private Pane auctionsPane;
   @FXML private Label statUsers;
+  @FXML private Label statOpenAuctions;
+  @FXML private Label statActiveAuctions;
+  @FXML private Label statFinishedAuctions;
   @FXML private TableView<AuthResponse> usersTable;
   @FXML private TableColumn<AuthResponse, Long> colUserId;
   @FXML private TableColumn<AuthResponse, String> colUsername;
   @FXML private TableColumn<AuthResponse, String> colFullname;
   @FXML private TableColumn<AuthResponse, String> colRole;
-  @FXML private TableColumn<AuthResponse, Void> colAction; // Cột chứa nút bấm
+  @FXML private TableView<AuctionItemDTO> auctionsTable;
+  @FXML private TableColumn<AuctionItemDTO, Long> colAuctionId;
+  @FXML private TableColumn<AuctionItemDTO, String> colItem;
+  @FXML private TableColumn<AuctionItemDTO, String> colStatus;
+  @FXML private TableColumn<AuctionItemDTO, String> colStartTime;
+  @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
+  @FXML private TableColumn<AuctionItemDTO, Void> colAuctionAction;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final HttpClient httpClient = HttpClient.newHttpClient();
 
   @FXML
   public void initialize() {
-    // --- PHẦN 1: SETUP BẢNG DỮ LIỆU ---
+    setupUsersTable();
+    setupAuctionsTable();
+    showPane(dashboardPane);
+    refreshUsers();
+    refreshAuctions();
+  }
+
+  private void setupUsersTable() {
     colUserId.setCellValueFactory(new PropertyValueFactory<>("userId"));
     colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
     colFullname.setCellValueFactory(
@@ -41,39 +66,54 @@ public class AdminDashboardController {
           return new SimpleStringProperty(joinName(user.getLastname(), user.getFirstname()));
         });
     colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
+  }
 
-    // Tạo nút bấm "Khóa/Mở" trong cột Thao tác
-    colAction.setCellFactory(
-        param ->
+  private void setupAuctionsTable() {
+    colAuctionId.setCellValueFactory(new PropertyValueFactory<>("id"));
+    colItem.setCellValueFactory(new PropertyValueFactory<>("name"));
+    colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+    colStatus.setCellFactory(
+        column ->
             new TableCell<>() {
-              private final Button btnToggle = new Button("Khóa/Mở");
+              @Override
+              protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                setText(empty ? null : displayStatus(status));
+              }
+            });
+    colStartTime.setCellValueFactory(new PropertyValueFactory<>("startTime"));
+    colEndTime.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+    colAuctionAction.setCellFactory(
+        column ->
+            new TableCell<>() {
+              private final Button deleteButton = new Button("Xóa");
 
               {
-                btnToggle.setStyle(
-                    "-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
+                deleteButton.setStyle(
+                    "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
               }
 
               @Override
               protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                if (empty || getIndex() >= getTableView().getItems().size()) {
                   setGraphic(null);
-                } else {
-                  btnToggle.setOnAction(
-                      event -> {
-                        AuthResponse user = getTableView().getItems().get(getIndex());
-                        handleToggleBan(user.getUserId());
-                      });
-                  setGraphic(btnToggle);
+                  return;
                 }
+
+                AuctionItemDTO auction = getTableView().getItems().get(getIndex());
+                if (!canDelete(auction)) {
+                  setGraphic(null);
+                  return;
+                }
+
+                deleteButton.setOnAction(event -> confirmDeleteAuction(auction));
+                setGraphic(deleteButton);
               }
             });
-
-    // --- PHẦN 2: LOAD DỮ LIỆU THẬT TỪ SERVER ---
-    refreshTable();
   }
 
-  private void refreshTable() {
+  private void refreshUsers() {
     new Thread(
             () -> {
               try {
@@ -82,7 +122,6 @@ public class AdminDashboardController {
                         .uri(URI.create("http://localhost:8080/api/admin/users"))
                         .GET()
                         .build();
-
                 HttpResponse<String> response =
                     httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -90,7 +129,6 @@ public class AdminDashboardController {
                   List<AuthResponse> users =
                       objectMapper.readValue(
                           response.body(), new TypeReference<List<AuthResponse>>() {});
-
                   Platform.runLater(
                       () -> {
                         usersTable.setItems(FXCollections.observableArrayList(users));
@@ -104,27 +142,76 @@ public class AdminDashboardController {
         .start();
   }
 
-  private void handleToggleBan(Long userId) {
+  private void refreshAuctions() {
     new Thread(
             () -> {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(
-                            URI.create(
-                                "http://localhost:8080/api/admin/users/toggle-ban/" + userId))
-                        .PUT(HttpRequest.BodyPublishers.noBody())
+                        .uri(URI.create("http://localhost:8080/api/admin/auctions"))
+                        .GET()
                         .build();
-
                 HttpResponse<String> response =
                     httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() == 200) {
-                  System.out.println("Đã thay đổi trạng thái user " + userId);
-                  refreshTable(); // Cập nhật lại bảng ngay sau khi khóa/mở
+                  List<AuctionItemDTO> auctions =
+                      objectMapper.readValue(
+                          response.body(), new TypeReference<List<AuctionItemDTO>>() {});
+                  Platform.runLater(
+                      () -> {
+                        auctionsTable.setItems(FXCollections.observableArrayList(auctions));
+                        statOpenAuctions.setText(String.valueOf(countStatus(auctions, "OPEN")));
+                        statActiveAuctions.setText(
+                            String.valueOf(countStatus(auctions, "RUNNING")));
+                        statFinishedAuctions.setText(
+                            String.valueOf(countStatus(auctions, "FINISHED")));
+                      });
                 }
               } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("Lỗi load bảng phiên đấu giá Admin: " + e.getMessage());
+              }
+            })
+        .start();
+  }
+
+  private void confirmDeleteAuction(AuctionItemDTO auction) {
+    Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+    confirmation.setHeaderText("Xóa phiên đấu giá #" + auction.getId());
+    confirmation.setContentText(
+        "Phiên sẽ chuyển sang CANCELLED. Nếu đang chạy, tiền giữ chỗ sẽ được hoàn lại.");
+    if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+      deleteAuction(auction.getId());
+    }
+  }
+
+  private void deleteAuction(Long auctionId) {
+    new Thread(
+            () -> {
+              try {
+                HttpRequest request =
+                    HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:8080/api/admin/auctions/" + auctionId))
+                        .DELETE()
+                        .build();
+                HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                Platform.runLater(
+                    () -> {
+                      if (response.statusCode() == 200) {
+                        refreshAuctions();
+                      } else {
+                        showAlert(Alert.AlertType.ERROR, "Không thể xóa phiên", response.body());
+                      }
+                    });
+              } catch (Exception e) {
+                Platform.runLater(
+                    () ->
+                        showAlert(
+                            Alert.AlertType.ERROR,
+                            "Không thể xóa phiên",
+                            "Không thể kết nối đến máy chủ!"));
               }
             })
         .start();
@@ -137,24 +224,55 @@ public class AdminDashboardController {
 
   @FXML
   public void onDashboardClicked() {
-    tabPane.getSelectionModel().select(0);
+    showPane(dashboardPane);
   }
 
   @FXML
   public void onManageUsersClicked() {
-    tabPane.getSelectionModel().select(1);
+    showPane(usersPane);
   }
 
   @FXML
   public void onApproveAuctionsClicked() {
-    tabPane.getSelectionModel().select(2);
+    showPane(auctionsPane);
+    refreshAuctions();
   }
 
   @FXML
   public void onSettingsClicked() {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    showAlert(
+        Alert.AlertType.INFORMATION, "Cài đặt", "Cài đặt dành cho Admin chưa được triển khai.");
+  }
+
+  private void showPane(Pane selectedPane) {
+    for (Pane pane : new Pane[] {dashboardPane, usersPane, auctionsPane}) {
+      boolean selected = pane == selectedPane;
+      pane.setVisible(selected);
+      pane.setManaged(selected);
+    }
+  }
+
+  private boolean canDelete(AuctionItemDTO auction) {
+    return "OPEN".equals(auction.getStatus()) || "RUNNING".equals(auction.getStatus());
+  }
+
+  private long countStatus(List<AuctionItemDTO> auctions, String status) {
+    return auctions.stream().filter(auction -> status.equals(auction.getStatus())).count();
+  }
+
+  private String displayStatus(String status) {
+    if ("OPEN".equals(status)) return "Đã lên lịch (OPEN)";
+    if ("RUNNING".equals(status)) return "Đang chạy (RUNNING)";
+    if ("FINISHED".equals(status)) return "Đã kết thúc (FINISHED)";
+    if ("CANCELLED".equals(status)) return "Đã hủy (CANCELLED)";
+    return status;
+  }
+
+  private void showAlert(Alert.AlertType type, String title, String message) {
+    Alert alert = new Alert(type);
+    alert.setTitle(title);
     alert.setHeaderText(null);
-    alert.setContentText("Cài đặt dành cho Admin chưa được triển khai.");
+    alert.setContentText(message);
     alert.showAndWait();
   }
 

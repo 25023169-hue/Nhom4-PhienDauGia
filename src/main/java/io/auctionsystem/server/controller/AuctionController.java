@@ -86,6 +86,8 @@ public class AuctionController {
     dto.setId(auction.getId());
     dto.setName(item.getName());
     dto.setCurrentPrice(item.getCurrentPrice());
+    dto.setStartTime(
+        auction.getStartTime() != null ? auction.getStartTime().format(formatter) : "");
     dto.setEndTime(auction.getEndTime() != null ? auction.getEndTime().format(formatter) : "");
     dto.setStatus(auction.getStatus().name());
     return dto;

@@ -1,11 +1,18 @@
 package io.auctionsystem.server.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.common.request.RegisterRequest;
+import io.auctionsystem.common.response.AuthResponse;
+import io.auctionsystem.server.model.Admin;
 import io.auctionsystem.server.repository.UserRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,5 +56,19 @@ class AuthServiceTest {
     assertThrows(IllegalArgumentException.class, () -> authService.login(null, "secret"));
 
     verifyNoInteractions(userRepository);
+  }
+
+  @Test
+  void testLogin_WithAdmin_ReturnsAdminRole() {
+    Admin admin = new Admin();
+    admin.setId(1L);
+    admin.setUsername("admin");
+    admin.setPassword("admin123");
+    when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
+
+    AuthResponse response = authService.login("admin", "admin123");
+
+    assertEquals(Role.ADMIN, response.getRole());
+    verify(userRepository, never()).isUserSeller(admin.getId());
   }
 }

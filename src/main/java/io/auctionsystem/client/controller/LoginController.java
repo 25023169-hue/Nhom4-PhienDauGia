@@ -55,18 +55,6 @@ public class LoginController {
 
     if (hasError) return;
 
-    // =========================================================
-    // THÊM VÀO: CỬA HẬU DÀNH CHO ADMIN (Bỏ qua gọi Server)
-    // =========================================================
-    if ("admin".equals(username) && "admin123".equals(password)) {
-      Platform.runLater(
-          () -> {
-            SceneManager.getInstance().switchScene("/client/fxml/admin_dashboard.fxml");
-          });
-      return; // Dừng lại, không cho chạy luồng gọi Server ở dưới
-    }
-    // =========================================================
-
     // 3. Gửi Request lên Server
     new Thread(
             () -> {
