@@ -4,22 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="refactor">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/controller/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/controller/AdminController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/AdminService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/AdminService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/BidService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/BidService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/SellerProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/SellerProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/TransactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/TransactionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/UserProfileLogicService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/UserProfileLogicService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/client/user/login.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/user/login.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/server/service/BidServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/server/service/BidServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/server/service/UserServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/server/service/UserServiceTest.java" afterDir="false" />
-    </list>
+    <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="refactor" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -163,7 +148,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ServerApp.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "demo",
+    "git-widget-placeholder": "backup",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
