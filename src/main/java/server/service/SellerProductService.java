@@ -66,10 +66,6 @@ public class SellerProductService {
         userRepository
             .findById(request.getSellerId())
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy seller hiện tại"));
-    if (!seller.isActive()) {
-      throw new AccountException("Tài khoản seller đã bị vô hiệu hóa");
-    }
-
     if (userRepository.isUserSeller(request.getSellerId()) <= 0) {
       throw new AccountException("Tài khoản hiện tại chưa có quyền Seller");
     }

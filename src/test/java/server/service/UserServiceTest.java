@@ -1,6 +1,5 @@
 package server.service;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,7 +57,6 @@ class UserServiceTest {
 
     userService.deleteAccount(1L);
 
-    assertFalse(user.isActive());
     assertTrue(user.getUsername().startsWith("deleted_1_"));
     assertNull(user.getBankName());
     assertNull(user.getAccountName());

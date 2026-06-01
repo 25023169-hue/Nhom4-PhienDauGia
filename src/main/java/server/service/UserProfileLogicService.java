@@ -1,6 +1,5 @@
 package server.service;
 
-import server.exception.AccountException;
 import server.exception.ResourceNotFoundException;
 import server.model.User;
 import server.repository.UserRepository;
@@ -19,15 +18,8 @@ public class UserProfileLogicService {
         userRepository
             .findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng!"));
-    ensureActive(user);
     user.setFirstname(payload.get("firstname"));
     user.setLastname(payload.get("lastname"));
     return userRepository.save(user);
-  }
-
-  private void ensureActive(User user) {
-    if (!user.isActive()) {
-      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
-    }
   }
 }

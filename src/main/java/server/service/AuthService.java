@@ -55,7 +55,7 @@ public class AuthService {
     // Tìm User, nếu không có thì ném lỗi
     User user = userRepository.findByUsername(username).orElse(null);
 
-    if (user == null || !user.isActive() || !user.getPassword().equals(password)) {
+    if (user == null || !user.getPassword().equals(password)) {
       throw new AccountException("Tài khoản hoặc mật khẩu không chính xác!");
     }
 
@@ -100,9 +100,6 @@ public class AuthService {
         userRepository
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
-    if (!user.isActive()) {
-      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
-    }
     if (userRepository.isUserSeller(id) > 0) {
       throw new AccountException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
     }

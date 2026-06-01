@@ -3,7 +3,6 @@ package server.service;
 import common.dto.ChartPointDTO;
 import common.dto.RevenueStatsDTO;
 import common.dto.TransactionDTO;
-import server.exception.AccountException;
 import server.exception.ResourceNotFoundException;
 import server.exception.ValidationException;
 import server.exception.WalletException;
@@ -40,10 +39,6 @@ public class TransactionService {
         userRepository
             .findByIdForUpdate(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
-    if (!user.isActive()) {
-      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
-    }
-
     if ("Nạp".equals(type)) {
       user.setBalance(user.getBalance() + amount);
     } else if ("Rút".equals(type)) {

@@ -5,7 +5,6 @@ import common.enums.AuctionState;
 import common.enums.BidCommitmentStatus;
 import common.request.BidRequest;
 import common.response.BidResponse;
-import server.exception.AccountException;
 import server.exception.AuctionClosedException;
 import server.exception.InvalidBidException;
 import server.exception.InvalidOperationException;
@@ -83,10 +82,6 @@ public class BidService {
         userRepository
             .findByIdForUpdate(request.getBidderId())
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
-    if (!bidder.isActive()) {
-      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
-    }
-
     Item item =
         itemRepository
             .findById(auction.getItemId())

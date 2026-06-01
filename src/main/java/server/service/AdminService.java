@@ -40,25 +40,6 @@ public class AdminService {
     return userRepository.findAllClients();
   }
 
-  // 2. Hàm Khóa/Mở khóa tài khoản
-  public boolean toggleBanUser(Long id) {
-    Optional<User> userOpt = userRepository.findById(id);
-    if (userOpt.isPresent()) {
-      User user = userOpt.get();
-      // Đảo ngược trạng thái ban (nếu đang true thì thành false và ngược lại)
-      // Lưu ý: Trong Model User của bạn phải có biến boolean isBanned hoặc tương tự
-      user.setBanned(!user.isBanned());
-      userRepository.save(user);
-      return true;
-    }
-    return false;
-  }
-
-  // 3. Hàm xóa User
-  public void deleteUser(Long id) {
-    userRepository.deleteById(id);
-  }
-
   public Set<Long> findSellerIds() {
     return Set.copyOf(userRepository.findSellerIds());
   }

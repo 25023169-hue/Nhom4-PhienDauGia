@@ -4,7 +4,6 @@ import common.enums.AuctionState;
 import common.enums.BidCommitmentStatus;
 import common.request.AddressRequest;
 import common.request.BankRequest;
-import server.exception.AccountException;
 import server.exception.InvalidOperationException;
 import server.exception.ResourceNotFoundException;
 import server.model.Auction;
@@ -41,46 +40,18 @@ public class UserService {
         .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy User với ID: " + userId));
   }
 
-  // Cập nhật thông tin ngân hàng (Giữ nguyên vì ngân hàng vẫn ở class User dùng chung)
   public User updateBankInfo(Long userId, BankRequest request) {
-    // 1. Tìm kiếm và hứng bằng kiểu User từ userRepository
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException("Không tìm thấy User với ID: " + userId));
-    ensureActive(user);
-
-    // 2. Kiểm tra nếu user này là một Bidder (hoặc Seller vì Seller extends Bidder)
-    if (user instanceof Bidder bidder) {
-      // Lúc này Java tự hiểu 'bidder' là kiểu Bidder, bạn tha hồ set thông tin
-      bidder.setBankName(request.getBankName());
-      bidder.setAccountName(request.getAccountName());
-      bidder.setBankAccount(request.getBankAccount());
-
-      // 3. Lưu lại và trả về đối tượng đã cập nhật
-      return userRepository.save(bidder);
-    } else {
-      throw new InvalidOperationException(
-          "Tài khoản này không phải là Người mua hoặc Người bán để cập nhật ngân hàng!");
-    }
+    Bidder bidder = getBidder(userId);
+    bidder.setBankName(request.getBankName());
+    bidder.setAccountName(request.getAccountName());
+    bidder.setBankAccount(request.getBankAccount());
+    return userRepository.save(bidder);
   }
 
-  // Cập nhật địa chỉ
   public User updateAddress(Long userId, AddressRequest request) {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException("Không tìm thấy User với ID: " + userId));
-    ensureActive(user);
-
-    if (user instanceof Bidder bidder) {
-      bidder.setAddress(request.getAddress());
-      return userRepository.save(bidder);
-    } else {
-      throw new InvalidOperationException("Tài khoản không hỗ trợ cập nhật địa chỉ!");
-    }
+    Bidder bidder = getBidder(userId);
+    bidder.setAddress(request.getAddress());
+    return userRepository.save(bidder);
   }
 
   @Transactional
@@ -90,9 +61,6 @@ public class UserService {
             .findByIdForUpdate(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
-    if (!user.isActive()) {
-      throw new AccountException("Tài khoản đã được xóa trước đó");
-    }
     if (Math.abs(user.getBalance()) > MONEY_EPSILON) {
       throw new InvalidOperationException(
           "Vui lòng rút hết số dư trong ví trước khi xóa tài khoản");
@@ -124,7 +92,6 @@ public class UserService {
   }
 
   private void anonymize(User user) {
-    user.setActive(false);
     user.setUsername("deleted_" + user.getId() + "_" + UUID.randomUUID());
     user.setPassword(UUID.randomUUID().toString());
     user.setFirstname("Tài khoản");
@@ -141,9 +108,14 @@ public class UserService {
     }
   }
 
-  private void ensureActive(User user) {
-    if (!user.isActive()) {
-      throw new AccountException("Tài khoản đã bị vô hiệu hóa");
+  private Bidder getBidder(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
+    if (user instanceof Bidder bidder) {
+      return bidder;
     }
+    throw new ResourceNotFoundException("Không tìm thấy tài khoản");
   }
 }

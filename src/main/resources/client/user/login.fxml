@@ -11,7 +11,7 @@
 
 <AnchorPane
         style="-fx-background-color: linear-gradient(to bottom right, #eef2f3, #dfe9f3);"
-        xmlns="http://javafx.com/javafx/25"
+xmlns="http://javafx.com/javafx/23"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="client.controller.LoginController">
 

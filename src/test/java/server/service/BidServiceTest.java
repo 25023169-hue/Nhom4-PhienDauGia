@@ -78,7 +78,6 @@ class BidServiceTest {
     Bidder bidder = new Bidder();
     bidder.setId(100L);
     bidder.setBalance(500000.0);
-    bidder.setActive(true);
 
     when(auctionRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(runningAuction));
     when(userRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(bidder));

@@ -58,21 +58,6 @@ public class AdminController {
     return ResponseEntity.ok(result);
   }
 
-  // =========================
-  // 2. Toggle ban user
-  // =========================
-  @PutMapping("/users/toggle-ban/{id}")
-  public ResponseEntity<String> toggleBan(@PathVariable Long id) {
-
-    boolean success = adminService.toggleBanUser(id);
-
-    if (success) {
-      return ResponseEntity.ok("Cập nhật trạng thái thành công!");
-    }
-
-    return ResponseEntity.badRequest().body("Không tìm thấy người dùng.");
-  }
-
   @GetMapping("/auctions")
   public ResponseEntity<List<AuctionItemDTO>> getAllAuctions() {
     return ResponseEntity.ok(adminService.findAllAuctions());
