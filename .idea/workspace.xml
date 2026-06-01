@@ -88,7 +88,7 @@
     </excluded-from-favorite>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="demo" />
+        <entry key="$PROJECT_DIR$" value="backup" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -148,7 +148,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ServerApp.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "backup",
+    "git-widget-placeholder": "demo",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -207,6 +207,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.ServerApp" />
+        <item itemvalue="Spring Boot.ServerApp" />
+        <item itemvalue="Spring Boot.ServerApp" />
         <item itemvalue="Spring Boot.ServerApp" />
         <item itemvalue="Spring Boot.ServerApp" />
       </list>
@@ -515,7 +518,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780330608163</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="refactor">
+      <option name="closed" value="true" />
+      <created>1780339869608</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1780339869608</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
