@@ -5,7 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="refactor">
-      <change beforePath="$PROJECT_DIR$/.env.properties.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.properties.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerRevenueStatisticsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/SellerRevenueStatisticsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/WalletController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/controller/WalletController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/viewmodel/TransactionViewModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/auctionsystem/client/TransactionViewModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/App.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AdminServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AntiSnipingServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionNotificationServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionQueryServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionRealtimePublisherTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionSchedulerServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuctionSettlementServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/AuthServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/BidConcurrencyContractTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/BidServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/SellerProductServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/io/auctionsystem/server/service/UserServiceTest.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -175,7 +191,7 @@
       <recent name="io.auctionsystem.client" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.ServerApp">
+  <component name="RunManager" selected="Application.ClientLauncher">
     <configuration name="ClientLauncher" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="io.auctionsystem.client.ClientLauncher" />
       <module name="Nhom4-PhienDauGia" />
@@ -484,7 +500,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780329152776</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="refactor">
+      <option name="closed" value="true" />
+      <created>1780329342307</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1780329342307</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

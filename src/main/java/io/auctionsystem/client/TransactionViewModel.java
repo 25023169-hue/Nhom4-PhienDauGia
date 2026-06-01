@@ -1,4 +1,4 @@
-package io.auctionsystem.client.viewmodel;
+package io.auctionsystem.client;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

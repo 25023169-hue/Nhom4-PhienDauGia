@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
 import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
-import io.auctionsystem.client.viewmodel.TransactionViewModel;
+import io.auctionsystem.client.TransactionViewModel;
 import io.auctionsystem.common.Constants;
 import java.net.URI;
 import java.net.URLEncoder;
