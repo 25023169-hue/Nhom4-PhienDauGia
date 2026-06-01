@@ -1,183 +1,207 @@
-# Nhom4-PhienDauGia
+Mô tả bài toán và phạm vi
+Hệ thống đấu giá trực tuyến hỗ trợ người dùng đăng ký, đăng nhập, quản lý ví, tham gia đấu giá, theo dõi lịch sử mua hàng và nhận thông báo. Seller có thể đăng ký vai trò bán hàng, tạo sản phẩm đấu giá, quản lý phiên đấu giá và xem thống kê doanh thu. Admin có thể quản lý người dùng, sản phẩm và các phiên đấu giá trong hệ thống.
 
-## Mo ta bai toan va pham vi
+Phạm vi hệ thống gồm:
 
-He thong dau gia truc tuyen ho tro nguoi dung dang ky, dang nhap, quan ly vi, tham gia dau gia, theo doi lich su mua hang va nhan thong bao. Seller co the dang ky vai tro ban hang, tao san pham dau gia, quan ly phien dau gia va xem thong ke doanh thu. Admin co the quan ly nguoi dung, san pham va cac phien dau gia trong he thong.
+Server Spring Boot cung cấp REST API, WebSocket realtime và xử lý nghiệp vụ đấu giá.
 
-Pham vi he thong gom:
+Client JavaFX cung cấp giao diện desktop cho bidder, seller và admin.
 
-- Server Spring Boot cung cap REST API, WebSocket realtime va xu ly nghiep vu dau gia.
-- Client JavaFX cung cap giao dien desktop cho bidder, seller va admin.
-- Co so du lieu MySQL luu nguoi dung, san pham, phien dau gia, bid, giao dich va thong bao.
+Cơ sở dữ liệu MySQL lưu người dùng, sản phẩm, phiên đấu giá, bid, giao dịch và thông báo.
 
-## Cong nghe su dung va moi truong chay
+Công nghệ sử dụng và môi trường chạy
+Java 21 trở lên.
 
-- Java 21 tro len.
-- Spring Boot 3.4.0.
-- Spring Data JPA / Hibernate.
-- MySQL.
-- JavaFX 23.
-- Maven Wrapper.
-- Lombok.
-- JUnit 5, Mockito.
-- GitHub Actions cho CI/CD.
+Spring Boot 3.4.0.
 
-Yeu cau cai dat:
+Spring Data JPA / Hibernate.
 
-- JDK 21 khuyen nghi cho chay on dinh. Project da duoc cap nhat de compile/test tren JDK 25.
-- MySQL dang chay local hoac server rieng.
-- Git va Maven Wrapper co san trong repo.
-- IntelliJ IDEA hoac terminal PowerShell.
+MySQL.
 
-## Cau truc thu muc va module chinh
+JavaFX 23.
 
-```text
+Maven Wrapper.
+
+Lombok.
+
+JUnit 5, Mockito.
+
+GitHub Actions cho CI/CD.
+
+Yêu cầu cài đặt:
+
+JDK 21 khuyến nghị cho chạy ổn định. Project đã được cập nhật để compile/test trên JDK 25.
+
+MySQL đang chạy local hoặc server riêng.
+
+Git và Maven Wrapper có sẵn trong repo.
+
+IntelliJ IDEA hoặc terminal PowerShell.
+
+Cấu trúc thư mục và module chính
 .
+Nhom4-PhienDauGia/
 ├── .github/workflows/ci.yml          # Pipeline CI/CD GitHub Actions
-├── .mvn/                             # Cau hinh Maven Wrapper
-├── src/main/java/client/             # Ung dung JavaFX client
-├── src/main/java/common/             # DTO, request, response, enum, constants dung chung
-├── src/main/java/server/             # Spring Boot server
-├── src/main/resources/client/        # File FXML giao dien JavaFX
-├── src/main/resources/application.properties
-├── src/test/java/                    # Unit test server/client
-├── pom.xml                           # Cau hinh Maven dependencies/plugins
+├── .mvn/                             # Cấu hình Maven Wrapper
+├── src/main/java/
+│   │
+│   ├── common/                  # Gói dùng chung (Shared) cho cả Client và Server
+│   │   ├── dto/                 # Chứa các Data Transfer Object (AuctionItemDTO, BidDTO...)
+│   │   ├── enums/               # Chứa các hằng số liệt kê (Role, ItemType, AuctionState...)
+│   │   ├── request/             # Định nghĩa format dữ liệu gửi lên API (LoginRequest, BidRequest...)
+│   │   ├── response/            # Định nghĩa format dữ liệu trả về từ API (ApiResponse, AuthResponse...)
+│   │   └── Constants.java       # Các hằng số cấu hình hệ thống (BASE_URL, SOCKET_URL...)
+│   │
+│   ├── client/                  # Gói giao diện Frontend (JavaFX)
+│   │   ├── controller/          # Xử lý logic giao diện (LoginController, BidderDashboardController...)
+│   │   ├── model/               # Model nội bộ dành riêng cho Client (TransactionModel)
+│   │   ├── pattern/             # Các Design Pattern áp dụng ở Client
+│   │   │   ├── AuctionManager   # (Singleton) Quản lý phiên đăng nhập, thông tin user
+│   │   │   ├── SceneManager     # (Singleton) Chuyển đổi qua lại giữa các màn hình (Scene)
+│   │   │   └── WebSocketClientManager # Quản lý kết nối Socket realtime
+│   │   ├── ClientApp.java       # Class khởi chạy ứng dụng JavaFX (Nạp giao diện login.fxml)
+│   │   └── ClientLauncher.java  # Lớp bọc (Wrapper) để gọi ClientApp tránh lỗi module
+│   │
+│   └── server/                  # Gói Backend (Spring Boot + REST API)
+│       ├── config/              # Cấu hình hệ thống Server
+│       │   ├── AntiSnipingAspect# (AOP) Tự động kiểm tra và gia hạn giờ khi có thợ săn giá
+│       │   ├── WebSocketConfig  # Thiết lập cổng Socket cho realtime
+│       │   └── DataInitializer  # Khởi tạo dữ liệu mẫu (admin, user, item) khi database trống
+│       ├── controller/          # Các REST API Endpoints (AuthController, BidController...)
+│       ├── exception/           # Bắt và xử lý lỗi tùy chỉnh (InvalidBidException, GlobalExceptionHandler...)
+│       ├── model/               # Các Entity map trực tiếp với Database (User, Bid, Auction, Item...)
+│       ├── pattern/             # Các Design Pattern áp dụng ở Server
+│       │   └── ItemFactory      # (Factory) Xử lý tạo các loại sản phẩm khác nhau (Art, Vehicle...)
+│       ├── repository/          # Giao tiếp với Database (Kế thừa JpaRepository)
+│       ├── service/             # Xử lý nghiệp vụ lõi (BidService, AuthService, NotificationService...)
+│       │   └── AuctionSchedulerService # (Cron Job) Vòng lặp ngầm tự động mở/đóng phiên
+│       └── ServerApp.java       # Class khởi động máy chủ Spring Boot (chạy ở cổng 8080)
+│
+├── src/main/resources/          # Thư mục chứa tài nguyên tĩnh
+│   ├── application.properties   # File cấu hình cực kỳ quan trọng (Kết nối Database, Port...)
+│   └── client/fxml/             # Nơi chứa toàn bộ file giao diện .fxml kéo thả bằng Scene Builder
+│
+├── pom.xml                            # Cấu hình thư viện Maven (Lombok, Spring, JavaFX, Jackson...)
 ├── mvnw                              # Maven Wrapper Linux/macOS
-└── mvnw.cmd                          # Maven Wrapper Windows
-```
+└── mvnw.cmd                          # Maven Wrapper Windows 
 
-Module server chinh:
 
-- `server.ServerApp`: entry point cua Spring Boot server.
-- `server.controller`: REST API controllers.
-- `server.service`: xu ly nghiep vu dau gia, bid, notification, transaction.
-- `server.repository`: Spring Data JPA repositories.
-- `server.model`: entity database.
-- `server.config`: cau hinh WebSocket, scheduler va du lieu mau.
+Module server chính:
 
-Module client chinh:
+server.ServerApp: entry point của Spring Boot server.
 
-- `client.ClientLauncher`: entry point de chay JavaFX client.
-- `client.ClientApp`: khoi tao giao dien desktop.
-- `client.controller`: controller cho cac man hinh JavaFX.
-- `client.pattern`: quan ly scene, HTTP client, WebSocket client va auction state.
+server.controller: REST API controllers.
 
-## Vi tri file .jar
+server.service: xử lý nghiệp vụ đấu giá, bid, notification, transaction.
 
-Sau khi build, file jar nam tai:
+server.repository: Spring Data JPA repositories.
 
-```text
+server.model: entity database.
+
+server.config: cấu hình WebSocket, scheduler và dữ liệu mẫu.
+
+Module client chính:
+
+client.ClientLauncher: entry point để chạy JavaFX client.
+
+client.ClientApp: khởi tạo giao diện desktop.
+
+client.controller: controller cho các màn hình JavaFX.
+
+client.pattern: quản lý scene, HTTP client, WebSocket client và auction state.
+
+Vị trí file .jar
+Sau khi build, file jar nằm tại:
 target/Nhom4-PhienDauGia-0.0.1-SNAPSHOT.jar
-```
+Lệnh build jar:
 
-Lenh build jar:
-
-```powershell
 .\mvnw.cmd clean package
-```
 
-Tren GitHub Actions, jar duoc upload trong artifact:
-
-```text
+Trên GitHub Actions, jar được upload trong artifact:
 auction-system-jar
-```
+Cấu hình database
+Tạo file .env.properties ở thư mục gốc project. File này đã được ignore trong Git để tránh commit thông tin nhạy cảm.
 
-## Cau hinh database
+Ví dụ:
 
-Tao file `.env.properties` o thu muc goc project. File nay da duoc ignore trong Git de tranh commit thong tin nhay cam.
-
-Vi du:
-
-```properties
+Properties
 DB_URL=jdbc:mysql://localhost:3306/auction_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 DB_USERNAME=root
 DB_PASSWORD=your_mysql_password
-```
+Nếu MySQL root không có password, có thể để:
 
-Neu MySQL root khong co password, co the de:
-
-```properties
+Properties
 DB_PASSWORD=
-```
+Hướng dẫn chạy Server/Client
+Chạy theo đúng thứ tự sau.
 
-## Huong dan chay Server/Client
+Khởi động MySQL.
 
-Chay theo dung thu tu sau.
+Tạo file .env.properties và điền đúng thông tin database.
 
-1. Khoi dong MySQL.
-
-2. Tao file `.env.properties` va dien dung thong tin database.
-
-3. Build va test project:
-
-```powershell
+Build và test project:
 .\mvnw.cmd clean test
-```
+Chạy server:
 
-4. Chay server:
-
-```powershell
 .\mvnw.cmd spring-boot:run '-Dspring-boot.run.main-class=server.ServerApp'
-```
-
-Server mac dinh chay tai:
-
-```text
+Server mặc định chạy tại:
 http://localhost:8080
-```
+Mở terminal PowerShell mới và chạy client:
 
-5. Mo terminal PowerShell moi va chay client:
-
-```powershell
 .\mvnw.cmd javafx:run '-Djavafx.mainClass=client.ClientLauncher'
-```
-
-Client ket noi den server qua:
-
-```text
+Client kết nối đến server qua:
 REST API: http://localhost:8080/api
 WebSocket: ws://localhost:8080/ws
-```
+Chức năng đã hoàn thành
+Đăng ký và đăng nhập người dùng.
 
-## Chuc nang da hoan thanh
+Phân quyền cơ bản cho bidder, seller và admin.
 
-- Dang ky va dang nhap nguoi dung.
-- Phan quyen co ban cho bidder, seller va admin.
-- Cap nhat thong tin ca nhan, dia chi, ngan hang va vi.
-- Seller dang ky ban hang.
-- Seller them san pham dau gia.
-- Seller quan ly danh sach san pham/phien dau gia.
-- Seller xem chi tiet san pham va thong ke doanh thu.
-- Bidder xem danh sach san pham dau gia.
-- Bidder dat gia trong phien dau gia.
-- Hien thi cap nhat gia realtime qua WebSocket.
-- Hien thi bieu do lich su gia/bid.
-- Quan ly lich su mua hang va inventory cua bidder.
-- He thong thong bao realtime.
-- Admin dashboard quan ly nguoi dung va phien dau gia.
-- Scheduler tu dong xu ly trang thai phien dau gia.
-- Xu ly settlement, giao dich va notification sau khi ket thuc dau gia.
-- Unit test cho cac service, controller, pattern va logic client.
-- CI/CD GitHub Actions tu dong chay test, build jar va upload artifact.
+Cập nhật thông tin cá nhân, địa chỉ, ngân hàng và ví.
 
-## CI/CD voi GitHub Actions
+Seller đăng ký bán hàng.
 
-Workflow nam tai:
+Seller thêm sản phẩm đấu giá.
 
-```text
+Seller quản lý danh sách sản phẩm/phiên đấu giá.
+
+Seller xem chi tiết sản phẩm và thống kê doanh thu.
+
+Bidder xem danh sách sản phẩm đấu giá.
+
+Bidder đặt giá trong phiên đấu giá.
+
+Hiển thị cập nhật giá realtime qua WebSocket.
+
+Hiển thị biểu đồ lịch sử giá/bid.
+
+Quản lý lịch sử mua hàng và inventory của bidder.
+
+Hệ thống thông báo realtime.
+
+Admin dashboard quản lý người dùng và phiên đấu giá.
+
+Scheduler tự động xử lý trạng thái phiên đấu giá.
+
+Xử lý settlement, giao dịch và notification sau khi kết thúc đấu giá.
+
+Unit test cho các service, controller, pattern và logic client.
+
+CI/CD GitHub Actions tự động chạy test, build jar và upload artifact.
+
+CI/CD với GitHub Actions
+Workflow nằm tại:
 .github/workflows/ci.yml
-```
+Pipeline tự động chạy khi push hoặc pull request lên các branch main, master, demo:
 
-Pipeline tu dong chay khi push hoac pull request len cac branch `main`, `master`, `demo`:
+Checkout source code.
 
-- Checkout source code.
-- Cai JDK 21.
-- Cache Maven dependencies.
-- Chay test bang `.\mvnw.cmd test`.
-- Build jar bang `.\mvnw.cmd -DskipTests package`.
-- Upload file jar trong `target/*.jar`.
+Cài JDK 21.
 
-## Link bao cao va video demo
+Cache Maven dependencies.
 
-- Bao cao PDF: `CHUA_CAP_NHAT_LINK_BAO_CAO_PDF`
-- Video demo: `CHUA_CAP_NHAT_LINK_VIDEO_DEMO`
+Chạy test bằng .\mvnw.cmd test.
+
+Build jar bằng .\mvnw.cmd -DskipTests package.
+
+Upload file jar trong target/*.jar.
