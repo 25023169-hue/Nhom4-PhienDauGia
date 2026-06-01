@@ -67,6 +67,7 @@ public class AdminService {
               item -> {
                 AuctionItemDTO dto = new AuctionItemDTO();
                 dto.setId(auction.getId());
+                dto.setItemId(item.getId());
                 dto.setName(item.getName());
                 dto.setCurrentPrice(item.getCurrentPrice());
                 dto.setStartTime(format(auction.getStartTime(), formatter));

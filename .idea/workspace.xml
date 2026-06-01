@@ -184,7 +184,7 @@
       <recent name="io.auctionsystem.client" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ClientLauncher">
+  <component name="RunManager" selected="Spring Boot.ServerApp">
     <configuration name="ClientLauncher" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="io.auctionsystem.client.ClientLauncher" />
       <module name="Nhom4-PhienDauGia" />

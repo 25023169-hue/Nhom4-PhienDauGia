@@ -84,6 +84,7 @@ public class AuctionController {
   private AuctionItemDTO toDTO(Auction auction, Item item, DateTimeFormatter formatter) {
     AuctionItemDTO dto = new AuctionItemDTO();
     dto.setId(auction.getId());
+    dto.setItemId(item.getId());
     dto.setName(item.getName());
     dto.setCurrentPrice(item.getCurrentPrice());
     dto.setStartTime(

@@ -27,6 +27,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -60,6 +62,7 @@ public class SellerOrderManagementController {
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
 
   private Long currentAuctionId;
+  private Long currentItemId;
   private LocalDateTime auctionEndTime;
   private Timeline countdownTimeline;
   private XYChart.Series<String, Number> priceSeries;
@@ -167,6 +170,7 @@ public class SellerOrderManagementController {
   private void openOrderDetail(AuctionItemDTO auction) {
     stopAuctionRealtimeUpdates();
     currentAuctionId = auction.getId();
+    currentItemId = auction.getItemId();
     auctionEndTime = null;
     priceSeries.getData().clear();
     lblProductName.setText(auction.getName());
@@ -183,6 +187,72 @@ public class SellerOrderManagementController {
   private void setDetailVisible(boolean visible) {
     detailPane.setVisible(visible);
     detailPane.setManaged(visible);
+  }
+
+  @FXML
+  private void onDeleteAuctionClicked() {
+    Long sellerId = AuctionManager.getInstance().getId();
+    Long itemId = currentItemId;
+    if (sellerId == null || itemId == null) {
+      showAlert(Alert.AlertType.ERROR, "Không thể xóa phiên", "Không tìm thấy phiên đấu giá.");
+      return;
+    }
+
+    Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+    confirmation.setHeaderText("Xóa phiên đấu giá đang chạy?");
+    confirmation.setContentText(
+        "Phiên sẽ bị hủy và tiền giữ chỗ của người tham gia sẽ được hoàn lại.");
+    if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+      return;
+    }
+
+    new Thread(
+            () -> {
+              try {
+                HttpRequest request =
+                    HttpRequest.newBuilder()
+                        .uri(
+                            URI.create(
+                                Constants.BASE_URL
+                                    + "/seller/products/"
+                                    + itemId
+                                    + "?sellerId="
+                                    + sellerId))
+                        .DELETE()
+                        .build();
+                HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                Platform.runLater(
+                    () -> {
+                      if (response.statusCode() == 200) {
+                        stopAuctionRealtimeUpdates();
+                        currentAuctionId = null;
+                        currentItemId = null;
+                        setDetailVisible(false);
+                        loadOrders();
+                      } else {
+                        showAlert(Alert.AlertType.ERROR, "Không thể xóa phiên", response.body());
+                      }
+                    });
+              } catch (Exception e) {
+                Platform.runLater(
+                    () ->
+                        showAlert(
+                            Alert.AlertType.ERROR,
+                            "Không thể xóa phiên",
+                            "Không thể kết nối đến máy chủ!"));
+              }
+            })
+        .start();
+  }
+
+  private void showAlert(Alert.AlertType type, String title, String message) {
+    Alert alert = new Alert(type);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
   }
 
   private void loadInitialChartData() {
@@ -328,6 +398,7 @@ public class SellerOrderManagementController {
                       () -> {
                         stopAuctionRealtimeUpdates();
                         currentAuctionId = null;
+                        currentItemId = null;
                         setDetailVisible(false);
                         loadOrders();
                       });

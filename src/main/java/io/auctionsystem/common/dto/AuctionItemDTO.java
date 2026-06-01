@@ -17,6 +17,7 @@ public class AuctionItemDTO implements Serializable {
   // convention JavaFX Bean → có thể gây cột bảng trống tùy version Lombok.
   // Đặt tên "id" chuẩn Java Bean convention để Lombok tạo đúng "getId()".
   private Long id;
+  private Long itemId;
 
   private String name;
   private Double currentPrice;
