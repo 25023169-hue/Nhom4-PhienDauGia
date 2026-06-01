@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.AdminDashboardController">
+    <top>
+        <HBox style="-fx-background-color: linear-gradient(to right, #36d1dc, #5b86e5); -fx-padding: 12;" spacing="10">
+            <children>
+                <Label text="Admin Panel" style="-fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;" />
+                <HBox HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnLogout" text="Logout" onAction="#onLogoutClicked" style="-fx-background-color: linear-gradient(to right, #36d1dc, #5b86e5); -fx-text-fill: white; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 4);" />
+            </children>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox spacing="12" style="-fx-background-color: #f5f7fb; -fx-padding: 16;" prefWidth="220">
+            <children>
+                <Label text="Quản lý" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-padding: 0 0 8 0;" />
+                <Button fx:id="navDashboard" text="Tổng quan" onAction="#onDashboardClicked" maxWidth="Infinity" style="-fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 4);" />
+                <Button fx:id="navUsers" text="Người dùng" onAction="#onManageUsersClicked" maxWidth="Infinity" style="-fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 4);" />
+                <Button fx:id="navAuctions" text="Phiên đấu giá" onAction="#onApproveAuctionsClicked" maxWidth="Infinity" style="-fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 4);" />
+                <Button fx:id="navSettings" text="Cài đặt" onAction="#onSettingsClicked" maxWidth="Infinity" style="-fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 4);" />
+                <HBox />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane style="-fx-padding: 16;">
+            <children>
+                <VBox fx:id="dashboardPane" spacing="12" style="-fx-padding: 12;">
+                    <children>
+                        <HBox spacing="12">
+                            <children>
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 14, 0, 0, 6);" prefWidth="180" alignment="CENTER">
+                                    <children>
+                                        <Label text="Tổng người dùng" style="-fx-text-fill: #666; -fx-font-size: 12;" />
+                                        <Label fx:id="statUsers" text="0" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                                    </children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 14, 0, 0, 6);" prefWidth="180" alignment="CENTER">
+                                    <children>
+                                        <Label text="Phiên đã lên lịch" style="-fx-text-fill: #666; -fx-font-size: 12;" />
+                                        <Label fx:id="statOpenAuctions" text="0" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                                    </children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 14, 0, 0, 6);" prefWidth="180" alignment="CENTER">
+                                    <children>
+                                        <Label text="Phiên đang chạy" style="-fx-text-fill: #666; -fx-font-size: 12;" />
+                                        <Label fx:id="statActiveAuctions" text="0" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                                    </children>
+                                </VBox>
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 14, 0, 0, 6);" prefWidth="180" alignment="CENTER">
+                                    <children>
+                                        <Label text="Phiên đã kết thúc" style="-fx-text-fill: #666; -fx-font-size: 12;" />
+                                        <Label fx:id="statFinishedAuctions" text="0" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <VBox fx:id="usersPane" visible="false" managed="false" spacing="8" style="-fx-padding: 8; -fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 16, 0, 0, 8); -fx-padding: 16;">
+                    <children>
+                        <TableView fx:id="usersTable" prefHeight="360" style="-fx-background-color: transparent;">
+                            <columns>
+                                <TableColumn fx:id="colUserId" text="ID" prefWidth="80" />
+                                <TableColumn fx:id="colUsername" text="Username" prefWidth="180" />
+                                <TableColumn fx:id="colFullname" text="Họ tên" prefWidth="200" />
+                                <TableColumn fx:id="colRole" text="Role" prefWidth="120" />
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
+                        </TableView>
+                    </children>
+                </VBox>
+                <VBox fx:id="auctionsPane" visible="false" managed="false" spacing="8" style="-fx-padding: 8; -fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 16, 0, 0, 8); -fx-padding: 16;">
+                    <children>
+                        <TableView fx:id="auctionsTable" prefHeight="360" style="-fx-background-color: transparent;">
+                            <columns>
+                                <TableColumn fx:id="colAuctionId" text="ID" prefWidth="65" />
+                                <TableColumn fx:id="colItem" text="Sản phẩm" prefWidth="230" />
+                                <TableColumn fx:id="colStatus" text="Trạng thái" prefWidth="190" />
+                                <TableColumn fx:id="colStartTime" text="Bắt đầu" prefWidth="145" />
+                                <TableColumn fx:id="colEndTime" text="Kết thúc" prefWidth="145" />
+                                <TableColumn fx:id="colAuctionAction" text="Hành động" prefWidth="90" />
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
+                        </TableView>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox style="-fx-padding: 10; -fx-alignment: center-right; -fx-background-color: transparent;">
+            <children>
+                <Label text="Auction System — Admin" style="-fx-text-fill: #888;" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

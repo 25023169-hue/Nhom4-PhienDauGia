@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="24.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.HomeController">
+    <padding><Insets bottom="30.0" left="30.0" right="30.0" top="30.0" /></padding>
+    <children>
+        <VBox spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 28;">
+            <children>
+                <Label text="Chào mừng đến Auction System" textFill="#2c3e50">
+                    <font><Font name="System Bold" size="28.0" /></font>
+                </Label>
+                <Label text="Theo dõi phiên đấu giá, sản phẩm yêu thích và kênh người bán từ một nơi." textFill="#6b7c85" wrapText="true">
+                    <font><Font size="15.0" /></font>
+                </Label>
+            </children>
+        </VBox>
+        <HBox spacing="18.0">
+            <children>
+                <VBox HBox.hgrow="ALWAYS" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 20;">
+                    <children>
+                        <Label text="Phiên đấu giá" textFill="#7f8c8d" />
+                        <Label text="0" textFill="#2c3e50"><font><Font name="System Bold" size="30.0" /></font></Label>
+                    </children>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 20;">
+                    <children>
+                        <Label text="Sản phẩm" textFill="#7f8c8d" />
+                        <Label text="0" textFill="#2c3e50"><font><Font name="System Bold" size="30.0" /></font></Label>
+                    </children>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #e6ecf0; -fx-border-radius: 8; -fx-padding: 20;">
+                    <children>
+                        <Label text="Thông báo" textFill="#7f8c8d" />
+                        <Label text="0" textFill="#2c3e50"><font><Font name="System Bold" size="30.0" /></font></Label>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>

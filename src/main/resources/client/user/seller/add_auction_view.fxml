@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color: #f3f6fb;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.SellerAddProductController">
+    <content>
+        <VBox spacing="18.0" style="-fx-background-color: #f3f6fb;">
+            <padding>
+                <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#onBackClicked" style="-fx-background-color: white; -fx-text-fill: #334155; -fx-border-color: #d7dee8; -fx-border-radius: 5; -fx-cursor: hand;" text="Quay lại" />
+                        <Label fx:id="lblFormTitle" text="Thêm sản phẩm">
+                            <font>
+                                <Font name="System Bold" size="26.0" />
+                            </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnStartAuction" mnemonicParsing="false" onAction="#onStartAuctionClicked" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;" text="Bắt đầu phiên đấu giá">
+                            <padding>
+                                <Insets bottom="10.0" left="22.0" right="22.0" top="10.0" />
+                            </padding>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <TitledPane collapsible="false" text="Thông tin sản phẩm">
+                    <content>
+                        <GridPane hgap="12.0" vgap="12.0" style="-fx-background-color: white; -fx-padding: 18;">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="150.0" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                                <ColumnConstraints minWidth="150.0" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                            </columnConstraints>
+                            <children>
+                                <Label text="Tên sản phẩm" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="txtName" promptText="Ví dụ: Tranh sơn dầu, iPhone, xe máy..." GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="0" />
+
+                                <Label text="Mô tả" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextArea fx:id="txtDescription" prefRowCount="3" promptText="Mô tả ngắn về sản phẩm" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
+
+                                <Label text="Giá khởi điểm" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <TextField fx:id="txtStartingPrice" promptText="Ví dụ: 1000000" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label text="Loại sản phẩm" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <ComboBox fx:id="cbItemType" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                                <Label text="Giá mua đứt" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <TextField fx:id="txtBuyNowPrice" promptText="Không bắt buộc" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                <Label text="Ngày bắt đầu" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <DatePicker fx:id="dpStartDate" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                <Label text="Giờ bắt đầu" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                <TextField fx:id="txtStartTime" promptText="HH:mm" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+
+                                <Label text="Ngày kết thúc" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <DatePicker fx:id="dpEndDate" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                <Label text="Giờ kết thúc" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                <TextField fx:id="txtEndTime" promptText="HH:mm" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
+
+                <TitledPane collapsible="false" text="Thông tin riêng theo loại sản phẩm">
+                    <content>
+                        <VBox spacing="14.0" style="-fx-background-color: white; -fx-padding: 18;">
+                            <children>
+                                <VBox fx:id="artFields" spacing="10.0">
+                                    <children>
+                                        <Label text="Art">
+                                            <font><Font name="System Bold" size="15.0" /></font>
+                                        </Label>
+                                        <GridPane hgap="12.0" vgap="12.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label text="Tác giả" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtArtistName" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label text="Chất liệu" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtMedium" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                <Label text="Kích thước" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtDimensions" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="Năm sáng tác" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtCreationYear" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="electronicsFields" spacing="10.0">
+                                    <children>
+                                        <Label text="Electronics">
+                                            <font><Font name="System Bold" size="15.0" /></font>
+                                        </Label>
+                                        <GridPane hgap="12.0" vgap="12.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label text="Thương hiệu" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtElectronicsBrand" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label text="Model" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtElectronicsModel" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                <Label text="Tình trạng" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtCondition" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="vehicleFields" spacing="10.0">
+                                    <children>
+                                        <Label text="Vehicle">
+                                            <font><Font name="System Bold" size="15.0" /></font>
+                                        </Label>
+                                        <GridPane hgap="12.0" vgap="12.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label text="Năm sản xuất" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtManufactureYear" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                <Label text="Nhiên liệu" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtFuelType" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="fashionFields" spacing="10.0">
+                                    <children>
+                                        <Label text="Fashion">
+                                            <font><Font name="System Bold" size="15.0" /></font>
+                                        </Label>
+                                        <GridPane hgap="12.0" vgap="12.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label text="Thương hiệu" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtFashionBrand" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label text="Kích cỡ" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtFashionSize" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                <Label text="Chất liệu" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtFashionMaterial" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label text="Giới tính" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtFashionGender" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="jewelryFields" spacing="10.0">
+                                    <children>
+                                        <Label text="Jewelry">
+                                            <font><Font name="System Bold" size="15.0" /></font>
+                                        </Label>
+                                        <GridPane hgap="12.0" vgap="12.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                                <ColumnConstraints minWidth="150.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label text="Chất liệu" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtJewelryMaterial" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label text="Trọng lượng" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtWeight" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                <Label text="Đá quý" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtGemstone" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>
