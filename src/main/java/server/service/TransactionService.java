@@ -3,6 +3,7 @@ package server.service;
 import common.dto.ChartPointDTO;
 import common.dto.RevenueStatsDTO;
 import common.dto.TransactionDTO;
+import common.enums.TransactionType;
 import server.exception.ResourceNotFoundException;
 import server.exception.ValidationException;
 import server.exception.WalletException;
@@ -35,13 +36,20 @@ public class TransactionService {
       throw new ValidationException("Số tiền giao dịch phải lớn hơn 0");
     }
 
+    TransactionType transactionType;
+    try {
+      transactionType = TransactionType.fromValue(type);
+    } catch (IllegalArgumentException exception) {
+      throw new ValidationException(exception.getMessage());
+    }
+
     User user =
         userRepository
             .findByIdForUpdate(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
-    if ("Nạp".equals(type)) {
+    if (transactionType == TransactionType.DEPOSIT) {
       user.setBalance(user.getBalance() + amount);
-    } else if ("Rút".equals(type)) {
+    } else if (transactionType == TransactionType.WITHDRAWAL) {
       if (user.getAvailableBalance() < amount) {
         throw new WalletException("Số dư khả dụng không đủ để rút tiền");
       }
@@ -53,15 +61,20 @@ public class TransactionService {
 
     return saveTransaction(
         userId,
-        "Nạp".equals(type) ? amount : 0.0,
-        "Rút".equals(type) ? amount : 0.0,
+        transactionType == TransactionType.DEPOSIT ? amount : 0.0,
+        transactionType == TransactionType.WITHDRAWAL ? amount : 0.0,
         user.getAvailableBalance(),
-        type,
+        transactionType,
         note);
   }
 
   public Transaction saveTransaction(
-      Long userId, Double moneyIn, Double moneyOut, Double lastBalance, String type, String note) {
+      Long userId,
+      Double moneyIn,
+      Double moneyOut,
+      Double lastBalance,
+      TransactionType type,
+      String note) {
     Transaction tx = new Transaction();
     tx.setUserId(userId);
     tx.setType(type);
@@ -80,8 +93,9 @@ public class TransactionService {
 
   public RevenueStatsDTO getSellerRevenueStats(Long sellerId) {
     List<Transaction> sales =
-        transactionRepository.findByUserIdAndTypeInOrderByTransactionTimeDesc(
-            sellerId, List.of("Thu nhập", "Thu nhập bán hàng"));
+        transactionRepository.findByUserIdOrderByTransactionTimeDesc(sellerId).stream()
+            .filter(transaction -> transaction.getType() == TransactionType.SALE_INCOME)
+            .toList();
 
     double totalRevenue =
         sales.stream().mapToDouble(tx -> tx.getMoneyIn() == null ? 0.0 : tx.getMoneyIn()).sum();

@@ -1,5 +1,6 @@
 package common.dto;
 
+import common.enums.NotificationType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.*;
@@ -13,5 +14,5 @@ public class NotificationDTO implements Serializable {
   private String message;
   private LocalDateTime createdAt;
   private boolean isRead;
-  private String type;
+  private NotificationType type;
 }

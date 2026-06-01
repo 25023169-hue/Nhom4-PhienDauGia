@@ -2,6 +2,7 @@ package server.service;
 
 import common.enums.AuctionState;
 import common.enums.BidCommitmentStatus;
+import common.enums.TransactionType;
 import server.exception.ResourceNotFoundException;
 import server.model.Auction;
 import server.model.BidCommitment;
@@ -116,7 +117,7 @@ public class AuctionSettlementService {
               listingRepository.save(listing);
             });
 
-    realtimePublisher.publishStatusAfterCommit(auction.getId(), "CLOSED");
+    realtimePublisher.publishStatusAfterCommit(auction.getId(), finalStatus);
     realtimePublisher.publishAuctionListChangedAfterCommit();
   }
 
@@ -186,7 +187,7 @@ public class AuctionSettlementService {
         0.0,
         finalPrice,
         winner.getAvailableBalance(),
-        "Thanh toán đấu giá",
+        TransactionType.AUCTION_PAYMENT,
         "Thanh toán sản phẩm: " + item.getName());
 
     User seller = lockedUsers.get(item.getSeller().getId());
@@ -197,7 +198,7 @@ public class AuctionSettlementService {
         finalPrice,
         0.0,
         seller.getAvailableBalance(),
-        "Thu nhập",
+        TransactionType.SALE_INCOME,
         "Bán sản phẩm: " + item.getName());
 
     commitment.setStatus(BidCommitmentStatus.PAID);

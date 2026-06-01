@@ -12,5 +12,6 @@ public class Constants {
   // Các "kênh" (Topics) để App lắng nghe dữ liệu thời gian thực qua Socket
   public static final String TOPIC_BIDS = "/topic/bids";
   public static final String TOPIC_AUCTIONS = "/topic/auctions";
+  public static final String TOPIC_NOTIFICATIONS = "/topic/notifications";
   public static final String TOPIC_CHART = "/topic/chart";
 }

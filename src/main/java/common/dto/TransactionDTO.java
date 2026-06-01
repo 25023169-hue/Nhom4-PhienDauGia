@@ -1,5 +1,6 @@
 package common.dto;
 
+import common.enums.TransactionType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ public class TransactionDTO implements Serializable {
   private Double moneyIn;
   private Double moneyOut;
   private Double lastBalance;
-  private String type;
+  private TransactionType type;
   private String note;
   private LocalDateTime transactionTime;
   private LocalDateTime createdAt;

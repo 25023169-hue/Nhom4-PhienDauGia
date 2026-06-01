@@ -51,7 +51,7 @@ public class InventoryQueryService {
     dto.setCurrentPrice(auction.getFinalPrice());
     dto.setEndTime(
         auction.getEndTime() == null ? "" : auction.getEndTime().format(DISPLAY_FORMATTER));
-    dto.setStatus("WON");
+    dto.setStatus(AuctionState.FINISHED);
     return dto;
   }
 }

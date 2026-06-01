@@ -7,6 +7,7 @@ import client.pattern.ClientHttp;
 import client.pattern.SceneManager;
 import common.Constants;
 import common.dto.AuctionItemDTO;
+import common.enums.AuctionState;
 import common.response.AuthResponse;
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -42,7 +43,7 @@ public class AdminDashboardController {
   @FXML private TableView<AuctionItemDTO> auctionsTable;
   @FXML private TableColumn<AuctionItemDTO, Long> colAuctionId;
   @FXML private TableColumn<AuctionItemDTO, String> colItem;
-  @FXML private TableColumn<AuctionItemDTO, String> colStatus;
+  @FXML private TableColumn<AuctionItemDTO, AuctionState> colStatus;
   @FXML private TableColumn<AuctionItemDTO, String> colStartTime;
   @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
   @FXML private TableColumn<AuctionItemDTO, Void> colAuctionAction;
@@ -77,7 +78,7 @@ public class AdminDashboardController {
         column ->
             new TableCell<>() {
               @Override
-              protected void updateItem(String status, boolean empty) {
+              protected void updateItem(AuctionState status, boolean empty) {
                 super.updateItem(status, empty);
                 setText(empty ? null : displayStatus(status));
               }
@@ -162,11 +163,12 @@ public class AdminDashboardController {
                   Platform.runLater(
                       () -> {
                         auctionsTable.setItems(FXCollections.observableArrayList(auctions));
-                        statOpenAuctions.setText(String.valueOf(countStatus(auctions, "OPEN")));
+                        statOpenAuctions.setText(
+                            String.valueOf(countStatus(auctions, AuctionState.OPEN)));
                         statActiveAuctions.setText(
-                            String.valueOf(countStatus(auctions, "RUNNING")));
+                            String.valueOf(countStatus(auctions, AuctionState.RUNNING)));
                         statFinishedAuctions.setText(
-                            String.valueOf(countStatus(auctions, "FINISHED")));
+                            String.valueOf(countStatus(auctions, AuctionState.FINISHED)));
                       });
                 }
               } catch (Exception e) {
@@ -254,19 +256,15 @@ public class AdminDashboardController {
   }
 
   private boolean canDelete(AuctionItemDTO auction) {
-    return "OPEN".equals(auction.getStatus()) || "RUNNING".equals(auction.getStatus());
+    return auction.getStatus() == AuctionState.OPEN || auction.getStatus() == AuctionState.RUNNING;
   }
 
-  private long countStatus(List<AuctionItemDTO> auctions, String status) {
-    return auctions.stream().filter(auction -> status.equals(auction.getStatus())).count();
+  private long countStatus(List<AuctionItemDTO> auctions, AuctionState status) {
+    return auctions.stream().filter(auction -> status == auction.getStatus()).count();
   }
 
-  private String displayStatus(String status) {
-    if ("OPEN".equals(status)) return "OPEN";
-    if ("RUNNING".equals(status)) return "RUNNING";
-    if ("FINISHED".equals(status)) return "FINISHED";
-    if ("CANCELLED".equals(status)) return "CANCELLED";
-    return status;
+  private String displayStatus(AuctionState status) {
+    return status == null ? "" : status.name();
   }
 
   private void showAlert(Alert.AlertType type, String title, String message) {

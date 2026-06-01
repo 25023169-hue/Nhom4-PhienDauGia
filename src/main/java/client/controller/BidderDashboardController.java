@@ -38,6 +38,7 @@ public class BidderDashboardController extends BaseDashboardController {
     }
 
     onHomeButtonClicked();
+    initializeNotificationUpdates();
   }
 
   @Override
@@ -77,6 +78,7 @@ public class BidderDashboardController extends BaseDashboardController {
 
   @FXML
   public void onSellerChannelButtonClicked() {
+    stopNotificationUpdates();
     if (AuctionManager.getInstance().getRole() == Role.SELLER) {
       SceneManager.getInstance().switchScene("/client/user/seller/seller_dashboard.fxml");
     } else {
@@ -86,6 +88,7 @@ public class BidderDashboardController extends BaseDashboardController {
 
   @FXML
   public void onOpenSettings() {
+    stopNotificationUpdates();
     SettingsController.isSellerChannel = false;
     SceneManager.getInstance().switchScene("/client/settings/settings.fxml");
   }

@@ -57,7 +57,7 @@ class AdminServiceTest {
     assertEquals(1, auctions.size());
     assertEquals("Laptop", auctions.getFirst().getName());
     assertEquals("02/06/2026 08:30", auctions.getFirst().getStartTime());
-    assertEquals("OPEN", auctions.getFirst().getStatus());
+    assertEquals(AuctionState.OPEN, auctions.getFirst().getStatus());
   }
 
   @Test

@@ -1,14 +1,17 @@
 package server.config;
 
 import common.enums.AuctionState;
+import common.enums.NotificationType;
 import server.model.*;
 import server.pattern.ItemTypeResolver;
 import server.repository.AuctionRepository;
 import server.repository.BidRepository;
 import server.repository.ItemRepository;
+import server.repository.NotificationRepository;
 import server.repository.SellerProductListingRepository;
 import server.repository.UserRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,8 @@ public class DataInitializer implements CommandLineRunner {
 
   private final UserRepository userRepository;
 
+  private final NotificationRepository notificationRepository;
+
   private final SellerProductListingRepository sellerProductListingRepository;
 
   private final Environment environment;
@@ -38,6 +43,7 @@ public class DataInitializer implements CommandLineRunner {
   @Override
   public void run(String... args) throws Exception {
     createBootstrapAdminIfConfigured();
+    createSampleNotificationsIfEmpty();
 
     // LỖI ĐÃ SỬA: Trước đây deleteAll() được gọi KHÔNG CÓ ĐIỀU KIỆN mỗi lần server khởi động
     // → xóa sạch toàn bộ dữ liệu thật (bid, auction, item) mỗi lần restart.
@@ -155,6 +161,61 @@ public class DataInitializer implements CommandLineRunner {
     createAuction(dayChuyen, 2, AuctionState.RUNNING);
 
     LOGGER.info("Đã nạp xong toàn bộ sản phẩm mẫu.");
+  }
+
+  private void createSampleNotificationsIfEmpty() {
+    if (notificationRepository.count() > 0) {
+      return;
+    }
+
+    List<User> users = userRepository.findAllClients();
+    User seller =
+        users.stream().filter(user -> userRepository.isUserSeller(user.getId()) > 0).findFirst().orElse(null);
+    User bidder =
+        users.stream().filter(user -> userRepository.isUserSeller(user.getId()) == 0).findFirst().orElse(seller);
+    if (bidder != null) {
+      notificationRepository.save(
+          new Notification(
+              bidder,
+              "Bạn đã bị vượt giá tại phiên sản phẩm #123!",
+              NotificationType.BID_OUTBID));
+      notificationRepository.save(
+          new Notification(
+              bidder, "Tuyệt vời! Bạn đã thắng phiên đấu giá #123!", NotificationType.BID_WON));
+      notificationRepository.save(
+          new Notification(
+              bidder,
+              "Phiên #123 đã kết thúc. Bạn không trúng giải.",
+              NotificationType.BID_LOST));
+      notificationRepository.save(
+          new Notification(
+              bidder, "Phiên đấu giá #123 đã bị hủy.", NotificationType.AUCTION_CANCELED));
+    }
+    if (seller != null) {
+      notificationRepository.save(
+          new Notification(
+              seller,
+              "Có lượt đặt giá mới: 1.000.000đ cho sản phẩm của bạn.",
+              NotificationType.NEW_BID));
+      notificationRepository.save(
+          new Notification(
+              seller,
+              "Chúc mừng! Sản phẩm của bạn đã bán thành công với giá 1.000.000đ.",
+              NotificationType.AUCTION_SOLD));
+      notificationRepository.save(
+          new Notification(
+              seller,
+              "Phiên đấu giá đã kết thúc nhưng không có ai mua (Ế).",
+              NotificationType.AUCTION_EXPIRED));
+      notificationRepository.save(
+          new Notification(
+              seller,
+              "Bạn đã chủ động hủy phiên đấu giá của chính mình.",
+              NotificationType.AUCTION_CANCELED));
+    }
+    if (bidder != null || seller != null) {
+      LOGGER.info("Đã nạp bộ thông báo mẫu.");
+    }
   }
 
   private void createBootstrapAdminIfConfigured() {

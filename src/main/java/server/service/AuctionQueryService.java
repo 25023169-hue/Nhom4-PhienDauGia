@@ -78,7 +78,7 @@ public class AuctionQueryService {
         auction.getStartTime() == null ? "" : auction.getStartTime().format(DISPLAY_FORMATTER));
     dto.setEndTime(
         auction.getEndTime() == null ? "" : auction.getEndTime().format(DISPLAY_FORMATTER));
-    dto.setStatus(auction.getStatus().name());
+    dto.setStatus(auction.getStatus());
     return new AuctionItemWithSource(dto, item);
   }
 

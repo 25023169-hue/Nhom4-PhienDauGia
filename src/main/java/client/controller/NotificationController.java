@@ -36,7 +36,34 @@ public class NotificationController {
     listNotifications.setItems(notiList);
     listNotifications.setCellFactory(list -> new NotificationCell());
     listNotifications.setOnMouseClicked(this::handleNotificationClicked);
-    loadNotifications();
+    markAllAsReadAndLoadNotifications();
+  }
+
+  private void markAllAsReadAndLoadNotifications() {
+    Long userId = AuctionManager.getInstance().getId();
+    if (userId == null) {
+      loadNotifications();
+      return;
+    }
+
+    new Thread(
+            () -> {
+              try {
+                HttpRequest request =
+                    HttpRequest.newBuilder()
+                        .uri(
+                            URI.create(
+                                Constants.BASE_URL + "/notifications/user/" + userId + "/read-all"))
+                        .PUT(HttpRequest.BodyPublishers.noBody())
+                        .build();
+                ClientHttp.send(request);
+              } catch (Exception e) {
+                e.printStackTrace();
+              } finally {
+                loadNotifications();
+              }
+            })
+        .start();
   }
 
   private void loadNotifications() {
@@ -55,24 +82,25 @@ public class NotificationController {
                 HttpResponse<String> response =
                     ClientHttp.send(request);
 
-                Platform.runLater(
-                    () -> {
-                      if (response.statusCode() == 200) {
-                        try {
-                          List<NotificationDTO> notis =
-                              objectMapper.readValue(
-                                  response.body(), new TypeReference<List<NotificationDTO>>() {});
-                          notiList.setAll(notis);
-                        } catch (Exception e) {
-                          e.printStackTrace();
-                        }
-                      }
-                    });
+                Platform.runLater(() -> handleNotificationsResponse(response));
               } catch (Exception e) {
                 e.printStackTrace();
               }
             })
         .start();
+  }
+
+  private void handleNotificationsResponse(HttpResponse<String> response) {
+    if (response.statusCode() != 200) {
+      return;
+    }
+    try {
+      List<NotificationDTO> notis =
+          objectMapper.readValue(response.body(), new TypeReference<List<NotificationDTO>>() {});
+      notiList.setAll(notis);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   private void handleNotificationClicked(MouseEvent event) {
@@ -137,10 +165,7 @@ public class NotificationController {
           notification.getCreatedAt() == null
               ? ""
               : notification.getCreatedAt().format(DISPLAY_FORMATTER);
-      String type =
-          notification.getType() == null || notification.getType().isBlank()
-              ? "Thông báo"
-              : notification.getType();
+      String type = notification.getType() == null ? "Thông báo" : notification.getType().name();
       Label meta = new Label(type + (time.isBlank() ? "" : " • " + time));
       meta.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
 

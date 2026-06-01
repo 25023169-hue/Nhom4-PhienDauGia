@@ -1,6 +1,7 @@
 package server.service;
 
 import common.enums.AuctionState;
+import common.enums.NotificationType;
 import common.response.BidResponse;
 import server.model.Auction;
 import server.model.Bid;
@@ -73,21 +74,17 @@ public class AuctionNotificationService implements InitializingBean {
       Long auctionId, Long previousBidderId, Long newBidderId, Double newPrice) {
     Item item = getItemByAuctionId(auctionId);
     Long sellerId = item == null || item.getSeller() == null ? null : item.getSeller().getId();
-    notificationService.createNotification(
-        newBidderId,
-        "Bạn đã đặt giá thành công mức " + formatVND(newPrice) + " cho phiên đấu giá #" + auctionId,
-        "BID_SUCCESS");
     if (previousBidderId != null && !previousBidderId.equals(newBidderId)) {
       notificationService.createNotification(
           previousBidderId,
           "Bạn đã bị vượt giá tại phiên sản phẩm #" + auctionId + "!",
-          "BID_OUTBID");
+          NotificationType.BID_OUTBID);
     }
     if (sellerId != null && !sellerId.equals(newBidderId)) {
       notificationService.createNotification(
           sellerId,
           "Có lượt đặt giá mới: " + formatVND(newPrice) + " cho sản phẩm của bạn.",
-          "NEW_BID");
+          NotificationType.NEW_BID);
     }
   }
 
@@ -107,8 +104,8 @@ public class AuctionNotificationService implements InitializingBean {
     if (item != null && item.getSeller() != null) {
       notificationService.createNotification(
           item.getSeller().getId(),
-          "Phiên đấu giá #" + auctionId + " đã kết thúc nhưng không có người mua.",
-          "AUCTION_EXPIRED");
+          "Phiên đấu giá đã kết thúc nhưng không có ai mua (Ế).",
+          NotificationType.AUCTION_EXPIRED);
     }
   }
 
@@ -132,7 +129,9 @@ public class AuctionNotificationService implements InitializingBean {
     Long winnerId = auction.getWinnerId();
     if (winnerId != null) {
       notificationService.createNotification(
-          winnerId, "Bạn đã thắng phiên đấu giá #" + auctionId + "!", "BID_WON");
+          winnerId,
+          "Tuyệt vời! Bạn đã thắng phiên đấu giá #" + auctionId + "!",
+          NotificationType.BID_WON);
       bidderIds.stream()
           .filter(bidderId -> !bidderId.equals(winnerId))
           .forEach(
@@ -140,14 +139,14 @@ public class AuctionNotificationService implements InitializingBean {
                   notificationService.createNotification(
                       bidderId,
                       "Phiên #" + auctionId + " đã kết thúc. Bạn không trúng giải.",
-                      "BID_LOST"));
+                      NotificationType.BID_LOST));
       if (sellerId != null) {
         notificationService.createNotification(
             sellerId,
-            "Sản phẩm của bạn đã bán thành công với giá "
+            "Chúc mừng! Sản phẩm của bạn đã bán thành công với giá "
                 + formatVND(auction.getFinalPrice())
                 + ".",
-            "AUCTION_SOLD");
+            NotificationType.AUCTION_SOLD);
       }
     }
   }
@@ -167,8 +166,8 @@ public class AuctionNotificationService implements InitializingBean {
     if (item != null && item.getSeller() != null) {
       notificationService.createNotification(
           item.getSeller().getId(),
-          "Phiên đấu giá #" + auctionId + " đã bị hủy.",
-          "AUCTION_CANCELED");
+          "Bạn đã chủ động hủy phiên đấu giá của chính mình.",
+          NotificationType.AUCTION_CANCELED);
     }
     bidRepository.findByAuctionId(auctionId).stream()
         .map(Bid::getBidderId)
@@ -176,7 +175,9 @@ public class AuctionNotificationService implements InitializingBean {
         .forEach(
             bidderId ->
                 notificationService.createNotification(
-                    bidderId, "Phiên đấu giá #" + auctionId + " đã bị hủy.", "AUCTION_CANCELED"));
+                    bidderId,
+                    "Phiên đấu giá #" + auctionId + " đã bị hủy.",
+                    NotificationType.AUCTION_CANCELED));
   }
 
   private Item getItemByAuctionId(Long auctionId) {

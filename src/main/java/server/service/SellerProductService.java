@@ -185,7 +185,7 @@ public class SellerProductService {
     listing.setStatus(AuctionState.RUNNING);
 
     SellerProductListing savedListing = listingRepository.save(listing);
-    realtimePublisher.publishStatusAfterCommit(auction.getId(), "RUNNING");
+    realtimePublisher.publishStatusAfterCommit(auction.getId(), AuctionState.RUNNING);
     realtimePublisher.publishAuctionListChangedAfterCommit();
     return toDTO(savedListing, item);
   }

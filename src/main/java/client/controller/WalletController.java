@@ -9,6 +9,7 @@ import client.pattern.ClientHttp;
 import client.pattern.SceneManager;
 import client.TransactionViewModel;
 import common.Constants;
+import common.enums.TransactionType;
 import java.net.URI;
 import java.net.URLEncoder;
 
@@ -274,12 +275,12 @@ public class WalletController {
 
   @FXML
   public void onDepositButtonClicked() {
-    handleWalletTransaction("Nạp", true);
+    handleWalletTransaction(TransactionType.DEPOSIT, true);
   }
 
   @FXML
   public void onWithdrawButtonClicked() {
-    handleWalletTransaction("Rút", false);
+    handleWalletTransaction(TransactionType.WITHDRAWAL, false);
   }
 
   @FXML
@@ -288,7 +289,7 @@ public class WalletController {
     SceneManager.getInstance().switchScene("/client/settings/settings.fxml");
   }
 
-  private void handleWalletTransaction(String type, boolean isDeposit) {
+  private void handleWalletTransaction(TransactionType type, boolean isDeposit) {
     if (!AuctionManager.getInstance().hasBankInfo()) {
       showWalletError("Bạn chưa có thông tin tài khoản ngân hàng.", true);
       return;
@@ -325,7 +326,7 @@ public class WalletController {
                         + "?amount="
                         + amount
                         + "&type="
-                        + URLEncoder.encode(type, StandardCharsets.UTF_8)
+                        + URLEncoder.encode(type.name(), StandardCharsets.UTF_8)
                         + "&note="
                         + URLEncoder.encode(transactionNote, StandardCharsets.UTF_8);
                 HttpRequest request =
@@ -356,7 +357,7 @@ public class WalletController {
       HttpResponse<String> response,
       JsonNode transaction,
       double amount,
-      String type,
+      TransactionType type,
       String note,
       boolean isDeposit) {
     txtAmount.setDisable(false);
@@ -383,7 +384,7 @@ public class WalletController {
             moneyInValue,
             moneyOutValue,
             formatCurrency(newBalance),
-            type,
+            type.getDisplayName(),
             note));
     txtAmount.clear();
     txtNote.clear();

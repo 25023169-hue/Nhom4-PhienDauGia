@@ -20,8 +20,18 @@ public class NotificationController {
     return notificationService.getNotificationsForUser(userId);
   }
 
+  @GetMapping("/{userId}/unread-count")
+  public long getUnreadCount(@PathVariable Long userId) {
+    return notificationService.countUnreadNotifications(userId);
+  }
+
   @PutMapping("/{id}/read")
   public void readNotification(@PathVariable Long id) {
     notificationService.markAsRead(id);
+  }
+
+  @PutMapping("/user/{userId}/read-all")
+  public void readAllNotifications(@PathVariable Long userId) {
+    notificationService.markAllAsRead(userId);
   }
 }

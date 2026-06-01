@@ -1,5 +1,6 @@
 package server.model;
 
+import common.enums.NotificationType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
@@ -17,11 +18,12 @@ public class Notification extends BaseEntity {
   private User user; // Người nhận thông báo
 
   private String message;
-  private String type;
+  @Enumerated(EnumType.STRING)
+  private NotificationType type;
   private LocalDateTime createdAt = LocalDateTime.now();
   private boolean isRead = false;
 
-  public Notification(User user, String message, String type) {
+  public Notification(User user, String message, NotificationType type) {
     this.user = user;
     this.message = message;
     this.type = type;

@@ -41,6 +41,7 @@ public class SellerDashboardController extends BaseDashboardController {
     lblSellerRole.setText("Chủ Kênh");
     lblWelcome.setText("Xin chào, " + storeName + "!");
     onManageAuctionsClicked();
+    initializeNotificationUpdates();
   }
 
   @Override
@@ -102,11 +103,13 @@ public class SellerDashboardController extends BaseDashboardController {
 
   @FXML
   public void onBuyerChannelClicked() {
+    stopNotificationUpdates();
     SceneManager.getInstance().switchScene("/client/user/bidder/bidder_dashboard.fxml");
   }
 
   @FXML
   public void onOpenSettings() {
+    stopNotificationUpdates();
     SettingsController.isSellerChannel = true;
     SceneManager.getInstance().switchScene("/client/settings/settings.fxml");
   }

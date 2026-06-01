@@ -1,5 +1,6 @@
 package server.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,7 +9,10 @@ import static org.mockito.Mockito.when;
 
 import common.enums.AuctionState;
 import common.enums.BidCommitmentStatus;
+import common.request.AddressRequest;
+import common.request.BankRequest;
 import server.model.Auction;
+import server.model.Admin;
 import server.model.Bidder;
 import server.model.Electronics;
 import server.model.Seller;
@@ -103,6 +107,56 @@ class UserServiceTest {
     when(auctionRepository.findByItemId(2L)).thenReturn(List.of(auction));
 
     assertThrows(IllegalArgumentException.class, () -> userService.deleteAccount(1L));
+  }
+
+  @Test
+  void getUser_ReturnsUserOrThrowsWhenMissing() {
+    Bidder bidder = bidderWithZeroBalance();
+    when(userRepository.findById(1L)).thenReturn(Optional.of(bidder));
+
+    assertEquals(bidder, userService.getUser(1L));
+    assertThrows(IllegalArgumentException.class, () -> userService.getUser(2L));
+  }
+
+  @Test
+  void updateBankInfoAndAddress_SaveBidderFields() {
+    Bidder bidder = bidderWithZeroBalance();
+    when(userRepository.findById(1L)).thenReturn(Optional.of(bidder));
+    when(userRepository.save(bidder)).thenReturn(bidder);
+
+    assertEquals(
+        bidder, userService.updateBankInfo(1L, new BankRequest("BIDV", "An Nguyen", "123")));
+    assertEquals("BIDV", bidder.getBankName());
+    assertEquals("An Nguyen", bidder.getAccountName());
+    assertEquals("123", bidder.getBankAccount());
+
+    assertEquals(bidder, userService.updateAddress(1L, new AddressRequest("Address")));
+    assertEquals("Address", bidder.getAddress());
+  }
+
+  @Test
+  void updateBankInfo_WithNonBidder_ThrowsException() {
+    when(userRepository.findById(1L)).thenReturn(Optional.of(new Admin()));
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> userService.updateBankInfo(1L, new BankRequest("BIDV", "An Nguyen", "123")));
+  }
+
+  @Test
+  void deleteAccount_SellerWithoutOpenAuction_AnonymizesStore() {
+    Seller seller = new Seller();
+    seller.setId(1L);
+    seller.setBalance(0.0);
+    seller.setHeldBalance(0.0);
+    seller.setStoreName("Shop");
+    when(userRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(seller));
+    when(itemRepository.findBySellerId(1L)).thenReturn(List.of());
+
+    userService.deleteAccount(1L);
+
+    assertEquals("Tài khoản đã xóa", seller.getStoreName());
+    verify(userRepository).save(seller);
   }
 
   private Bidder bidderWithZeroBalance() {

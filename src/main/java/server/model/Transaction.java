@@ -1,8 +1,10 @@
 package server.model;
 
+import common.enums.TransactionType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
+import server.model.converter.TransactionTypeConverter;
 
 @Getter
 @Setter
@@ -16,7 +18,8 @@ public class Transaction extends BaseEntity {
   private Double moneyIn = 0.0;
   private Double moneyOut = 0.0;
   private Double lastBalance;
-  private String type;
+  @Convert(converter = TransactionTypeConverter.class)
+  private TransactionType type;
   private String note;
   private LocalDateTime transactionTime;
 }

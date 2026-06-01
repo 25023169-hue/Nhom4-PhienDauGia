@@ -34,9 +34,6 @@ public class AuthService {
       throw new AccountException("Tên đăng nhập đã tồn tại!");
     }
 
-    // LỖI ĐÃ SỬA: Không thể gọi .equalsIgnoreCase() trên kiểu enum Role.
-    // request.getRole() trả về Role (enum), không phải String.
-    // Phải so sánh enum đúng cách: Role.SELLER == request.getRole()
     User newUser = (Role.SELLER == request.getRole()) ? new Seller() : new Bidder();
     newUser.setUsername(username);
     newUser.setPassword(request.getPassword());
@@ -52,7 +49,6 @@ public class AuthService {
       throw new AccountException("Tài khoản hoặc mật khẩu không chính xác!");
     }
 
-    // Tìm User, nếu không có thì ném lỗi
     User user = userRepository.findByUsername(username).orElse(null);
 
     if (user == null || !user.getPassword().equals(password)) {
@@ -61,18 +57,13 @@ public class AuthService {
 
     AuthResponse response = new AuthResponse();
 
-    // LỖI ĐÃ SỬA: Phương thức đúng là setUserId(), không phải setId()
-    // (Vì field trong AuthResponse là "userId", Lombok tạo ra setUserId())
+
     response.setUserId(user.getId());
     response.setUsername(user.getUsername());
     response.setFirstname(user.getFirstname());
     response.setLastname(user.getLastname());
-
-    // LỖI ĐÃ SỬA: Thêm balance vào response (trước đây bị thiếu → client luôn thấy số dư = 0)
     response.setBalance(user.getAvailableBalance());
 
-    // LỖI ĐÃ SỬA: Thêm thông tin bankName, accountName, bankAccount, address, storeName
-    // Các trường này nằm ở Bidder/Seller, cần ép kiểu để lấy
     if (user instanceof Bidder bidder) {
       response.setAddress(bidder.getAddress());
       response.setBankName(bidder.getBankName());

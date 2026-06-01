@@ -8,6 +8,7 @@ import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
 import client.TransactionViewModel;
 import common.Constants;
+import common.enums.TransactionType;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -148,7 +149,7 @@ public class SellerRevenueStatisticsController {
               "+ " + formatCurrency(moneyIn),
               "",
               formatCurrency(balance),
-              sale.path("type").asText("Thu nhập bán hàng"),
+              transactionTypeLabel(sale.path("type").asText(TransactionType.SALE_INCOME.name())),
               note));
     }
   }
@@ -162,6 +163,14 @@ public class SellerRevenueStatisticsController {
 
   private String formatCurrency(double amount) {
     return VND_FORMAT.format(amount);
+  }
+
+  private String transactionTypeLabel(String value) {
+    try {
+      return TransactionType.fromValue(value).getDisplayName();
+    } catch (IllegalArgumentException exception) {
+      return value;
+    }
   }
 
   private void showError(String message) {

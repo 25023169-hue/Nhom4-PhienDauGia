@@ -1,21 +1,34 @@
 package client.controller;
 
 import client.pattern.AuctionManager;
+import client.pattern.ClientHttp;
 import client.pattern.SceneManager;
+import client.pattern.WebSocketClientManager;
+import common.Constants;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import org.springframework.messaging.simp.stomp.StompFrameHandler;
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.messaging.simp.stomp.StompSession;
 
 public abstract class BaseDashboardController {
 
   // Vùng trống ở giữa để load các View con (Dùng chung cho cả 2 giao diện)
   @FXML protected StackPane contentArea;
   @FXML protected Label lblWelcome;
+  @FXML protected Label lblNotificationBadge;
+  private StompSession.Subscription notificationSubscription;
 
   protected static final String ACTIVE_MENU_STYLE =
       "-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;";
@@ -59,7 +72,90 @@ public abstract class BaseDashboardController {
 
   @FXML
   public void onNotificationsClicked() {
+    updateNotificationBadge(0);
     loadSubView("/client/notifications_view.fxml");
+  }
+
+  protected void initializeNotificationUpdates() {
+    updateNotificationBadge(0);
+    Long userId = AuctionManager.getInstance().getId();
+    if (userId == null) {
+      return;
+    }
+    loadUnreadNotificationCount(userId);
+    subscribeToNotificationUpdates(userId);
+  }
+
+  protected void stopNotificationUpdates() {
+    if (notificationSubscription != null) {
+      notificationSubscription.unsubscribe();
+      notificationSubscription = null;
+    }
+  }
+
+  private void loadUnreadNotificationCount(Long userId) {
+    startDaemonThread(
+        () -> {
+          try {
+            HttpRequest request =
+                HttpRequest.newBuilder()
+                    .uri(
+                        URI.create(
+                            Constants.BASE_URL + "/notifications/" + userId + "/unread-count"))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = ClientHttp.send(request);
+            if (response.statusCode() == 200) {
+              long unreadCount = Long.parseLong(response.body().trim());
+              Platform.runLater(() -> updateNotificationBadge(unreadCount));
+            }
+          } catch (Exception exception) {
+            System.err.println("Không thể tải số thông báo chưa đọc: " + exception.getMessage());
+          }
+        });
+  }
+
+  private void subscribeToNotificationUpdates(Long userId) {
+    startDaemonThread(
+        () -> {
+          WebSocketClientManager.getInstance().connect();
+          StompSession session = WebSocketClientManager.getInstance().getSession();
+          if (session == null || !session.isConnected()) {
+            return;
+          }
+          notificationSubscription =
+              session.subscribe(
+                  Constants.TOPIC_NOTIFICATIONS + "/" + userId + "/unread-count",
+                  new StompFrameHandler() {
+                    @Override
+                    public Type getPayloadType(StompHeaders headers) {
+                      return Long.class;
+                    }
+
+                    @Override
+                    public void handleFrame(StompHeaders headers, Object payload) {
+                      if (payload instanceof Number count) {
+                        Platform.runLater(() -> updateNotificationBadge(count.longValue()));
+                      }
+                    }
+                  });
+        });
+  }
+
+  private void updateNotificationBadge(long unreadCount) {
+    if (lblNotificationBadge == null) {
+      return;
+    }
+    boolean hasUnreadNotifications = unreadCount > 0;
+    lblNotificationBadge.setText(Long.toString(unreadCount));
+    lblNotificationBadge.setVisible(hasUnreadNotifications);
+    lblNotificationBadge.setManaged(hasUnreadNotifications);
+  }
+
+  private void startDaemonThread(Runnable task) {
+    Thread thread = new Thread(task);
+    thread.setDaemon(true);
+    thread.start();
   }
 
   @FXML
@@ -85,6 +181,7 @@ public abstract class BaseDashboardController {
         .ifPresent(
             response -> {
               if (response == btnYes) {
+                stopNotificationUpdates();
                 AuctionManager.getInstance().isLoggedOut();
                 SceneManager.getInstance().switchScene("/client/user/login.fxml");
               }

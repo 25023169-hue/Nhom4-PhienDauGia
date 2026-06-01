@@ -60,10 +60,17 @@
                     <font><Font size="14.0" /></font>
                     <padding><Insets left="20.0" /></padding>
                 </Button>
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onNotificationsClicked" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="🔔 Thông báo">
-                    <font><Font size="14.0" /></font>
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
+                <StackPane alignment="CENTER_RIGHT">
+                    <children>
+                        <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onNotificationsClicked" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="🔔 Thông báo">
+                            <font><Font size="14.0" /></font>
+                            <padding><Insets left="20.0" /></padding>
+                        </Button>
+                        <Label fx:id="lblNotificationBadge" alignment="CENTER" managed="false" minHeight="22.0" minWidth="22.0" mouseTransparent="true" style="-fx-background-color: #e74c3c; -fx-background-radius: 11; -fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: white;" text="0" visible="false">
+                            <StackPane.margin><Insets right="18.0" /></StackPane.margin>
+                        </Label>
+                    </children>
+                </StackPane>
 
                 <Region VBox.vgrow="ALWAYS" />
 

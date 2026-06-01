@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import common.enums.AuctionState;
 import common.enums.BidCommitmentStatus;
+import common.enums.TransactionType;
 import server.model.Auction;
 import server.model.BidCommitment;
 import server.model.Bidder;
@@ -104,10 +105,21 @@ class AuctionSettlementServiceTest {
 
     verify(transactionService)
         .saveTransaction(
-            eq(10L), eq(0.0), eq(500000.0), eq(500000.0), eq("Thanh toán đấu giá"), any());
+            eq(10L),
+            eq(0.0),
+            eq(500000.0),
+            eq(500000.0),
+            eq(TransactionType.AUCTION_PAYMENT),
+            any());
     verify(transactionService)
-        .saveTransaction(eq(20L), eq(500000.0), eq(0.0), eq(600000.0), eq("Thu nhập"), any());
-    verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
+        .saveTransaction(
+            eq(20L),
+            eq(500000.0),
+            eq(0.0),
+            eq(600000.0),
+            eq(TransactionType.SALE_INCOME),
+            any());
+    verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.FINISHED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
   }
 
@@ -132,7 +144,7 @@ class AuctionSettlementServiceTest {
     assertTrue(settlementService.closeBuyNowAuction(1L));
 
     assertEquals(AuctionState.CANCELLED, auction.getStatus());
-    verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
+    verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.CANCELLED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
   }
 
@@ -163,7 +175,7 @@ class AuctionSettlementServiceTest {
 
     assertEquals(AuctionState.CANCELLED, auction.getStatus());
     assertEquals(AuctionState.CANCELLED, listing.getStatus());
-    verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
+    verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.CANCELLED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
   }
 
@@ -224,7 +236,7 @@ class AuctionSettlementServiceTest {
     assertEquals(1000000.0, bidder.getBalance());
     assertEquals(0.0, bidder.getHeldBalance());
     assertEquals(BidCommitmentStatus.RELEASED, commitment.getStatus());
-    verify(realtimePublisher).publishStatusAfterCommit(1L, "CLOSED");
+    verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.CANCELLED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
   }
 

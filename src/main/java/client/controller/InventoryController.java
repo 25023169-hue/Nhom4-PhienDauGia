@@ -6,6 +6,7 @@ import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
 import common.Constants;
 import common.dto.AuctionItemDTO;
+import common.enums.AuctionState;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -26,7 +27,7 @@ public class InventoryController {
   @FXML private TableColumn<AuctionItemDTO, Long> colId;
   @FXML private TableColumn<AuctionItemDTO, String> colName;
   @FXML private TableColumn<AuctionItemDTO, Double> colFinalPrice;
-  @FXML private TableColumn<AuctionItemDTO, String> colStatus;
+  @FXML private TableColumn<AuctionItemDTO, AuctionState> colStatus;
 
   private final ObservableList<AuctionItemDTO> wonItemList = FXCollections.observableArrayList();
 

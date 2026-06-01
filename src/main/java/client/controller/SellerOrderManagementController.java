@@ -10,6 +10,7 @@ import client.pattern.WebSocketClientManager;
 import common.Constants;
 import common.dto.AuctionItemDTO;
 import common.dto.AuctionPriceUpdateDTO;
+import common.enums.AuctionState;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -328,7 +329,7 @@ public class SellerOrderManagementController {
             new StompSessionHandlerAdapter() {
               @Override
               public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return AuctionState.class;
               }
 
               @Override
@@ -394,8 +395,8 @@ public class SellerOrderManagementController {
 
               @Override
               public void handleFrame(StompHeaders headers, Object payload) {
-                if (payload != null
-                    && payload.toString().contains("CLOSED")
+                if (payload instanceof AuctionState status
+                    && (status == AuctionState.FINISHED || status == AuctionState.CANCELLED)
                     && auctionId.equals(currentAuctionId)) {
                   Platform.runLater(
                       () -> {

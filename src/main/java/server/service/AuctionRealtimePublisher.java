@@ -1,6 +1,7 @@
 package server.service;
 
 import common.dto.AuctionPriceUpdateDTO;
+import common.enums.AuctionState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class AuctionRealtimePublisher {
         });
   }
 
-  public void publishStatusAfterCommit(Long auctionId, String status) {
+  public void publishStatusAfterCommit(Long auctionId, AuctionState status) {
     afterCommit(
         () -> messagingTemplate.convertAndSend("/topic/auctions/" + auctionId + "/status", status));
   }

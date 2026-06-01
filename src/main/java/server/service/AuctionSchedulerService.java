@@ -49,7 +49,7 @@ public class AuctionSchedulerService {
                 listing.setStatus(AuctionState.RUNNING);
                 listingRepository.save(listing);
               });
-      realtimePublisher.publishStatusAfterCommit(auction.getId(), "RUNNING");
+      realtimePublisher.publishStatusAfterCommit(auction.getId(), AuctionState.RUNNING);
       realtimePublisher.publishAuctionListChangedAfterCommit();
     }
   }

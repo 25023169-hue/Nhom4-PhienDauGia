@@ -87,7 +87,7 @@ public class AdminService {
     dto.setCurrentPrice(item.getCurrentPrice());
     dto.setStartTime(format(auction.getStartTime()));
     dto.setEndTime(format(auction.getEndTime()));
-    dto.setStatus(auction.getStatus().name());
+    dto.setStatus(auction.getStatus());
     return Optional.of(dto);
   }
 

@@ -305,7 +305,7 @@ class SellerProductServiceTest {
     assertEquals(auction.getStartTime(), listing.getStartTime());
     assertEquals(auction.getEndTime(), listing.getEndTime());
     assertEquals(AuctionState.RUNNING, result.getStatus());
-    verify(realtimePublisher).publishStatusAfterCommit(30L, "RUNNING");
+    verify(realtimePublisher).publishStatusAfterCommit(30L, AuctionState.RUNNING);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
   }
 

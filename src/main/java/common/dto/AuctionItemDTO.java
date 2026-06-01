@@ -1,5 +1,6 @@
 package common.dto;
 
+import common.enums.AuctionState;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,5 +24,5 @@ public class AuctionItemDTO implements Serializable {
   private Double currentPrice;
   private String startTime;
   private String endTime;
-  private String status;
+  private AuctionState status;
 }
