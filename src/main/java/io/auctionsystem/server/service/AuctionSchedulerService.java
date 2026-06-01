@@ -5,22 +5,28 @@ import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.SellerProductListingRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuctionSchedulerService {
 
-  @Autowired private AuctionRepository auctionRepository;
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuctionSchedulerService.class);
 
-  @Autowired private SellerProductListingRepository listingRepository;
+  private final AuctionRepository auctionRepository;
 
-  @Autowired private AuctionSettlementService settlementService;
+  private final SellerProductListingRepository listingRepository;
 
-  @Autowired private AuctionRealtimePublisher realtimePublisher;
+  private final AuctionSettlementService settlementService;
+
+  private final AuctionRealtimePublisher realtimePublisher;
 
   @Scheduled(fixedRate = 1000)
   @Transactional
@@ -52,17 +58,16 @@ public class AuctionSchedulerService {
   public void autoCloseExpiredAuctions() {
     LocalDateTime now = LocalDateTime.now();
     List<Auction> expiredAuctions =
-        auctionRepository.findByStatusAndEndTimeBefore(AuctionState.RUNNING, now);
+        new ArrayList<>(auctionRepository.findByStatusAndEndTimeBefore(AuctionState.RUNNING, now));
+    expiredAuctions.addAll(auctionRepository.findByStatusAndEndTimeBefore(AuctionState.OPEN, now));
 
     for (Auction auction : expiredAuctions) {
       if (settlementService.closeExpiredAuction(auction.getId(), now)) {
-        System.out.println(
-            ">>> [HỆ THỐNG] Đã tự động đóng phiên đấu giá ID: "
-                + auction.getId()
-                + " | Người thắng cuộc ID: "
-                + auction.getWinnerId()
-                + " | Giá chốt: "
-                + auction.getFinalPrice());
+        LOGGER.info(
+            "Đã tự động đóng phiên đấu giá ID: {} | Người thắng cuộc ID: {} | Giá chốt: {}",
+            auction.getId(),
+            auction.getWinnerId(),
+            auction.getFinalPrice());
       }
     }
   }

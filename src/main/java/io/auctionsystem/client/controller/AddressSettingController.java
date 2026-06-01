@@ -2,6 +2,8 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.request.AddressRequest;
 import io.auctionsystem.common.response.AuthResponse;
 import java.net.URI;
@@ -16,8 +18,8 @@ import javafx.scene.control.TextArea;
 public class AddressSettingController {
   @FXML private TextArea txtAddress;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void initialize() {
@@ -57,7 +59,7 @@ public class AddressSettingController {
                     HttpRequest.newBuilder()
                         .uri(
                             URI.create(
-                                "http://localhost:8080/api/user/" + user.getUserId() + "/address"))
+                                Constants.BASE_URL + "/user/" + user.getUserId() + "/address"))
                         .header("Content-Type", "application/json")
                         .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();

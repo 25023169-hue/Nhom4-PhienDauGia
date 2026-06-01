@@ -3,6 +3,8 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.AuctionItemDTO;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -28,8 +30,8 @@ public class InventoryController {
   @FXML private TableColumn<AuctionItemDTO, String> colStatus;
 
   private final ObservableList<AuctionItemDTO> wonItemList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
 
@@ -64,7 +66,7 @@ public class InventoryController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/inventory/" + bidderId))
+                        .uri(URI.create(Constants.BASE_URL + "/inventory/" + bidderId))
                         .GET()
                         .build();
                 HttpResponse<String> response =

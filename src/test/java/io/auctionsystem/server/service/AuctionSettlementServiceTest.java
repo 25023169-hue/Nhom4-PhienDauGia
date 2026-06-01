@@ -167,6 +167,31 @@ class AuctionSettlementServiceTest {
   }
 
   @Test
+  void testCloseExpiredAuction_OpenAuctionMissedWhileServerWasOffline_CancelsAuction() {
+    LocalDateTime now = LocalDateTime.now();
+
+    Auction auction = new Auction();
+    auction.setId(1L);
+    auction.setItemId(2L);
+    auction.setStatus(AuctionState.OPEN);
+    auction.setEndTime(now.minusSeconds(1));
+
+    Item item = new Item() {};
+    item.setId(2L);
+
+    when(auctionRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(auction));
+    when(itemRepository.findById(2L)).thenReturn(Optional.of(item));
+    when(bidCommitmentRepository.findByAuctionIdAndStatusOrderByBidderIdAsc(
+            1L, BidCommitmentStatus.ACTIVE))
+        .thenReturn(List.of());
+    when(listingRepository.findByItemId(2L)).thenReturn(Optional.empty());
+
+    assertTrue(settlementService.closeExpiredAuction(1L, now));
+
+    assertEquals(AuctionState.CANCELLED, auction.getStatus());
+  }
+
+  @Test
   void testCancelAuction_RunningAuction_ReleasesHeldBalance() {
     Auction auction = new Auction();
     auction.setId(1L);

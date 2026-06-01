@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.WebSocketClientManager;
 import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.AuctionItemDTO;
@@ -57,8 +58,8 @@ public class SellerOrderManagementController {
 
   private final ObservableList<AuctionItemDTO> runningOrders = FXCollections.observableArrayList();
   private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
 

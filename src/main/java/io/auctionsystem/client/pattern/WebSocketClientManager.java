@@ -1,5 +1,6 @@
 package io.auctionsystem.client.pattern;
 
+import io.auctionsystem.common.Constants;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.springframework.messaging.converter.CompositeMessageConverter;
@@ -36,11 +37,12 @@ public class WebSocketClientManager {
     try {
       // Kết nối tới endpoint /ws của Server (đã cấu hình ở WebSocketConfig)
       stompSession =
-          stompClient
-              .connectAsync("ws://localhost:8080/ws", new StompSessionHandlerAdapter() {})
-              .get();
+          stompClient.connectAsync(Constants.SOCKET_URL, new StompSessionHandlerAdapter() {}).get();
       System.out.println(">>> Client đã kết nối WebSocket thành công!");
-    } catch (InterruptedException | ExecutionException e) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      System.err.println(">>> Kết nối WebSocket bị gián đoạn: " + e.getMessage());
+    } catch (ExecutionException e) {
       System.err.println(">>> Lỗi kết nối WebSocket từ Client: " + e.getMessage());
     }
   }

@@ -12,122 +12,86 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserController {
 
-  @Autowired private UserService userService;
+  private final UserService userService;
 
-  @Autowired private TransactionService transactionService;
+  private final TransactionService transactionService;
 
   @PostMapping("/{id}/transaction")
   public ResponseEntity<?> processWalletTransaction(
       @PathVariable("id") Long id,
       @RequestParam("amount") Double amount,
       @RequestParam("type") String type,
-      @RequestParam(value = "note", required = false) String note,
-      @RequestParam(value = "currentBalance", required = false) Double ignoredCurrentBalance) {
-    try {
-      Transaction tx = transactionService.processTransaction(id, amount, type, note);
-      return ResponseEntity.ok().body(tx);
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Lỗi giao dịch: " + e.getMessage());
-    }
+      @RequestParam(value = "note", required = false) String note) {
+    Transaction tx = transactionService.processTransaction(id, amount, type, note);
+    return ResponseEntity.ok().body(tx);
   }
 
   @GetMapping("/{id}/wallet")
   public ResponseEntity<?> getWalletSummary(@PathVariable("id") Long id) {
-    try {
-      User user = userService.getUser(id);
-      Map<String, Double> summary = new HashMap<>();
-      summary.put("totalBalance", user.getBalance());
-      summary.put("heldBalance", user.getHeldBalance());
-      summary.put("availableBalance", user.getAvailableBalance());
-      return ResponseEntity.ok(summary);
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Không thể tải số dư ví: " + e.getMessage());
-    }
+    User user = userService.getUser(id);
+    Map<String, Double> summary = new HashMap<>();
+    summary.put("totalBalance", user.getBalance());
+    summary.put("heldBalance", user.getHeldBalance());
+    summary.put("availableBalance", user.getAvailableBalance());
+    return ResponseEntity.ok(summary);
   }
 
   @GetMapping("/{id}/transactions")
   public ResponseEntity<?> getTransactionHistory(@PathVariable("id") Long id) {
-    try {
-      List<Transaction> list = transactionService.getTransactionsByUserId(id);
-      List<Map<String, Object>> simplifiedList = new ArrayList<>();
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    List<Transaction> list = transactionService.getTransactionsByUserId(id);
+    List<Map<String, Object>> simplifiedList = new ArrayList<>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-      for (Transaction tx : list) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", tx.getId());
-        map.put("type", tx.getType());
-        map.put("moneyIn", tx.getMoneyIn());
-        map.put("moneyOut", tx.getMoneyOut());
-        map.put("lastBalance", tx.getLastBalance());
-        map.put("note", tx.getNote());
-
-        // Lấy đúng thời gian từ database
-        if (tx.getTransactionTime() != null) {
-          map.put("time", tx.getTransactionTime().format(formatter));
-        } else {
-          map.put("time", LocalDateTime.now().format(formatter));
-        }
-
-        simplifiedList.add(map);
+    for (Transaction tx : list) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("id", tx.getId());
+      map.put("type", tx.getType());
+      map.put("moneyIn", tx.getMoneyIn());
+      map.put("moneyOut", tx.getMoneyOut());
+      map.put("lastBalance", tx.getLastBalance());
+      map.put("note", tx.getNote());
+      if (tx.getTransactionTime() != null) {
+        map.put("time", tx.getTransactionTime().format(formatter));
+      } else {
+        map.put("time", LocalDateTime.now().format(formatter));
       }
 
-      return ResponseEntity.ok().body(simplifiedList);
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Không thể tải lịch sử: " + e.getMessage());
+      simplifiedList.add(map);
     }
+    return ResponseEntity.ok().body(simplifiedList);
   }
 
   @GetMapping("/{id}/revenue-stats")
   public ResponseEntity<?> getSellerRevenueStats(@PathVariable("id") Long id) {
-    try {
-      return ResponseEntity.ok(transactionService.getSellerRevenueStats(id));
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError()
-          .body("Không thể tải thống kê doanh thu: " + e.getMessage());
-    }
+    return ResponseEntity.ok(transactionService.getSellerRevenueStats(id));
   }
 
   @PutMapping("/{id}/bank")
   public ResponseEntity<?> updateBank(
       @PathVariable("id") Long id, @RequestBody BankRequest request) {
-    try {
-      userService.updateBankInfo(id, request);
-      return ResponseEntity.ok().body("Cập nhật thông tin ngân hàng thành công!");
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Lỗi Server: " + e.getMessage());
-    }
+    userService.updateBankInfo(id, request);
+    return ResponseEntity.ok().body("Cập nhật thông tin ngân hàng thành công!");
   }
 
   @PutMapping("/{id}/address")
   public ResponseEntity<?> updateAddress(
       @PathVariable("id") Long id, @RequestBody AddressRequest request) {
-    try {
-      userService.updateAddress(id, request);
-      return ResponseEntity.ok().body("Cập nhật địa chỉ thành công!");
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Lỗi Server: " + e.getMessage());
-    }
+    userService.updateAddress(id, request);
+    return ResponseEntity.ok().body("Cập nhật địa chỉ thành công!");
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deleteAccount(@PathVariable("id") Long id) {
-    try {
-      userService.deleteAccount(id);
-      return ResponseEntity.ok("Tài khoản đã được xóa thành công");
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Lỗi xóa tài khoản: " + e.getMessage());
-    }
+    userService.deleteAccount(id);
+    return ResponseEntity.ok("Tài khoản đã được xóa thành công");
   }
 }

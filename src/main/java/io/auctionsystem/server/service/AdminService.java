@@ -3,27 +3,35 @@ package io.auctionsystem.server.service;
 import io.auctionsystem.common.dto.AuctionItemDTO;
 import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.server.model.Auction;
+import io.auctionsystem.server.model.Item;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.ItemRepository;
 import io.auctionsystem.server.repository.UserRepository;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
 
-  @Autowired private UserRepository userRepository;
+  private static final DateTimeFormatter DISPLAY_FORMATTER =
+      DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-  @Autowired private AuctionRepository auctionRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private ItemRepository itemRepository;
+  private final AuctionRepository auctionRepository;
 
-  @Autowired private AuctionSettlementService settlementService;
+  private final ItemRepository itemRepository;
+
+  private final AuctionSettlementService settlementService;
 
   // Chỉ hiển thị tài khoản khách hàng trong bảng quản lý, không đưa admin vào danh sách.
   public List<User> findAllUsers() {
@@ -49,35 +57,25 @@ public class AdminService {
     userRepository.deleteById(id);
   }
 
-  public boolean isSeller(Long userId) {
-    return userRepository.isUserSeller(userId) > 0;
+  public Set<Long> findSellerIds() {
+    return Set.copyOf(userRepository.findSellerIds());
   }
 
   public List<AuctionItemDTO> findAllAuctions() {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    List<AuctionItemDTO> result = new ArrayList<>();
+    List<Auction> auctions =
+        auctionRepository.findAll().stream()
+            .filter(auction -> auction.getStatus() != AuctionState.CANCELLED)
+            .toList();
+    Map<Long, Item> itemsById =
+        itemRepository
+            .findAllById(auctions.stream().map(Auction::getItemId).distinct().toList())
+            .stream()
+            .collect(Collectors.toMap(Item::getId, Function.identity()));
 
-    for (Auction auction : auctionRepository.findAll()) {
-      if (auction.getStatus() == AuctionState.CANCELLED) {
-        continue;
-      }
-      itemRepository
-          .findById(auction.getItemId())
-          .map(
-              item -> {
-                AuctionItemDTO dto = new AuctionItemDTO();
-                dto.setId(auction.getId());
-                dto.setItemId(item.getId());
-                dto.setName(item.getName());
-                dto.setCurrentPrice(item.getCurrentPrice());
-                dto.setStartTime(format(auction.getStartTime(), formatter));
-                dto.setEndTime(format(auction.getEndTime(), formatter));
-                dto.setStatus(auction.getStatus().name());
-                return dto;
-              })
-          .ifPresent(result::add);
-    }
-    return result;
+    return auctions.stream()
+        .map(auction -> toDTO(auction, itemsById.get(auction.getItemId())))
+        .flatMap(Optional::stream)
+        .toList();
   }
 
   public void deleteAuction(Long auctionId) {
@@ -94,7 +92,23 @@ public class AdminService {
     }
   }
 
-  private String format(java.time.LocalDateTime time, DateTimeFormatter formatter) {
-    return time == null ? "" : time.format(formatter);
+  private Optional<AuctionItemDTO> toDTO(Auction auction, Item item) {
+    if (item == null) {
+      return Optional.empty();
+    }
+
+    AuctionItemDTO dto = new AuctionItemDTO();
+    dto.setId(auction.getId());
+    dto.setItemId(item.getId());
+    dto.setName(item.getName());
+    dto.setCurrentPrice(item.getCurrentPrice());
+    dto.setStartTime(format(auction.getStartTime()));
+    dto.setEndTime(format(auction.getEndTime()));
+    dto.setStatus(auction.getStatus().name());
+    return Optional.of(dto);
+  }
+
+  private String format(java.time.LocalDateTime time) {
+    return time == null ? "" : time.format(DISPLAY_FORMATTER);
   }
 }

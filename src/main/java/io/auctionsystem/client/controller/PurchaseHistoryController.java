@@ -2,8 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.BidDTO;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -33,8 +34,8 @@ public class PurchaseHistoryController {
   @FXML private TableColumn<BidDTO, LocalDateTime> colTime;
 
   private final ObservableList<BidDTO> historyList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
@@ -43,7 +44,6 @@ public class PurchaseHistoryController {
 
   @FXML
   public void initialize() {
-    objectMapper.registerModule(new JavaTimeModule());
 
     colId.setCellValueFactory(new PropertyValueFactory<>("id"));
     colAuctionId.setCellValueFactory(new PropertyValueFactory<>("auctionId"));
@@ -91,7 +91,7 @@ public class PurchaseHistoryController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/bids/history/" + bidderId))
+                        .uri(URI.create(Constants.BASE_URL + "/bids/history/" + bidderId))
                         .GET()
                         .build();
 

@@ -2,9 +2,8 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
 import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.SellerProductDTO;
@@ -82,11 +81,8 @@ public class SellerAddProductController {
 
   @FXML private Button btnStartAuction;
 
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .registerModule(new JavaTimeModule())
-          .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   public static void startCreating() {
     editingProduct = null;

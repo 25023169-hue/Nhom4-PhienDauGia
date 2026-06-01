@@ -3,9 +3,10 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.auctionsystem.client.model.TransactionModel;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.common.Constants;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -47,8 +48,8 @@ public class SellerRevenueStatisticsController {
   private static final DateTimeFormatter DISPLAY_TIME_FORMAT =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
   private final ObservableList<TransactionModel> recentSales = FXCollections.observableArrayList();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   @FXML
   public void initialize() {
@@ -77,8 +78,7 @@ public class SellerRevenueStatisticsController {
                 HttpRequest request =
                     HttpRequest.newBuilder()
                         .uri(
-                            URI.create(
-                                "http://localhost:8080/api/user/" + sellerId + "/revenue-stats"))
+                            URI.create(Constants.BASE_URL + "/user/" + sellerId + "/revenue-stats"))
                         .GET()
                         .build();
                 HttpResponse<String> response =
@@ -124,7 +124,8 @@ public class SellerRevenueStatisticsController {
       double revenue = ((Number) point.getOrDefault("price", 0.0)).doubleValue();
       series.getData().add(new XYChart.Data<>(month, revenue));
     }
-    chartRevenue.getData().setAll(series);
+    chartRevenue.getData().clear();
+    chartRevenue.getData().add(series);
   }
 
   private void renderRecentSales(JsonNode salesNode) {

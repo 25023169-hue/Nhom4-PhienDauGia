@@ -24,13 +24,14 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
   List<Auction> findByItemId(Long itemId);
 
+  List<Auction> findByItemIdIn(List<Long> itemIds);
+
   Optional<Auction> findTopByItemIdOrderByIdDesc(Long itemId);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT a FROM Auction a WHERE a.id = :auctionId")
   Optional<Auction> findByIdForUpdate(@Param("auctionId") Long auctionId);
 
-  // ← THÊM VÀO ĐÂY
   @Query(
       "SELECT MONTH(a.startTime) as month, COUNT(a) as total "
           + "FROM Auction a "

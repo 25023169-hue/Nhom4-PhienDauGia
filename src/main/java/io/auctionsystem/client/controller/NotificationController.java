@@ -2,8 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.NotificationDTO;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -28,8 +29,8 @@ public class NotificationController {
   private static final DateTimeFormatter DISPLAY_FORMATTER =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
   private final ObservableList<NotificationDTO> notiList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   @FXML
   public void initialize() {
@@ -48,7 +49,7 @@ public class NotificationController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/notifications/" + userId))
+                        .uri(URI.create(Constants.BASE_URL + "/notifications/" + userId))
                         .GET()
                         .build();
 
@@ -94,7 +95,8 @@ public class NotificationController {
                     HttpRequest.newBuilder()
                         .uri(
                             URI.create(
-                                "http://localhost:8080/api/notifications/"
+                                Constants.BASE_URL
+                                    + "/notifications/"
                                     + notification.getNotiId()
                                     + "/read"))
                         .PUT(HttpRequest.BodyPublishers.noBody())

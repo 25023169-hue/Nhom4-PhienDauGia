@@ -1,7 +1,9 @@
 package io.auctionsystem.client.controller;
 
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.response.AuthResponse;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -24,7 +26,7 @@ public class SellerRegistrationController {
   @FXML private TextField txtStoreName;
   @FXML private Label lblError;
 
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void initialize() {
@@ -79,7 +81,8 @@ public class SellerRegistrationController {
                 String encodedStoreName = URLEncoder.encode(storeName, StandardCharsets.UTF_8);
 
                 String url =
-                    "http://localhost:8080/api/auth/upgrade-seller/"
+                    Constants.BASE_URL
+                        + "/auth/upgrade-seller/"
                         + id
                         + "?storeName="
                         + encodedStoreName;

@@ -6,16 +6,18 @@ import io.auctionsystem.common.response.AuthResponse;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.service.AdminService;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
-  @Autowired private AdminService adminService;
+  private final AdminService adminService;
 
   // =========================
   // 1. Lấy danh sách user (DTO SAFE)
@@ -24,6 +26,7 @@ public class AdminController {
   public ResponseEntity<List<AuthResponse>> getAllUsers() {
 
     List<User> users = adminService.findAllUsers();
+    Set<Long> sellerIds = adminService.findSellerIds();
 
     List<AuthResponse> result =
         users.stream()
@@ -39,7 +42,7 @@ public class AdminController {
                   // map role an toàn
                   if (user instanceof io.auctionsystem.server.model.Admin) {
                     dto.setRole(io.auctionsystem.common.enums.Role.ADMIN);
-                  } else if (adminService.isSeller(user.getId())) {
+                  } else if (sellerIds.contains(user.getId())) {
                     dto.setRole(io.auctionsystem.common.enums.Role.SELLER);
                   } else {
                     dto.setRole(io.auctionsystem.common.enums.Role.BIDDER);
@@ -77,16 +80,8 @@ public class AdminController {
 
   @DeleteMapping("/auctions/{id}")
   public ResponseEntity<ApiResponse<Void>> deleteAuction(@PathVariable Long id) {
-    try {
-      adminService.deleteAuction(id);
-      return ResponseEntity.ok(
-          new ApiResponse<>(
-              true, "Đã xóa phiên đấu giá và chuyển trạng thái sang CANCELLED.", null));
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError()
-          .body(new ApiResponse<>(false, "Lỗi Server: " + e.getMessage(), null));
-    }
+    adminService.deleteAuction(id);
+    return ResponseEntity.ok(
+        new ApiResponse<>(true, "Đã xóa phiên đấu giá và chuyển trạng thái sang CANCELLED.", null));
   }
 }

@@ -44,4 +44,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   // Kiểm tra xem User có phải là Seller không
   @Query(value = "SELECT COUNT(*) FROM sellers WHERE id = :userId", nativeQuery = true)
   int isUserSeller(@Param("userId") Long userId);
+
+  @Query(value = "SELECT id FROM sellers", nativeQuery = true)
+  List<Long> findSellerIds();
 }

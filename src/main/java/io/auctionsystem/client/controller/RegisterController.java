@@ -1,7 +1,9 @@
 package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.common.request.RegisterRequest;
 import java.net.URI;
@@ -23,8 +25,8 @@ public class RegisterController {
   @FXML private PasswordField txtPassword;
   @FXML private Label lblStatus;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   private void onRegisterButtonClicked() {
@@ -58,7 +60,7 @@ public class RegisterController {
                 String jsonBody = objectMapper.writeValueAsString(requestDto);
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/auth/register"))
+                        .uri(URI.create(Constants.BASE_URL + "/auth/register"))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();

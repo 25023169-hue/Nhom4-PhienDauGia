@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.model.TransactionModel;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.Constants;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -63,6 +65,8 @@ public class WalletController {
   private static final DateTimeFormatter TIME_FORMAT =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
   private static final String SETTINGS_BANK_TAB = "BANK";
+  private static final HttpClient HTTP_CLIENT = ClientHttp.client();
+  private static final ObjectMapper OBJECT_MAPPER = ClientHttp.mapper();
 
   private int flowFilterState = 0;
 
@@ -108,14 +112,13 @@ public class WalletController {
     new Thread(
             () -> {
               try {
-                String urlString = "http://localhost:8080/api/user/" + userId + "/transactions";
+                String urlString = Constants.BASE_URL + "/user/" + userId + "/transactions";
 
-                HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request =
                     HttpRequest.newBuilder().uri(URI.create(urlString)).GET().build();
 
                 HttpResponse<String> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofString());
+                    HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
                 // Cập nhật UI phải chạy trên JavaFX Thread
                 Platform.runLater(
@@ -123,10 +126,8 @@ public class WalletController {
                       if (response.statusCode() == 200) {
                         try {
                           WALLET_TRANSACTIONS.clear();
-                          ObjectMapper mapper = new ObjectMapper();
-
                           List<Map<String, Object>> transactions =
-                              mapper.readValue(
+                              OBJECT_MAPPER.readValue(
                                   response.body(),
                                   new TypeReference<List<Map<String, Object>>>() {});
 
@@ -151,7 +152,7 @@ public class WalletController {
                             WALLET_TRANSACTIONS.add(
                                 new TransactionModel(
                                     id,
-                                    LocalDateTime.now(),
+                                    parseTransactionTime(timeStr),
                                     timeStr,
                                     moneyInVal,
                                     moneyOutVal,
@@ -309,66 +310,83 @@ public class WalletController {
       note = isDeposit ? "Nạp tiền vào ví" : "Rút tiền về tài khoản ngân hàng";
     }
 
-    try {
-      Long userId = AuctionManager.getInstance().getId();
-      String urlString =
-          "http://localhost:8080/api/user/"
-              + userId
-              + "/transaction"
-              + "?amount="
-              + amount
-              + "&type="
-              + type
-              + "&currentBalance="
-              + currentBalance
-              + "&note="
-              + URLEncoder.encode(note, StandardCharsets.UTF_8);
+    Long userId = AuctionManager.getInstance().getId();
+    String transactionNote = note;
+    txtAmount.setDisable(true);
+    new Thread(
+            () -> {
+              try {
+                String urlString =
+                    Constants.BASE_URL
+                        + "/user/"
+                        + userId
+                        + "/transaction"
+                        + "?amount="
+                        + amount
+                        + "&type="
+                        + URLEncoder.encode(type, StandardCharsets.UTF_8)
+                        + "&note="
+                        + URLEncoder.encode(transactionNote, StandardCharsets.UTF_8);
+                HttpRequest request =
+                    HttpRequest.newBuilder()
+                        .uri(URI.create(urlString))
+                        .POST(HttpRequest.BodyPublishers.noBody())
+                        .build();
+                HttpResponse<String> response =
+                    HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+                JsonNode transaction =
+                    response.statusCode() == 200 ? OBJECT_MAPPER.readTree(response.body()) : null;
+                Platform.runLater(
+                    () ->
+                        handleWalletTransactionResponse(
+                            response, transaction, amount, type, transactionNote, isDeposit));
+              } catch (Exception e) {
+                Platform.runLater(
+                    () -> {
+                      txtAmount.setDisable(false);
+                      showWalletError("Lỗi kết nối mạng: " + e.getMessage(), false);
+                    });
+              }
+            })
+        .start();
+  }
 
-      HttpClient client = HttpClient.newHttpClient();
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(urlString))
-              .POST(HttpRequest.BodyPublishers.noBody())
-              .build();
-
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-      if (response.statusCode() == 200) {
-        JsonNode transaction = new ObjectMapper().readTree(response.body());
-        Long transactionId = transaction.path("id").asLong();
-        double newBalance = transaction.path("lastBalance").asDouble(currentBalance);
-        AuctionManager.getInstance().setBalance(newBalance);
-        updateDisplayedBalance(newBalance, 0.0, newBalance);
-        refreshWalletBalance();
-
-        String formattedAmount = formatCurrency(amount);
-        String moneyInVal = isDeposit ? "+ " + formattedAmount : "";
-        String moneyOutVal = !isDeposit ? "- " + formattedAmount : "";
-        String strLastBalance = formatCurrency(newBalance);
-        LocalDateTime timeNow = LocalDateTime.now();
-
-        WALLET_TRANSACTIONS.add(
-            0,
-            new TransactionModel(
-                transactionId,
-                timeNow,
-                timeNow.format(TIME_FORMAT),
-                moneyInVal,
-                moneyOutVal,
-                strLastBalance,
-                type,
-                note));
-
-        txtAmount.clear();
-        txtNote.clear();
-        hideWalletError();
-      } else {
-        showWalletError("Lỗi từ máy chủ: " + response.body(), false);
-      }
-    } catch (Exception e) {
-      showWalletError("Lỗi kết nối mạng: " + e.getMessage(), false);
-      e.printStackTrace();
+  private void handleWalletTransactionResponse(
+      HttpResponse<String> response,
+      JsonNode transaction,
+      double amount,
+      String type,
+      String note,
+      boolean isDeposit) {
+    txtAmount.setDisable(false);
+    if (response.statusCode() != 200 || transaction == null) {
+      showWalletError("Lỗi từ máy chủ: " + response.body(), false);
+      return;
     }
+
+    Long transactionId = transaction.path("id").asLong();
+    double newBalance = transaction.path("lastBalance").asDouble();
+    AuctionManager.getInstance().setBalance(newBalance);
+    refreshWalletBalance();
+
+    String formattedAmount = formatCurrency(amount);
+    String moneyInValue = isDeposit ? "+ " + formattedAmount : "";
+    String moneyOutValue = isDeposit ? "" : "- " + formattedAmount;
+    LocalDateTime time = LocalDateTime.now();
+    WALLET_TRANSACTIONS.add(
+        0,
+        new TransactionModel(
+            transactionId,
+            time,
+            time.format(TIME_FORMAT),
+            moneyInValue,
+            moneyOutValue,
+            formatCurrency(newBalance),
+            type,
+            note));
+    txtAmount.clear();
+    txtNote.clear();
+    hideWalletError();
   }
 
   private double parseWalletAmount() {
@@ -391,14 +409,14 @@ public class WalletController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/user/" + userId + "/wallet"))
+                        .uri(URI.create(Constants.BASE_URL + "/user/" + userId + "/wallet"))
                         .GET()
                         .build();
                 HttpResponse<String> response =
-                    HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                    HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() == 200) {
-                  JsonNode summary = new ObjectMapper().readTree(response.body());
+                  JsonNode summary = OBJECT_MAPPER.readTree(response.body());
                   double totalBalance = summary.path("totalBalance").asDouble();
                   double heldBalance = summary.path("heldBalance").asDouble();
                   double availableBalance = summary.path("availableBalance").asDouble();
@@ -429,6 +447,14 @@ public class WalletController {
 
   private String formatCurrency(double amount) {
     return VND_FORMAT.format(amount);
+  }
+
+  private LocalDateTime parseTransactionTime(String value) {
+    try {
+      return LocalDateTime.parse(value, TIME_FORMAT);
+    } catch (Exception e) {
+      return LocalDateTime.now();
+    }
   }
 
   private void showWalletError(String message, boolean isBankError) {

@@ -15,6 +15,7 @@ import io.auctionsystem.server.model.SellerProductListing;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.model.Vehicle;
 import io.auctionsystem.server.pattern.ItemFactory;
+import io.auctionsystem.server.pattern.ItemTypeResolver;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.ItemRepository;
 import io.auctionsystem.server.repository.SellerProductListingRepository;
@@ -26,28 +27,32 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class SellerProductService {
 
   private static final DateTimeFormatter DISPLAY_FORMATTER =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-  @Autowired private ItemRepository itemRepository;
+  private final ItemRepository itemRepository;
 
-  @Autowired private AuctionRepository auctionRepository;
+  private final AuctionRepository auctionRepository;
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private SellerProductListingRepository listingRepository;
+  private final SellerProductListingRepository listingRepository;
 
-  @Autowired private AuctionRealtimePublisher realtimePublisher;
+  private final AuctionRealtimePublisher realtimePublisher;
 
-  @Autowired private AuctionSettlementService settlementService;
+  private final AuctionSettlementService settlementService;
 
   @Transactional
   public SellerProductDTO saveProductAndPrepareAuction(SellerProductRequest request) {
@@ -109,7 +114,7 @@ public class SellerProductService {
       throw new IllegalArgumentException("Chỉ có thể chỉnh sửa sản phẩm ở trạng thái OPEN");
     }
 
-    ItemType currentType = resolveItemType(item);
+    ItemType currentType = ItemTypeResolver.resolve(item);
     if (request.getItemType() != currentType) {
       throw new IllegalArgumentException("Không thể đổi loại sản phẩm sau khi đã tạo");
     }
@@ -211,33 +216,61 @@ public class SellerProductService {
       throw new IllegalArgumentException("Seller hiện tại không tồn tại");
     }
 
+    List<SellerProductListing> allListings =
+        listingRepository.findBySellerIdOrderByIdDesc(sellerId);
     List<SellerProductListing> listings =
         status == null
-            ? listingRepository.findBySellerIdOrderByIdDesc(sellerId)
-            : listingRepository.findBySellerIdAndStatusOrderByIdDesc(sellerId, status);
+            ? allListings
+            : allListings.stream().filter(listing -> listing.getStatus() == status).toList();
 
+    List<Item> sellerItems = itemRepository.findBySellerId(sellerId);
     List<SellerProductDTO> result = new ArrayList<>();
-    Set<Long> listedItemIds = new HashSet<>();
+    Set<Long> listedItemIds =
+        allListings.stream().map(SellerProductListing::getItemId).collect(Collectors.toSet());
+    Set<Long> itemIds = new HashSet<>(listedItemIds);
+    itemIds.addAll(sellerItems.stream().map(Item::getId).toList());
+
+    Map<Long, Item> itemsById =
+        sellerItems.stream().collect(Collectors.toMap(Item::getId, Function.identity()));
+    List<Long> missingItemIds =
+        itemIds.stream().filter(itemId -> !itemsById.containsKey(itemId)).toList();
+    itemRepository.findAllById(missingItemIds).forEach(item -> itemsById.put(item.getId(), item));
+
+    Map<Long, List<Auction>> auctionsByItemId =
+        itemIds.isEmpty()
+            ? Map.of()
+            : auctionRepository.findByItemIdIn(new ArrayList<>(itemIds)).stream()
+                .collect(Collectors.groupingBy(Auction::getItemId));
+    Map<Long, Auction> latestAuctionByItemId =
+        auctionsByItemId.values().stream()
+            .flatMap(List::stream)
+            .collect(
+                Collectors.toMap(
+                    Auction::getItemId,
+                    Function.identity(),
+                    (first, second) -> first.getId() > second.getId() ? first : second));
+
     for (SellerProductListing listing : listings) {
-      listedItemIds.add(listing.getItemId());
       if (listing.isHidden()) {
         continue;
       }
-      itemRepository
-          .findById(listing.getItemId())
-          .map(item -> toDTO(listing, item))
-          .filter(dto -> matchesKeyword(dto, keyword))
-          .ifPresent(result::add);
+      Item item = itemsById.get(listing.getItemId());
+      if (item != null) {
+        SellerProductDTO dto = toDTO(listing, item, latestAuctionByItemId.get(item.getId()));
+        if (matchesKeyword(dto, keyword)) {
+          result.add(dto);
+        }
+      }
     }
 
     // Dữ liệu cũ và dữ liệu mẫu có thể đã có item + auction nhưng chưa có listing.
     // Vẫn hiển thị các phiên đó trong màn quản lý Seller mà không tạo bản ghi trùng.
-    for (Item item : itemRepository.findBySellerId(sellerId)) {
+    for (Item item : sellerItems) {
       if (listedItemIds.contains(item.getId())) {
         continue;
       }
 
-      for (Auction auction : auctionRepository.findByItemId(item.getId())) {
+      for (Auction auction : auctionsByItemId.getOrDefault(item.getId(), List.of())) {
         SellerProductDTO dto = toDTO(auction, item, sellerId);
         if ((status == null || dto.getStatus() == status) && matchesKeyword(dto, keyword)) {
           result.add(dto);
@@ -329,6 +362,12 @@ public class SellerProductService {
   }
 
   private SellerProductDTO toDTO(SellerProductListing listing, Item item) {
+    Auction latestAuction =
+        auctionRepository.findTopByItemIdOrderByIdDesc(item.getId()).orElse(null);
+    return toDTO(listing, item, latestAuction);
+  }
+
+  private SellerProductDTO toDTO(SellerProductListing listing, Item item, Auction latestAuction) {
     SellerProductDTO dto = new SellerProductDTO();
     dto.setListingId(listing.getId());
     dto.setItemId(item.getId());
@@ -338,7 +377,7 @@ public class SellerProductService {
     dto.setItemType(listing.getItemType());
     dto.setStartingPrice(item.getStartingPrice());
     dto.setCurrentPrice(item.getCurrentPrice());
-    dto.setSoldPrice(findSoldPrice(item.getId(), listing.getStatus()));
+    dto.setSoldPrice(findSoldPrice(latestAuction, listing.getStatus()));
     dto.setBuyNowPrice(listing.getBuyNowPrice());
     dto.setStartTime(
         listing.getStartTime() == null ? "" : listing.getStartTime().format(DISPLAY_FORMATTER));
@@ -356,7 +395,7 @@ public class SellerProductService {
     dto.setSellerId(sellerId);
     dto.setItemName(item.getName());
     dto.setDescription(item.getDescription());
-    dto.setItemType(resolveItemType(item));
+    dto.setItemType(ItemTypeResolver.resolve(item));
     dto.setStartingPrice(item.getStartingPrice());
     dto.setCurrentPrice(item.getCurrentPrice());
     dto.setSoldPrice(getSoldPrice(auction));
@@ -424,19 +463,16 @@ public class SellerProductService {
     listing.setSellerId(sellerId);
     listing.setStartTime(auction.getStartTime());
     listing.setEndTime(auction.getEndTime());
-    listing.setItemType(resolveItemType(item));
+    listing.setItemType(ItemTypeResolver.resolve(item));
     listing.setStatus(auction.getStatus());
     return listing;
   }
 
-  private Double findSoldPrice(Long itemId, AuctionState listingStatus) {
+  private Double findSoldPrice(Auction auction, AuctionState listingStatus) {
     if (listingStatus != AuctionState.FINISHED) {
       return null;
     }
-    return auctionRepository
-        .findTopByItemIdOrderByIdDesc(itemId)
-        .map(this::getSoldPrice)
-        .orElse(null);
+    return auction == null ? null : getSoldPrice(auction);
   }
 
   private Double getSoldPrice(Auction auction) {
@@ -444,15 +480,6 @@ public class SellerProductService {
       return null;
     }
     return auction.getFinalPrice();
-  }
-
-  private ItemType resolveItemType(Item item) {
-    if (item instanceof Art) return ItemType.ART;
-    if (item instanceof Electronics) return ItemType.ELECTRONICS;
-    if (item instanceof Vehicle) return ItemType.VEHICLE;
-    if (item instanceof Fashion) return ItemType.FASHION;
-    if (item instanceof Jewelry) return ItemType.JEWELRY;
-    throw new IllegalArgumentException("Loại sản phẩm không được hỗ trợ");
   }
 
   private boolean matchesKeyword(SellerProductDTO dto, String keyword) {

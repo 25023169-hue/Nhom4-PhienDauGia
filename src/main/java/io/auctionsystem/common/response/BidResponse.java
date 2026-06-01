@@ -15,4 +15,5 @@ public class BidResponse implements Serializable {
   private Long auctionId;
   private Double newCurrentPrice;
   private String newWinnerName;
+  private Long previousWinnerId;
 }

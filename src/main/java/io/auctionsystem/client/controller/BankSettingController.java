@@ -2,7 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.request.BankRequest;
 import io.auctionsystem.common.response.AuthResponse;
 import java.net.URI;
@@ -25,8 +27,8 @@ public class BankSettingController {
   @FXML private ComboBox<String> cbBankName;
   @FXML private TextField txtAccountName, txtBankAccount;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
   private String savedBankName = "";
   private boolean updatingBankEditor = false;
 
@@ -178,9 +180,7 @@ public class BankSettingController {
                 String jsonBody = objectMapper.writeValueAsString(requestDto);
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(
-                            URI.create(
-                                "http://localhost:8080/api/user/" + user.getUserId() + "/bank"))
+                        .uri(URI.create(Constants.BASE_URL + "/user/" + user.getUserId() + "/bank"))
                         .header("Content-Type", "application/json")
                         .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();

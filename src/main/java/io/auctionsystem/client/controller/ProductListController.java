@@ -2,7 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.WebSocketClientManager;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.AuctionItemDTO;
 import io.auctionsystem.common.dto.AuctionPriceUpdateDTO;
 import java.lang.reflect.Type;
@@ -37,8 +39,8 @@ public class ProductListController {
 
   // --- PHẦN KHAI BÁO THÊM MỚI ---
   private final ObservableList<AuctionItemDTO> auctionList = FXCollections.observableArrayList();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
   private StompSession.Subscription priceSubscription;
@@ -110,7 +112,7 @@ public class ProductListController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/auctions/running"))
+                        .uri(URI.create(Constants.AUCTION_ENDPOINT + "/running"))
                         .GET()
                         .build();
 

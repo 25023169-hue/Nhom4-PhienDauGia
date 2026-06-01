@@ -14,27 +14,28 @@ import io.auctionsystem.server.repository.BidCommitmentRepository;
 import io.auctionsystem.server.repository.ItemRepository;
 import io.auctionsystem.server.repository.UserRepository;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
   private static final double MONEY_EPSILON = 0.001;
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private BidCommitmentRepository bidCommitmentRepository;
+  private final BidCommitmentRepository bidCommitmentRepository;
 
-  @Autowired private ItemRepository itemRepository;
+  private final ItemRepository itemRepository;
 
-  @Autowired private AuctionRepository auctionRepository;
+  private final AuctionRepository auctionRepository;
 
   public User getUser(Long userId) {
     return userRepository
         .findById(userId)
-        .orElseThrow(() -> new RuntimeException("Không tìm thấy User với ID: " + userId));
+        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy User với ID: " + userId));
   }
 
   // Cập nhật thông tin ngân hàng (Giữ nguyên vì ngân hàng vẫn ở class User dùng chung)
@@ -43,7 +44,8 @@ public class UserService {
     User user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy User với ID: " + userId));
+            .orElseThrow(
+                () -> new IllegalArgumentException("Không tìm thấy User với ID: " + userId));
     ensureActive(user);
 
     // 2. Kiểm tra nếu user này là một Bidder (hoặc Seller vì Seller extends Bidder)
@@ -56,7 +58,7 @@ public class UserService {
       // 3. Lưu lại và trả về đối tượng đã cập nhật
       return userRepository.save(bidder);
     } else {
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           "Tài khoản này không phải là Người mua hoặc Người bán để cập nhật ngân hàng!");
     }
   }
@@ -66,14 +68,15 @@ public class UserService {
     User user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy User với ID: " + userId));
+            .orElseThrow(
+                () -> new IllegalArgumentException("Không tìm thấy User với ID: " + userId));
     ensureActive(user);
 
     if (user instanceof Bidder bidder) {
       bidder.setAddress(request.getAddress());
       return userRepository.save(bidder);
     } else {
-      throw new RuntimeException("Tài khoản không hỗ trợ cập nhật địa chỉ!");
+      throw new IllegalArgumentException("Tài khoản không hỗ trợ cập nhật địa chỉ!");
     }
   }
 

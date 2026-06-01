@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.SellerProductDTO;
 import io.auctionsystem.common.enums.AuctionState;
@@ -52,8 +53,8 @@ public class SellerProductListController {
 
   private final ObservableList<SellerProductDTO> products = FXCollections.observableArrayList();
   private final List<SellerProductDTO> currentProducts = new ArrayList<>();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
   private final PauseTransition searchDelay = new PauseTransition(Duration.millis(350));

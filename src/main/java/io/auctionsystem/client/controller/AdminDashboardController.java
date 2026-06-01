@@ -2,7 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.AuctionItemDTO;
 import io.auctionsystem.common.response.AuthResponse;
 import java.net.URI;
@@ -45,8 +47,8 @@ public class AdminDashboardController {
   @FXML private TableColumn<AuctionItemDTO, String> colEndTime;
   @FXML private TableColumn<AuctionItemDTO, Void> colAuctionAction;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void initialize() {
@@ -119,7 +121,7 @@ public class AdminDashboardController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/admin/users"))
+                        .uri(URI.create(Constants.BASE_URL + "/admin/users"))
                         .GET()
                         .build();
                 HttpResponse<String> response =
@@ -148,7 +150,7 @@ public class AdminDashboardController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/admin/auctions"))
+                        .uri(URI.create(Constants.BASE_URL + "/admin/auctions"))
                         .GET()
                         .build();
                 HttpResponse<String> response =
@@ -191,7 +193,7 @@ public class AdminDashboardController {
               try {
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/admin/auctions/" + auctionId))
+                        .uri(URI.create(Constants.BASE_URL + "/admin/auctions/" + auctionId))
                         .DELETE()
                         .build();
                 HttpResponse<String> response =

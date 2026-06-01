@@ -2,6 +2,8 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
+import io.auctionsystem.common.Constants;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,8 +21,8 @@ public class PasswordSettingController {
   @FXML private TextField txtRecovery;
 
   // --- PHẦN THÊM MỚI ---
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void savePassword() {
@@ -47,7 +49,7 @@ public class PasswordSettingController {
                     HttpRequest.newBuilder()
                         .uri(
                             URI.create(
-                                "http://localhost:8080/api/user-profile/" + userId + "/password"))
+                                Constants.BASE_URL + "/user-profile/" + userId + "/password"))
                         .header("Content-Type", "application/json")
                         .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();

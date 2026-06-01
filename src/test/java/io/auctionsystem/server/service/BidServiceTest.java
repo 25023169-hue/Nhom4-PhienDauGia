@@ -38,6 +38,7 @@ class BidServiceTest {
   @Mock private SellerProductListingRepository listingRepository;
   @Mock private AuctionRealtimePublisher realtimePublisher;
   @Mock private AuctionSettlementService settlementService;
+  @Mock private AntiSnipingService antiSnipingService;
 
   @BeforeEach
   void setUp() {
@@ -49,9 +50,10 @@ class BidServiceTest {
     // Giả lập phiên đấu giá đã kết thúc
     BidRequest request = new BidRequest(1L, 100L, 50000.0);
     Auction closedAuction = new Auction();
+    closedAuction.setId(1L);
     closedAuction.setStatus(AuctionState.FINISHED);
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(closedAuction));
+    when(auctionRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(closedAuction));
 
     // Kiểm tra xem hệ thống có chặn lại không
     assertThrows(IllegalArgumentException.class, () -> bidService.placeBid(request));
@@ -63,8 +65,11 @@ class BidServiceTest {
     BidRequest request = new BidRequest(1L, 100L, 50000.0);
 
     Auction runningAuction = new Auction();
+    runningAuction.setId(1L);
     runningAuction.setStatus(AuctionState.RUNNING);
     runningAuction.setItemId(2L);
+    runningAuction.setStartTime(LocalDateTime.now().minusMinutes(5));
+    runningAuction.setEndTime(LocalDateTime.now().plusHours(1));
 
     Item item = new Item() {};
     item.setCurrentPrice(100000.0);
@@ -72,9 +77,10 @@ class BidServiceTest {
     Bidder bidder = new Bidder();
     bidder.setId(100L);
     bidder.setBalance(500000.0);
+    bidder.setActive(true);
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(runningAuction));
-    when(userRepository.findById(100L)).thenReturn(Optional.of(bidder));
+    when(auctionRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(runningAuction));
+    when(userRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(bidder));
     when(itemRepository.findById(2L)).thenReturn(Optional.of(item));
 
     // Kiểm tra logic chặn đặt giá thấp
@@ -125,6 +131,7 @@ class BidServiceTest {
     verify(bidCommitmentRepository).save(commitment);
     verify(bidRepository).save(any());
     verify(realtimePublisher).publishPriceAfterCommit(1L, 500000.0);
+    verify(antiSnipingService).extendIfNeeded(eq(runningAuction), any(LocalDateTime.class));
   }
 
   @Test
@@ -160,5 +167,6 @@ class BidServiceTest {
 
     verify(settlementService).closeBuyNowAuction(1L);
     verify(realtimePublisher).publishPriceAfterCommit(1L, 600000.0);
+    verify(antiSnipingService, never()).extendIfNeeded(any(), any());
   }
 }

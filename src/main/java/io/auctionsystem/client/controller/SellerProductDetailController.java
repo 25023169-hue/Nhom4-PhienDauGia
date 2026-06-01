@@ -3,6 +3,7 @@ package io.auctionsystem.client.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.dto.SellerProductDTO;
 import io.auctionsystem.common.enums.AuctionState;
@@ -39,8 +40,8 @@ public class SellerProductDetailController {
 
   private final NumberFormat currencyFormat =
       NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
-  private final HttpClient httpClient = HttpClient.newHttpClient();
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final HttpClient httpClient = ClientHttp.client();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
 
   public static void setProduct(SellerProductDTO product) {
     selectedProduct = product;

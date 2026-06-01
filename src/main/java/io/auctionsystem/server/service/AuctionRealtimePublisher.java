@@ -1,16 +1,17 @@
 package io.auctionsystem.server.service;
 
 import io.auctionsystem.common.dto.AuctionPriceUpdateDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
+@RequiredArgsConstructor
 public class AuctionRealtimePublisher {
 
-  @Autowired private SimpMessagingTemplate messagingTemplate;
+  private final SimpMessagingTemplate messagingTemplate;
 
   public void publishPriceAfterCommit(Long auctionId, Double currentPrice) {
     afterCommit(

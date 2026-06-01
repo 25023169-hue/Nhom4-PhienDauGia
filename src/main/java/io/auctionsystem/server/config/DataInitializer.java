@@ -1,62 +1,58 @@
 package io.auctionsystem.server.config;
 
 import io.auctionsystem.common.enums.AuctionState;
-import io.auctionsystem.common.enums.ItemType;
 import io.auctionsystem.server.model.*;
+import io.auctionsystem.server.pattern.ItemTypeResolver;
 import io.auctionsystem.server.repository.AuctionRepository;
 import io.auctionsystem.server.repository.BidRepository;
 import io.auctionsystem.server.repository.ItemRepository;
 import io.auctionsystem.server.repository.SellerProductListingRepository;
 import io.auctionsystem.server.repository.UserRepository;
 import java.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
+@RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-  @Autowired private ItemRepository itemRepository;
+  private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
-  @Autowired private AuctionRepository auctionRepository;
+  private final ItemRepository itemRepository;
 
-  @Autowired private BidRepository bidRepository;
+  private final AuctionRepository auctionRepository;
 
-  @Autowired private UserRepository userRepository;
+  private final BidRepository bidRepository;
 
-  @Autowired private SellerProductListingRepository sellerProductListingRepository;
+  private final UserRepository userRepository;
+
+  private final SellerProductListingRepository sellerProductListingRepository;
+
+  private final Environment environment;
 
   @Override
   public void run(String... args) throws Exception {
-    if (!userRepository.existsByUsername("admin")) {
-      Admin admin = new Admin();
-      admin.setUsername("admin");
-      admin.setPassword("admin123");
-      admin.setFirstname("Trị");
-      admin.setLastname("Quản");
-
-      // Set Employee Code như bạn muốn
-      admin.setEmployeeCode("ADMIN-001");
-
-      userRepository.save(admin);
-      System.out.println(">>> HỆ THỐNG: Đã tạo tài khoản Admin mặc định (admin / admin123)");
-    }
+    createBootstrapAdminIfConfigured();
 
     // LỖI ĐÃ SỬA: Trước đây deleteAll() được gọi KHÔNG CÓ ĐIỀU KIỆN mỗi lần server khởi động
     // → xóa sạch toàn bộ dữ liệu thật (bid, auction, item) mỗi lần restart.
     // Sửa: Chỉ nạp dữ liệu mẫu khi database đang TRỐNG (item chưa có dòng nào).
     // Điều này giữ an toàn dữ liệu khi server restart trong môi trường thực tế.
     if (itemRepository.count() > 0) {
-      System.out.println(">>> DATABASE ĐÃ CÓ DỮ LIỆU, BỎ QUA KHỞI TẠO MẪU.");
+      LOGGER.info("Database đã có dữ liệu, bỏ qua khởi tạo mẫu.");
       return;
     }
 
-    System.out.println(">>> DATABASE ĐANG TRỐNG, BẮT ĐẦU NẠP DỮ LIỆU MẪU...");
+    LOGGER.info("Database đang trống, bắt đầu nạp dữ liệu mẫu.");
 
     User sampleSeller = findExistingSeller();
     if (sampleSeller == null) {
-      System.err.println(
-          ">>> KHONG CO SELLER MAU, BO QUA NAP SAN PHAM MAU DE SERVER KHOI DONG BINH THUONG.");
+      LOGGER.warn("Không có seller mẫu, bỏ qua nạp sản phẩm mẫu.");
       return;
     }
 
@@ -168,7 +164,30 @@ public class DataInitializer implements CommandLineRunner {
     dayChuyen = saveSampleItem(dayChuyen, sampleSeller);
     createAuction(dayChuyen, 2, AuctionState.RUNNING);
 
-    System.out.println(">>> ĐÃ NẠP XONG TOÀN BỘ SẢN PHẨM MẪU VÀO SÀN ĐẤU GIÁ!");
+    LOGGER.info("Đã nạp xong toàn bộ sản phẩm mẫu.");
+  }
+
+  private void createBootstrapAdminIfConfigured() {
+    String username = environment.getProperty("AUCTION_ADMIN_USERNAME", "admin");
+    if (userRepository.existsByUsername(username)) {
+      return;
+    }
+
+    String password = environment.getProperty("AUCTION_ADMIN_PASSWORD");
+    if (!StringUtils.hasText(password)) {
+      LOGGER.warn(
+          "Bỏ qua tạo admin bootstrap vì chưa cấu hình biến môi trường AUCTION_ADMIN_PASSWORD.");
+      return;
+    }
+
+    Admin admin = new Admin();
+    admin.setUsername(username);
+    admin.setPassword(password);
+    admin.setFirstname("Trị");
+    admin.setLastname("Quản");
+    admin.setEmployeeCode("ADMIN-001");
+    userRepository.save(admin);
+    LOGGER.info("Đã tạo tài khoản admin bootstrap '{}'.", username);
   }
 
   private User findExistingSeller() {
@@ -198,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
       listing.setStartTime(auction.getStartTime());
       listing.setEndTime(auction.getEndTime());
       listing.setStatus(status);
-      listing.setItemType(resolveItemType(item));
+      listing.setItemType(ItemTypeResolver.resolve(item));
 
       Double startingPrice = item.getStartingPrice();
       if (startingPrice != null && startingPrice > 0) {
@@ -206,14 +225,5 @@ public class DataInitializer implements CommandLineRunner {
       }
       sellerProductListingRepository.save(listing);
     }
-  }
-
-  private ItemType resolveItemType(Item item) {
-    if (item instanceof Art) return ItemType.ART;
-    if (item instanceof Electronics) return ItemType.ELECTRONICS;
-    if (item instanceof Vehicle) return ItemType.VEHICLE;
-    if (item instanceof Fashion) return ItemType.FASHION;
-    if (item instanceof Jewelry) return ItemType.JEWELRY;
-    throw new IllegalArgumentException("Loại sản phẩm không được hỗ trợ");
   }
 }

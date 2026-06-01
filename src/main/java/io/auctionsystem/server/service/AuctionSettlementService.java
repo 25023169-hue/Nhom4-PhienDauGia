@@ -16,26 +16,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuctionSettlementService {
 
-  @Autowired private AuctionRepository auctionRepository;
+  private final AuctionRepository auctionRepository;
 
-  @Autowired private BidCommitmentRepository bidCommitmentRepository;
+  private final BidCommitmentRepository bidCommitmentRepository;
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private ItemRepository itemRepository;
+  private final ItemRepository itemRepository;
 
-  @Autowired private SellerProductListingRepository listingRepository;
+  private final SellerProductListingRepository listingRepository;
 
-  @Autowired private TransactionService transactionService;
+  private final TransactionService transactionService;
 
-  @Autowired private AuctionRealtimePublisher realtimePublisher;
+  private final AuctionRealtimePublisher realtimePublisher;
 
   @Transactional
   public boolean closeExpiredAuction(Long auctionId, LocalDateTime closedAt) {
@@ -44,7 +45,7 @@ public class AuctionSettlementService {
             .findByIdForUpdate(auctionId)
             .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
 
-    if (auction.getStatus() != AuctionState.RUNNING
+    if ((auction.getStatus() != AuctionState.OPEN && auction.getStatus() != AuctionState.RUNNING)
         || auction.getEndTime() == null
         || auction.getEndTime().isAfter(closedAt)) {
       return false;

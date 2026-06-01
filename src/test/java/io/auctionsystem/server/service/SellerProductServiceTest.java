@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -125,7 +126,7 @@ class SellerProductServiceTest {
 
     when(listingRepository.findBySellerIdOrderByIdDesc(10L)).thenReturn(List.of());
     when(itemRepository.findBySellerId(10L)).thenReturn(List.of(item));
-    when(auctionRepository.findByItemId(20L)).thenReturn(List.of(auction));
+    when(auctionRepository.findByItemIdIn(anyList())).thenReturn(List.of(auction));
 
     var products = sellerProductService.getSellerProducts(10L, null, null);
 
@@ -155,9 +156,8 @@ class SellerProductServiceTest {
     auction.setStatus(AuctionState.FINISHED);
 
     when(listingRepository.findBySellerIdOrderByIdDesc(10L)).thenReturn(List.of(listing));
-    when(itemRepository.findById(20L)).thenReturn(Optional.of(item));
     when(itemRepository.findBySellerId(10L)).thenReturn(List.of(item));
-    when(auctionRepository.findTopByItemIdOrderByIdDesc(20L)).thenReturn(Optional.of(auction));
+    when(auctionRepository.findByItemIdIn(anyList())).thenReturn(List.of(auction));
 
     var products = sellerProductService.getSellerProducts(10L, null, null);
 
@@ -181,7 +181,7 @@ class SellerProductServiceTest {
 
     when(listingRepository.findBySellerIdOrderByIdDesc(10L)).thenReturn(List.of());
     when(itemRepository.findBySellerId(10L)).thenReturn(List.of(item));
-    when(auctionRepository.findByItemId(20L)).thenReturn(List.of(auction));
+    when(auctionRepository.findByItemIdIn(anyList())).thenReturn(List.of(auction));
 
     var products = sellerProductService.getSellerProducts(10L, null, null);
 
@@ -251,6 +251,7 @@ class SellerProductServiceTest {
     when(itemRepository.findById(20L)).thenReturn(Optional.of(item));
     when(auctionRepository.findTopByItemIdOrderByIdDesc(20L)).thenReturn(Optional.of(auction));
     when(listingRepository.findByItemId(20L)).thenReturn(Optional.of(listing));
+    when(settlementService.cancelAuction(30L)).thenReturn(true);
 
     sellerProductService.hideProduct(20L, 10L);
 
@@ -319,6 +320,30 @@ class SellerProductServiceTest {
     when(itemRepository.findBySellerId(10L)).thenReturn(List.of());
 
     var products = sellerProductService.getSellerProducts(10L, null, null);
+
+    assertTrue(products.isEmpty());
+  }
+
+  @Test
+  void testGetSellerProducts_StatusFilter_DoesNotLeakHiddenListingThroughLegacyFallback() {
+    SellerProductListing listing = new SellerProductListing();
+    listing.setItemId(20L);
+    listing.setSellerId(10L);
+    listing.setStatus(AuctionState.OPEN);
+    listing.setHidden(true);
+
+    Electronics item = new Electronics();
+    item.setId(20L);
+
+    Auction auction = new Auction();
+    auction.setItemId(20L);
+    auction.setStatus(AuctionState.RUNNING);
+
+    when(listingRepository.findBySellerIdOrderByIdDesc(10L)).thenReturn(List.of(listing));
+    when(itemRepository.findBySellerId(10L)).thenReturn(List.of(item));
+    when(auctionRepository.findByItemIdIn(anyList())).thenReturn(List.of(auction));
+
+    var products = sellerProductService.getSellerProducts(10L, null, AuctionState.RUNNING);
 
     assertTrue(products.isEmpty());
   }

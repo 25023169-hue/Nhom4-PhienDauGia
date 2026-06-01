@@ -1,37 +1,39 @@
 package io.auctionsystem.server.service;
 
+import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.server.model.Auction;
-import io.auctionsystem.server.repository.AuctionRepository;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AntiSnipingService {
 
-  @Autowired private AuctionRepository auctionRepository;
+  private static final long EXTENSION_THRESHOLD_SECONDS = 60;
+  private static final long EXTENSION_SECONDS = 60;
 
-  @Autowired private AuctionRealtimePublisher realtimePublisher;
+  private final AuctionRealtimePublisher realtimePublisher;
 
-  @Transactional
-  public void notifyIfAntiSnipingTriggered(Long auctionId) {
-    Auction auction = auctionRepository.findById(auctionId).orElse(null);
-    if (auction == null || !auction.getStatus().name().equals("RUNNING")) return;
+  public AntiSnipingService(AuctionRealtimePublisher realtimePublisher) {
+    this.realtimePublisher = realtimePublisher;
+  }
 
-    // Khoảng thời gian từ lúc này đến khi kết thúc (đã được cộng 60s ngầm ở BidService)
-    long secondsLeft =
-        java.time.Duration.between(LocalDateTime.now(), auction.getEndTime()).getSeconds();
-
-    // Nếu thời gian còn lại đang nằm trong ngưỡng vừa được cộng (ví dụ <= 61 giây)
-    if (secondsLeft > 0 && secondsLeft <= 61) {
-      // Phát tín hiệu WebSocket cho tất cả Client đang xem phiên
-      // Client có thể lắng nghe topic này để load lại thời gian EndTime mới
-      realtimePublisher.publishExtendedEndTimeAfterCommit(
-          auctionId, auction.getEndTime().toString());
-      System.out.println(
-          ">>> [ANTI-SNIPING] Đã phát tín hiệu Web-Socket gia hạn thời gian cho phiên "
-              + auctionId);
+  public boolean extendIfNeeded(Auction auction, LocalDateTime bidTime) {
+    if (auction == null
+        || auction.getId() == null
+        || auction.getStatus() != AuctionState.RUNNING
+        || auction.getEndTime() == null) {
+      return false;
     }
+
+    long secondsLeft = Duration.between(bidTime, auction.getEndTime()).getSeconds();
+    if (secondsLeft <= 0 || secondsLeft > EXTENSION_THRESHOLD_SECONDS) {
+      return false;
+    }
+
+    auction.setEndTime(auction.getEndTime().plusSeconds(EXTENSION_SECONDS));
+    realtimePublisher.publishExtendedEndTimeAfterCommit(
+        auction.getId(), auction.getEndTime().toString());
+    return true;
   }
 }

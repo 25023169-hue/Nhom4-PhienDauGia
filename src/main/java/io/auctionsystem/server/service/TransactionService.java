@@ -14,16 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class TransactionService {
 
-  @Autowired private TransactionRepository transactionRepository;
+  private final TransactionRepository transactionRepository;
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   @Transactional
   public Transaction processTransaction(Long userId, Double amount, String type, String note) {

@@ -5,6 +5,8 @@ import io.auctionsystem.common.enums.AuctionState;
 import io.auctionsystem.common.enums.BidCommitmentStatus;
 import io.auctionsystem.common.request.BidRequest;
 import io.auctionsystem.common.response.BidResponse;
+import io.auctionsystem.server.exception.AuctionClosedException;
+import io.auctionsystem.server.exception.InvalidBidException;
 import io.auctionsystem.server.model.Auction;
 import io.auctionsystem.server.model.Bid;
 import io.auctionsystem.server.model.BidCommitment;
@@ -20,31 +22,34 @@ import io.auctionsystem.server.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class BidService {
 
-  @Autowired private BidRepository bidRepository;
+  private final BidRepository bidRepository;
 
-  @Autowired private BidCommitmentRepository bidCommitmentRepository;
+  private final BidCommitmentRepository bidCommitmentRepository;
 
-  @Autowired private AuctionRepository auctionRepository;
+  private final AuctionRepository auctionRepository;
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private ItemRepository itemRepository;
+  private final ItemRepository itemRepository;
 
-  @Autowired private SellerProductListingRepository listingRepository;
+  private final SellerProductListingRepository listingRepository;
 
-  @Autowired private AuctionRealtimePublisher realtimePublisher;
+  private final AuctionRealtimePublisher realtimePublisher;
 
-  @Autowired private AuctionSettlementService settlementService;
+  private final AuctionSettlementService settlementService;
+
+  private final AntiSnipingService antiSnipingService;
 
   @Transactional
-  public synchronized BidResponse placeBid(BidRequest request) {
+  public BidResponse placeBid(BidRequest request) {
     if (request == null
         || request.getAuctionId() == null
         || request.getBidderId() == null
@@ -65,7 +70,7 @@ public class BidService {
         || auction.getEndTime() == null
         || now.isBefore(auction.getStartTime())
         || !now.isBefore(auction.getEndTime())) {
-      throw new IllegalArgumentException("Phiên đấu giá không trong trạng thái mở");
+      throw new AuctionClosedException("Phiên đấu giá không trong trạng thái mở");
     }
 
     User bidder =
@@ -87,7 +92,7 @@ public class BidService {
 
     double currentHighest = item.getCurrentPrice();
     if (request.getAmount() <= currentHighest) {
-      throw new IllegalArgumentException(
+      throw new InvalidBidException(
           "Giá đặt ("
               + request.getAmount()
               + ") phải lớn hơn giá hiện tại ("
@@ -103,7 +108,7 @@ public class BidService {
     double previousPrice = commitment.getId() == null ? 0.0 : commitment.getAmount();
     double additionalHold = request.getAmount() - previousPrice;
     if (bidder.getAvailableBalance() < additionalHold) {
-      throw new IllegalArgumentException("Số dư trong ví không đủ để đặt giá");
+      throw new InvalidBidException("Số dư trong ví không đủ để đặt giá");
     }
 
     // Giá sàn được cập nhật trước. Toàn bộ thao tác vẫn nằm trong cùng transaction,
@@ -127,6 +132,7 @@ public class BidService {
     newBid.setBidTime(now);
     bidRepository.save(newBid);
 
+    Long previousWinnerId = auction.getWinnerId();
     auction.setWinnerId(request.getBidderId());
     auction.setFinalPrice(request.getAmount());
 
@@ -138,10 +144,7 @@ public class BidService {
             .isPresent();
 
     if (!reachedBuyNowPrice) {
-      long secondsLeft = java.time.Duration.between(now, auction.getEndTime()).getSeconds();
-      if (secondsLeft > 0 && secondsLeft <= 60) {
-        auction.setEndTime(auction.getEndTime().plusSeconds(60));
-      }
+      antiSnipingService.extendIfNeeded(auction, now);
     }
     auctionRepository.save(auction);
 
@@ -151,7 +154,12 @@ public class BidService {
     }
 
     return new BidResponse(
-        true, "Đặt giá thành công!", auction.getId(), request.getAmount(), bidder.getUsername());
+        true,
+        "Đặt giá thành công!",
+        auction.getId(),
+        request.getAmount(),
+        bidder.getUsername(),
+        previousWinnerId);
   }
 
   public List<BidDTO> getBidHistoryByBidder(Long bidderId) {

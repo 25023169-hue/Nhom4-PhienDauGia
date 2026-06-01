@@ -11,13 +11,14 @@ import io.auctionsystem.server.model.Bidder;
 import io.auctionsystem.server.model.Seller;
 import io.auctionsystem.server.model.User;
 import io.auctionsystem.server.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   public String register(RegisterRequest request) {
     String username = request.getUsername();
@@ -95,19 +96,19 @@ public class AuthService {
     User user =
         userRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
     if (!user.isActive()) {
-      throw new RuntimeException("Tài khoản đã bị vô hiệu hóa");
+      throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
     }
     if (userRepository.isUserSeller(id) > 0) {
-      throw new RuntimeException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
+      throw new IllegalArgumentException("Tài khoản này đã đăng ký Kênh Người Bán rồi!");
     }
 
     try {
       userRepository.upgradeToSellerNative(id, storeName);
       return "Đăng ký Kênh Người Bán thành công!";
     } catch (Exception e) {
-      throw new RuntimeException("Lỗi hệ thống khi nâng cấp: " + e.getMessage());
+      throw new IllegalStateException("Lỗi hệ thống khi nâng cấp", e);
     }
   }
 }

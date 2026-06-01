@@ -2,7 +2,9 @@ package io.auctionsystem.client.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.auctionsystem.client.pattern.AuctionManager;
+import io.auctionsystem.client.pattern.ClientHttp;
 import io.auctionsystem.client.pattern.SceneManager;
+import io.auctionsystem.common.Constants;
 import io.auctionsystem.common.enums.Role;
 import io.auctionsystem.common.request.LoginRequest;
 import io.auctionsystem.common.response.AuthResponse;
@@ -26,8 +28,8 @@ public class LoginController {
   @FXML private Label lblPassError;
   @FXML private Label lblGeneralError;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+  private final ObjectMapper objectMapper = ClientHttp.mapper();
+  private final HttpClient httpClient = ClientHttp.client();
 
   @FXML
   public void onLoginButtonClicked() {
@@ -64,7 +66,7 @@ public class LoginController {
 
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/api/auth/login"))
+                        .uri(URI.create(Constants.LOGIN_ENDPOINT))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();

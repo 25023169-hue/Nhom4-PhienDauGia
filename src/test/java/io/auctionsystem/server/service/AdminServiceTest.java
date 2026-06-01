@@ -50,7 +50,7 @@ class AdminServiceTest {
     item.setCurrentPrice(1000000.0);
 
     when(auctionRepository.findAll()).thenReturn(List.of(auction));
-    when(itemRepository.findById(2L)).thenReturn(Optional.of(item));
+    when(itemRepository.findAllById(List.of(2L))).thenReturn(List.of(item));
 
     var auctions = adminService.findAllAuctions();
 
@@ -84,7 +84,6 @@ class AdminServiceTest {
     var auctions = adminService.findAllAuctions();
 
     assertEquals(0, auctions.size());
-    verify(itemRepository, never()).findById(2L);
   }
 
   @Test
