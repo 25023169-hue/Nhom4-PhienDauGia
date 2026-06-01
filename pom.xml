@@ -228,7 +228,7 @@
 
                 <configuration>
 
-                    <mainClass>io.auctionsystem.server.ServerApp</mainClass>
+                    <mainClass>server.ServerApp</mainClass>
 
                 </configuration>
 
