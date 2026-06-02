@@ -131,6 +131,8 @@ class BidServiceTest {
     verify(bidCommitmentRepository).save(commitment);
     verify(bidRepository).save(any());
     verify(realtimePublisher).publishPriceAfterCommit(1L, 500000.0);
+    verify(auctionNotificationService)
+        .notifyBidAfterCommit(any(common.response.BidResponse.class), eq(100L));
     verify(antiSnipingService).extendIfNeeded(eq(runningAuction), any(LocalDateTime.class));
   }
 

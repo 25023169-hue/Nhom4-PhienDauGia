@@ -9,6 +9,7 @@ import server.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -27,7 +28,7 @@ public class NotificationService {
     this.realtimePublisher = realtimePublisher;
   }
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void createNotification(Long userId, String message, NotificationType type) {
     User user = userRepository.findById(userId).orElse(null);
     if (user != null) {

@@ -7,13 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import server.model.Admin;
-import server.model.Bidder;
 import server.model.Item;
 import server.model.Seller;
 import server.repository.AuctionRepository;
 import server.repository.BidRepository;
 import server.repository.ItemRepository;
-import server.repository.NotificationRepository;
 import server.repository.SellerProductListingRepository;
 import server.repository.UserRepository;
 import java.util.List;
@@ -31,7 +29,6 @@ class DataInitializerTest {
   @Mock private AuctionRepository auctionRepository;
   @Mock private BidRepository bidRepository;
   @Mock private UserRepository userRepository;
-  @Mock private NotificationRepository notificationRepository;
   @Mock private SellerProductListingRepository listingRepository;
   @Mock private Environment environment;
   private DataInitializer initializer;
@@ -45,7 +42,6 @@ class DataInitializerTest {
             auctionRepository,
             bidRepository,
             userRepository,
-            notificationRepository,
             listingRepository,
             environment);
     when(environment.getProperty("AUCTION_ADMIN_USERNAME", "admin")).thenReturn("admin");
@@ -94,25 +90,6 @@ class DataInitializerTest {
     verify(itemRepository, Mockito.times(9)).save(any(Item.class));
     verify(auctionRepository, Mockito.times(9)).save(any());
     verify(listingRepository, Mockito.times(9)).save(any());
-  }
-
-  @Test
-  void run_EmptyNotificationTableWithSellerAndBidder_CreatesEightSampleNotifications()
-      throws Exception {
-    Seller seller = new Seller();
-    seller.setId(10L);
-    Bidder bidder = new Bidder();
-    bidder.setId(20L);
-    when(userRepository.existsByUsername("admin")).thenReturn(true);
-    when(itemRepository.count()).thenReturn(1L);
-    when(notificationRepository.count()).thenReturn(0L);
-    when(userRepository.findAllClients()).thenReturn(List.of(seller, bidder));
-    when(userRepository.isUserSeller(10L)).thenReturn(1);
-    when(userRepository.isUserSeller(20L)).thenReturn(0);
-
-    initializer.run();
-
-    verify(notificationRepository, Mockito.times(8)).save(any());
   }
 
   @Test

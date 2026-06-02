@@ -94,9 +94,6 @@ public class WalletController {
 
     refreshWalletBalance();
 
-    // LỖI ĐÃ SỬA: loadTransactionHistoryFromServer() trước đây gọi HTTP blocking
-    // trực tiếp trên JavaFX UI Thread → UI bị đóng băng khi chờ server.
-    // Đã chuyển toàn bộ logic HTTP vào new Thread() bên trong hàm đó.
     loadTransactionHistoryFromServer();
 
     if (!AuctionManager.getInstance().hasBankInfo()) {
@@ -106,7 +103,6 @@ public class WalletController {
     }
   }
 
-  // LỖI ĐÃ SỬA: Bọc toàn bộ HTTP call trong new Thread() để không block UI Thread
   private void loadTransactionHistoryFromServer() {
     Long userId = AuctionManager.getInstance().getId();
     if (userId == null) return;
@@ -122,7 +118,6 @@ public class WalletController {
                 HttpResponse<String> response =
                     ClientHttp.send(request);
 
-                // Cập nhật UI phải chạy trên JavaFX Thread
                 Platform.runLater(
                     () -> {
                       if (response.statusCode() == 200) {

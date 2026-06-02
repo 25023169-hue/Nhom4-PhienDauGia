@@ -121,6 +121,7 @@ class AuctionSettlementServiceTest {
             any());
     verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.FINISHED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    verify(auctionNotificationService).notifyExpiredAuctionAfterCommit(1L);
   }
 
   @Test
@@ -146,6 +147,7 @@ class AuctionSettlementServiceTest {
     assertEquals(AuctionState.CANCELLED, auction.getStatus());
     verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.CANCELLED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    verify(auctionNotificationService).notifyFinishedAuctionAfterCommit(1L);
   }
 
   @Test
@@ -177,6 +179,7 @@ class AuctionSettlementServiceTest {
     assertEquals(AuctionState.CANCELLED, listing.getStatus());
     verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.CANCELLED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    verify(auctionNotificationService).notifyExpiredAuctionAfterCommit(1L);
   }
 
   @Test
@@ -238,6 +241,7 @@ class AuctionSettlementServiceTest {
     assertEquals(BidCommitmentStatus.RELEASED, commitment.getStatus());
     verify(realtimePublisher).publishStatusAfterCommit(1L, AuctionState.CANCELLED);
     verify(realtimePublisher).publishAuctionListChangedAfterCommit();
+    verify(auctionNotificationService).notifyCancelledAuctionAfterCommit(1L);
   }
 
   private BidCommitment commitment(Long auctionId, Long bidderId, Double amount) {

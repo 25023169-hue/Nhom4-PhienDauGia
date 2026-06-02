@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 class NotificationServiceTest {
 
@@ -43,6 +45,17 @@ class NotificationServiceTest {
     notificationService.createNotification(1L, "message", NotificationType.BID_WON);
 
     verify(notificationRepository).save(any(Notification.class));
+  }
+
+  @Test
+  void createNotification_AlwaysStartsNewTransactionForAfterCommitCallbacks() throws Exception {
+    Transactional transactional =
+        NotificationService.class
+            .getMethod(
+                "createNotification", Long.class, String.class, NotificationType.class)
+            .getAnnotation(Transactional.class);
+
+    assertEquals(Propagation.REQUIRES_NEW, transactional.propagation());
   }
 
   @Test

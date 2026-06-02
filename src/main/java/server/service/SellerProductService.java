@@ -66,9 +66,6 @@ public class SellerProductService {
         userRepository
             .findById(request.getSellerId())
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy seller hiện tại"));
-    if (userRepository.isUserSeller(request.getSellerId()) <= 0) {
-      throw new AccountException("Tài khoản hiện tại chưa có quyền Seller");
-    }
 
     Item item = ItemFactory.createItem(toItemRequest(request));
     fillItemSpecificFields(item, request);
