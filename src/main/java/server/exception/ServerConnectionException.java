@@ -1,4 +1,4 @@
-package client;
+package server.exception;
 
 public class ServerConnectionException extends RuntimeException {
   public static final String MESSAGE = "Lỗi kết nối server!";

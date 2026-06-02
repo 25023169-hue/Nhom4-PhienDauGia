@@ -4,19 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="hoàn thiện">
+    <list default="true" id="7229c8d8-6830-4b5d-a442-8961686518fa" name="Changes" comment="hoàn thiện thông báo">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/controller/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controller/NotificationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/controller/WalletController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controller/WalletController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/config/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/config/DataInitializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/model/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/model/Notification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/NotificationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/service/SellerProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/service/SellerProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/client/notifications_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client/notifications_view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/server/config/DataInitializerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/server/config/DataInitializerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/server/service/AuctionSettlementServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/server/service/AuctionSettlementServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/server/service/BidServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/server/service/BidServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/server/service/NotificationServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/server/service/NotificationServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/controller/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/client/pattern/ClientHttp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/pattern/ClientHttp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -571,7 +563,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780353024970</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="hoàn thiện thông báo">
+      <option name="closed" value="true" />
+      <created>1780362562638</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1780362562638</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -603,7 +603,8 @@
     <MESSAGE value="ui" />
     <MESSAGE value="refactor" />
     <MESSAGE value="hoàn thiện" />
-    <option name="LAST_COMMIT_MESSAGE" value="hoàn thiện" />
+    <MESSAGE value="hoàn thiện thông báo" />
+    <option name="LAST_COMMIT_MESSAGE" value="hoàn thiện thông báo" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

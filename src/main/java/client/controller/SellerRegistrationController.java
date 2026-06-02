@@ -1,6 +1,6 @@
 package client.controller;
 
-import client.ServerConnectionException;
+import server.exception.ServerConnectionException;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
 import client.pattern.SceneManager;

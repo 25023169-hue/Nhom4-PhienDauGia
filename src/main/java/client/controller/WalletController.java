@@ -1,6 +1,6 @@
 package client.controller;
 
-import client.ServerConnectionException;
+import server.exception.ServerConnectionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package client.controller;
 
-import client.ServerConnectionException;
+import server.exception.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.ClientHttp;
 import client.pattern.SceneManager;
@@ -79,7 +79,8 @@ public class RegisterController {
                                   }
                                 });
                       } else {
-                        showError("Lỗi: " + response.body());
+                        showError(
+                            ClientHttp.extractMessage(response.body(), "Đăng ký thất bại."));
                       }
                     });
               } catch (Exception e) {

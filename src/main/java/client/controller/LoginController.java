@@ -1,6 +1,6 @@
 package client.controller;
 
-import client.ServerConnectionException;
+import server.exception.ServerConnectionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import client.pattern.AuctionManager;
 import client.pattern.ClientHttp;
@@ -106,8 +106,9 @@ public class LoginController {
                           showError(lblGeneralError);
                         }
                       } else {
-                        // Hiển thị lỗi từ Server trả về (ví dụ: "Mật khẩu không chính xác")
-                        lblGeneralError.setText(response.body());
+                        lblGeneralError.setText(
+                            ClientHttp.extractMessage(
+                                response.body(), "Tài khoản hoặc mật khẩu không chính xác!"));
                         showError(lblGeneralError);
                       }
                     });

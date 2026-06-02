@@ -1,6 +1,6 @@
 package client.pattern;
 
-import client.ServerConnectionException;
+import server.exception.ServerConnectionException;
 import common.Constants;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
